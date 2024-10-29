@@ -31,7 +31,7 @@ const companiesColumns: ReadonlyArray<Column<Store>> = [
     Header: (props) => (
       <StoreCustomHeader tableProps={props} title='Status' className='min-w-125px' />
     ),
-    id: 'active',
+    id: 'is_active',
     Cell: ({...props}) => <StatusCell is_active={props.data[props.row.index].is_active} />,
   },
 //   {
@@ -44,6 +44,13 @@ const companiesColumns: ReadonlyArray<Column<Store>> = [
     ),
     id: 'address',
     Cell: ({...props}) => <DataCell data={props.data[props.row.index].address} />,
+  },
+  {
+    Header: (props) => (
+      <StoreCustomHeader tableProps={props} title='DC Name' className='min-w-125px' />
+    ),
+    id: 'dc_name',
+    Cell: ({...props}) => <DataCell data={props.data[props.row.index].dc_name} />,
   },
 //   {
 //     Header: (props) => (

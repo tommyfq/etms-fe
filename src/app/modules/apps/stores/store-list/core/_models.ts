@@ -6,6 +6,7 @@ export type Store = {
   store_name?: string
   address?: string
   dc_id?: number
+  dc_name?: string
   is_active?: boolean
 }
 
@@ -17,6 +18,7 @@ export const initialStore: Store = {
   store_name:"",
   address:"",
   dc_id:0,
+  dc_name:"",
   is_active:true
 }
 

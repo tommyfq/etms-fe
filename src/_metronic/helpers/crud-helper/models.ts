@@ -70,6 +70,8 @@ export type ListViewContextProps = {
   setItemIdForUpdate: Dispatch<SetStateAction<ID>>
   isAllSelected: boolean
   disabled: boolean
+  ticketNo: string
+  setTicketNo: Dispatch<SetStateAction<string>>
 }
 
 export const initialListView: ListViewContextProps = {
@@ -80,4 +82,6 @@ export const initialListView: ListViewContextProps = {
   setItemIdForUpdate: () => {},
   isAllSelected: false,
   disabled: false,
+  ticketNo: "",
+  setTicketNo: () => {},
 }

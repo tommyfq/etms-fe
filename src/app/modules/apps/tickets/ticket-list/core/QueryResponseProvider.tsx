@@ -10,11 +10,11 @@ import {
   stringifyRequestQuery,
   WithChildren,
 } from '../../../../../../_metronic/helpers'
-import {getStore} from './_requests'
-import {Store} from './_models'
+import {getTicket} from './_request.ts'
+import {TicketList} from './_models'
 import {useQueryRequest} from './QueryRequestProvider'
 
-const QueryResponseContext = createResponseContext<Store>(initialQueryResponse)
+const QueryResponseContext = createResponseContext<TicketList>(initialQueryResponse)
 const QueryResponseProvider: FC<WithChildren> = ({children}) => {
   const {state} = useQueryRequest()
   const [query, setQuery] = useState<string>(stringifyRequestQuery(state))
@@ -33,9 +33,7 @@ const QueryResponseProvider: FC<WithChildren> = ({children}) => {
   } = useQuery(
         query,
     () => {
-      console.log("===QUERY===")
-      console.log(query)
-      return getStore(query)
+      return getTicket(query)
     },
     {cacheTime: 0, keepPreviousData: true, refetchOnWindowFocus: false}
   )

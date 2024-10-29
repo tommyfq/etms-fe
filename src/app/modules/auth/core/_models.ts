@@ -1,6 +1,18 @@
 export interface AuthModel {
-  api_token: string
-  refreshToken?: string
+  is_ok: boolean;
+  message: string;
+  data: AuthModelData;
+}
+interface AuthModelData {
+  token: string;
+  user: AuthModelUser;
+}
+export interface AuthModelUser {
+  id: number;
+  username: string;
+  email: string;
+  role_id: number;
+  role_name: string;
 }
 
 export interface UserAddressModel {

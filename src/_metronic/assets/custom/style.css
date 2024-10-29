@@ -1,0 +1,16 @@
+.ticket-item {
+    cursor: pointer; /* Changes cursor to pointer */
+    transition: text-decoration 0.2s; /* Smooth transition for underline */
+    padding: 4px 12px 4px 12px;
+    border-radius: 100px;
+  }
+  
+  .ticket-item:hover {
+    text-decoration: underline; /* Adds underline on hover */
+  }
+
+
+  .ticket-item.selected {
+    background-color: #e0f7fa; /* Light blue background */
+    color: #00796b; /* Change text color to a darker shade */
+  }

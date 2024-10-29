@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import {FC, useState, useEffect, createContext, useContext, Dispatch, SetStateAction} from 'react'
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
-import {AuthModel, UserModel} from './_models'
+import {AuthModel, AuthModelUser} from './_models'
 import * as authHelper from './AuthHelpers'
 import {getUserByToken} from './_requests'
 import {WithChildren} from '../../../../_metronic/helpers'
@@ -9,9 +9,10 @@ import {WithChildren} from '../../../../_metronic/helpers'
 type AuthContextProps = {
   auth: AuthModel | undefined
   saveAuth: (auth: AuthModel | undefined) => void
-  currentUser: UserModel | undefined
-  setCurrentUser: Dispatch<SetStateAction<UserModel | undefined>>
+  currentUser: AuthModelUser | undefined
+  setCurrentUser: Dispatch<SetStateAction<AuthModelUser | undefined>>
   logout: () => void
+  isAuthInitialized : boolean
 }
 
 const initAuthContextPropsState = {
@@ -20,6 +21,7 @@ const initAuthContextPropsState = {
   currentUser: undefined,
   setCurrentUser: () => {},
   logout: () => {},
+  isAuthInitialized : false
 }
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState)
@@ -29,27 +31,51 @@ const useAuth = () => {
 }
 
 const AuthProvider: FC<WithChildren> = ({children}) => {
-  const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth())
-  const [currentUser, setCurrentUser] = useState<UserModel | undefined>()
+  const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth());
+  const [currentUser, setCurrentUser] = useState<AuthModelUser | undefined>();
+  const [isAuthInitialized, setAuthInitialized] = useState(false);
+
   const saveAuth = (auth: AuthModel | undefined) => {
-    setAuth(auth)
+    setAuth(auth);
     if (auth) {
-      authHelper.setAuth(auth)
+      authHelper.setAuth(auth);
     } else {
-      authHelper.removeAuth()
+      authHelper.removeAuth();
     }
-  }
+  };
 
   const logout = () => {
-    saveAuth(undefined)
-    setCurrentUser(undefined)
-  }
+    saveAuth(undefined);
+    setCurrentUser(undefined);
+  };
+
+  // Effect to initialize currentUser when auth changes
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (auth?.data.token) {
+        try {
+          const { data } = await getUserByToken(auth.data.token);
+          setCurrentUser(data);
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          logout();
+        }
+      } else {
+        logout();
+      }
+      setAuthInitialized(true);
+    };
+
+    if (auth) {
+      initializeAuth();
+    }
+  }, [auth]); // Trigger this whenever `auth` changes
 
   return (
-    <AuthContext.Provider value={{auth, saveAuth, currentUser, setCurrentUser, logout}}>
-      {children}
+    <AuthContext.Provider value={{ auth, saveAuth, currentUser, setCurrentUser, logout, isAuthInitialized }}>
+      {isAuthInitialized ? children : <LayoutSplashScreen />}
     </AuthContext.Provider>
-  )
+  );
 }
 
 const AuthInit: FC<WithChildren> = ({children}) => {
@@ -76,8 +102,8 @@ const AuthInit: FC<WithChildren> = ({children}) => {
       }
     }
 
-    if (auth && auth.api_token) {
-      requestUser(auth.api_token)
+    if (auth && auth.data.token) {
+      requestUser(auth.data.token)
     } else {
       logout()
       setShowSplashScreen(false)

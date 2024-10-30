@@ -8,13 +8,9 @@ const CompaniesListHeader = () => {
   return (
     <div className='card-header border-0 pt-6'>
       {/* <UsersListSearchComponent /> */}
-      {/* begin::Card toolbar */}
-      <div className='card-toolbar'>
         {/* begin::Group actions */}
         <CompanyListToolbar />
         {/* end::Group actions */}
-      </div>
-      {/* end::Card toolbar */}
     </div>
   )
 }

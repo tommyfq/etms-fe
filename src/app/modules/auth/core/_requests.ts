@@ -12,7 +12,7 @@ export const REQUEST_PASSWORD_URL = `${API_URL}/forgot_password`;
 
 // Server should return AuthModel
 export function login(username: string, password: string) {
-  return api.post<AuthModel>("/api/auth/signin",{
+  return api.post<AuthModel>("/auth/signin",{
     username,
     password
   })
@@ -47,7 +47,7 @@ export function requestPassword(email: string) {
 }
 
 export function getUserByToken(token: string) {
-  return api.post<AuthModelUser>("/api/auth/verify-token", {
+  return api.post<AuthModelUser>("/auth/verify-token", {
     token: token,
   });
 }

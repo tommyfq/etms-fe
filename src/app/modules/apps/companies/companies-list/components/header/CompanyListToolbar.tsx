@@ -10,7 +10,8 @@ const CompanyListToolbar = () => {
   }
 
   return (
-    <div className='d-flex justify-content-end' data-kt-user-table-toolbar='base'>
+    <>
+    <div className='d-flex justify-content-end' style={{ width: '100%' }} data-kt-user-table-toolbar='base'>
       {/* <CompaniesListFilter /> */}
 
       {/* begin::Export */}
@@ -27,6 +28,7 @@ const CompanyListToolbar = () => {
       </button>
       {/* end::Add user */}
     </div>
+    </>
   )
 }
 

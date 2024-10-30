@@ -73,7 +73,7 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
 
   return (
     <AuthContext.Provider value={{ auth, saveAuth, currentUser, setCurrentUser, logout, isAuthInitialized }}>
-      {isAuthInitialized ? children : <LayoutSplashScreen />}
+      {children}
     </AuthContext.Provider>
   );
 }

@@ -1,20 +1,26 @@
 import {FC, useState, useEffect} from 'react'
-import * as Yup from 'yup'
-import {useFormik} from 'formik'
-// import {isNotEmpty} from '../../../../../../_metronic/helpers'
-import {Company, initialCompany} from '../core/_models'
+
 import clsx from 'clsx'
+import * as Yup from 'yup'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import {useFormik} from 'formik'
+import Select from 'react-select'
+import withReactContent from "sweetalert2-react-content";
+
 import {useListView} from '../core/ListViewProvider'
+import {Company, initialCompany} from '../core/_models'
+import {useQueryResponse} from '../core/QueryResponseProvider'
+import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import {createCompany, getListAgent, updateCompany } from '../core/_request'
-import {useQueryResponse} from '../core/QueryResponseProvider'
-import Select from 'react-select'
-import {ModalResultForm} from '../../../../../components/ModalResultForm'
+
 
 type Props = {
   isUserLoading: boolean
   company: Company
 }
+
+const MySwal = withReactContent(Swal);
 
 const customStyles = {
   control: (provided, state) => ({
@@ -112,10 +118,32 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
     
     if (withRefresh) {
       refetch()
+      setItemIdForUpdate(undefined)
+    }else{
+      setShowCreateAppModal(false)
     }
-    setShowCreateAppModal(false)
-    setItemIdForUpdate(undefined)
   }
+
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
 
 //   const blankImg = toAbsoluteUrl('media/svg/avatars/blank.svg')
 //   const userAvatarImg = toAbsoluteUrl(`media/${userForEdit.avatar}`)
@@ -128,29 +156,13 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
       console.log(values);
       setSubmitting(true)
       try {
-        if (values.id != 0) {
-          console.log("UPDATE")
-          console.log(values);
-          let response = await updateCompany(values)
-          console.log(response);
-          if(response.is_ok){
-            setShowCreateAppModal(true)
-            setResultResponse(response)
-          }
-        } else {
-          console.log("CREATE")
-          console.log(values);
-          let response = await createCompany(values)
-          if(response.is_ok){
-            setShowCreateAppModal(true)
-            setResultResponse(response)
-          }
-          
-
-          console.log(response)
-        }
+        const response = values.id !== 0 ? await updateCompany(values) : await createCompany(values);
+        setResultResponse(response);
+        handleAlert(response)
+        console.log(response)
       } catch (ex) {
         console.error(ex)
+        setSubmitting(false);
       }
     },
   })
@@ -294,7 +306,7 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
         <div className='text-center pt-15'>
           <button
             type='reset'
-            onClick={() => cancel()}
+            onClick={() => cancel(true)}
             className='btn btn-light me-3'
             data-kt-users-modal-action='cancel'
             disabled={formik.isSubmitting || isUserLoading}
@@ -321,7 +333,7 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
       </form>
       {
         showCreateAppModal && (
-          <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(true)} />
+          <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(resultResponse.is_ok)} />
         )
       }
       {(formik.isSubmitting || isUserLoading) && <TableListLoading />}

@@ -1,15 +1,8 @@
 import {ID, Response} from '../../../../../../_metronic/helpers'
 
-export type Store = {
-  id?: ID,
-  store_name?: string
-  address?: string
-  dc_id?: number
-  is_active?: boolean
-}
-
 export type DC = {
   id?: ID
+  dc_code?: string
   dc_name?: string
   address?: string
   company_id?: number
@@ -21,6 +14,7 @@ export type DCQueryResponse = Response<Array<DC>>
 
 export const initialDC: DC = {
   id: 0,
+  dc_code:"",
   dc_name: "",
   address: "",
   company_id: 0,

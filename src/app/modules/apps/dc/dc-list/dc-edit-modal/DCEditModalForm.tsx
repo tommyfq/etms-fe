@@ -2,7 +2,7 @@ import {FC, useState, useEffect} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
 // import {isNotEmpty} from '../../../../../../_metronic/helpers'
-import {DC, initialDC, Store} from '../core/_models'
+import {DC, initialDC } from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
@@ -10,8 +10,8 @@ import {createDC, getListCompany, updateDC } from '../core/_request'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import Select from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
-import {KTIcon} from '../../../../../../_metronic/helpers'
-import {StoreModalForm} from './StoreModalForm'
+// import {KTIcon} from '../../../../../../_metronic/helpers'
+// import {StoreModalForm} from './StoreModalForm'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -72,15 +72,17 @@ const editUserSchema = Yup.object().shape({
   //   .min(3, 'Minimum 3 symbols')
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
+  dc_code: Yup.string()
+    .required('DC Code is required'),
   dc_name: Yup.string()
     .required('DC Name is required'),
   company_id: Yup.number()
     .required('Company is required'),
-  stores: Yup.array().of(
-    Yup.object().shape({
-      store_name: Yup.string().required('Store name is required'),
-    })
-  ),
+  // stores: Yup.array().of(
+  //   Yup.object().shape({
+  //     store_name: Yup.string().required('Store name is required'),
+  //   })
+  // ),
 })
 
 const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
@@ -89,13 +91,14 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
   const [companyOptions, setCompanyOptions] = useState<any[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
-  const [stores, setStores] = useState<Store[]>([]);
-  const [showStoreModal, setShowStoreModal] = useState<boolean>(false)
-  const [editStore, setEditStore] = useState<Store>()
+  // const [stores, setStores] = useState<Store[]>([]);
+  // const [showStoreModal, setShowStoreModal] = useState<boolean>(false)
+  // const [editStore, setEditStore] = useState<Store>()
   
   const [userForEdit] = useState<DC>({
     ...dc,
     id: dc.id || initialDC.id,
+    dc_code: dc.dc_code || initialDC.dc_code,
   dc_name: dc.dc_name || initialDC.dc_name,
   address: dc.address || initialDC.address,
   company_id: dc.company_id || initialDC.company_id,
@@ -176,11 +179,11 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
     formik.setFieldValue('company_id', selectedOption ? selectedOption.value : null);
   };
 
-  const handleRemoveFields = (index:number) => {
-    const values = [...stores];
-    values.splice(index, 1);
-    setStores(values);
-  };
+  // const handleRemoveFields = (index:number) => {
+  //   const values = [...stores];
+  //   values.splice(index, 1);
+  //   setStores(values);
+  // };
 
   // const addStore = async (newStore:Store) => {
   //   console.log("add store")
@@ -192,19 +195,19 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
   //   formik.setFieldValue('stores', updatedStores);
   // };
 
-  const updateStore = (updatedStore: Store) => {
-    setStores((prevStores) => {
-      const updatedStores = prevStores.map((store) =>
-        store.id === updatedStore.id ? updatedStore : store
-      );
+  // const updateStore = (updatedStore: Store) => {
+  //   setStores((prevStores) => {
+  //     const updatedStores = prevStores.map((store) =>
+  //       store.id === updatedStore.id ? updatedStore : store
+  //     );
       
-      // Update Formik's field value
-      formik.setFieldValue('stores', updatedStores);
+  //     // Update Formik's field value
+  //     formik.setFieldValue('stores', updatedStores);
       
-      return updatedStores;
-    });
-    setShowStoreModal(false);
-  };
+  //     return updatedStores;
+  //   });
+  //   setShowStoreModal(false);
+  // };
 
   return (
     <>
@@ -240,6 +243,32 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
             )}
           </div>
 
+          <div className='fv-row mb-7'>
+            <label className='required fw-bold fs-6 mb-2'>DC Code</label>
+            <input
+              placeholder='DC code'
+              {...formik.getFieldProps('dc_code')}
+              type='text'
+              name='dc_code'
+              className={clsx(
+                'form-control form-control-solid mb-3 mb-lg-0',
+                {'is-invalid': formik.touched.dc_code && formik.errors.dc_code},
+                {
+                  'is-valid': formik.touched.dc_code && !formik.errors.dc_code,
+                }
+              )}
+              autoComplete='off'
+              disabled={formik.isSubmitting || isUserLoading}
+            />
+            {formik.touched.dc_code && formik.errors.dc_code && (
+              <div className='fv-plugins-message-container'>
+                <div className='fv-help-block'>
+                  <span role='alert'>{formik.errors.dc_code}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
           <div className='fv-row mb-7'>
             <label className='required fw-bold fs-6 mb-2'>DC Name</label>
             <input
@@ -380,11 +409,11 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
           <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(resultResponse.is_ok, true)} />
         )
       }
-      {
+      {/* {
         showStoreModal && (
           <StoreModalForm show={showStoreModal} handleClose={() => setShowStoreModal(false) } addStore={addStore} updateStore={updateStore} store={editStore}/>
         )
-      }
+      } */}
       {(formik.isSubmitting || isUserLoading) && <TableListLoading />}
     </>
   )

@@ -16,15 +16,15 @@ const companiesColumns: ReadonlyArray<Column<DC>> = [
 //     Cell: ({...props}) => <UserSelectionCell id={props.data[props.row.index].id} />,
 //   },
   {
-    Header: (props) => <DCCustomHeader tableProps={props} title='Name' className='min-w-125px' />,
-    id: 'name',
+    Header: (props) => <DCCustomHeader tableProps={props} title='DC Name' className='min-w-125px' />,
+    id: 'dc_name',
     Cell: ({...props}) => <DCInfoCell dc={props.data[props.row.index]} />,
   },
   {
     Header: (props) => (
       <DCCustomHeader tableProps={props} title='Status' className='min-w-125px' />
     ),
-    id: 'active',
+    id: 'is_active',
     Cell: ({...props}) => <DCStatusCell is_active={props.data[props.row.index].is_active} />,
   },
 //   {
@@ -33,16 +33,16 @@ const companiesColumns: ReadonlyArray<Column<DC>> = [
 //   },
   {
     Header: (props) => (
-      <DCCustomHeader tableProps={props} title='Contact Name' className='min-w-125px' />
+      <DCCustomHeader tableProps={props} title='Address' className='min-w-125px' />
     ),
-    id: 'contact_name',
+    id: 'address',
     Cell: ({...props}) => <DCDataCell data={props.data[props.row.index].address} />,
   },
   {
     Header: (props) => (
-      <DCCustomHeader tableProps={props} title='Contact Number' className='min-w-125px' />
+      <DCCustomHeader tableProps={props} title='Company Name' className='min-w-125px' />
     ),
-    id: 'contact_number',
+    id: 'company_name',
     Cell: ({...props}) => <DCDataCell data={props.data[props.row.index].company_name} />,
   },
 //   {

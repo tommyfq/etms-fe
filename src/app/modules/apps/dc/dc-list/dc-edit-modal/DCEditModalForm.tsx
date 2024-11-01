@@ -12,11 +12,15 @@ import Select from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {KTIcon} from '../../../../../../_metronic/helpers'
 import {StoreModalForm} from './StoreModalForm'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type Props = {
   isUserLoading: boolean
   dc: DC
 }
+
+const MySwal = withReactContent(Swal);
 
 const customStyles = {
   control: (provided, state) => ({
@@ -96,7 +100,6 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
   address: dc.address || initialDC.address,
   company_id: dc.company_id || initialDC.company_id,
   is_active: dc.is_active ?? initialDC.is_active ?? false,
-  stores: dc.stores ?? stores
   })
 
   useEffect(() => {
@@ -115,21 +118,37 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
 
     fetchAgents()
 
-    if(dc.stores?.length > 0){
-      setStores(userForEdit.stores)
-    }
   }, [])
 
-  const cancel = (close?: boolean, withRefresh?: boolean) => {
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
+
+  const cancel = (withRefresh?: boolean) => {
     
     if (withRefresh) {
       refetch()
-    }
-    setShowCreateAppModal(false)
-    if(close){
       setItemIdForUpdate(undefined)
+    }else{
+      setShowCreateAppModal(false)
     }
-    
   }
 
 //   const blankImg = toAbsoluteUrl('media/svg/avatars/blank.svg')
@@ -143,22 +162,10 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
       console.log(values);
       setSubmitting(true)
       try {
-        if (values.id != 0) {
-          console.log("UPDATE")
-          console.log(values);
-          let response = await updateDC(values)
-          console.log(response);
-          setShowCreateAppModal(true)
-          setResultResponse(response)
-          
-        } else {
-          console.log("CREATE")
-          console.log(values);
-          let response = await createDC(values)
-          console.log(response);
-          setShowCreateAppModal(true)
-          setResultResponse(response)
-        }
+        const response = values.id !== 0 ? await updateDC(values) : await createDC(values);
+        setResultResponse(response);
+        handleAlert(response)
+        console.log(response)
       } catch (ex) {
         console.error(ex)
       }
@@ -175,15 +182,15 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
     setStores(values);
   };
 
-  const addStore = async (newStore:Store) => {
-    console.log("add store")
-    console.log(stores)
-    newStore.id = stores.length + 100000
-    await setStores([...stores, newStore]); // Append new store to the existing list
-    setShowStoreModal(false); // Close Store Modal after adding the store
-    const updatedStores = [...(formik.values.stores || []), newStore];
-    formik.setFieldValue('stores', updatedStores);
-  };
+  // const addStore = async (newStore:Store) => {
+  //   console.log("add store")
+  //   console.log(stores)
+  //   newStore.id = stores.length + 100000
+  //   await setStores([...stores, newStore]); // Append new store to the existing list
+  //   setShowStoreModal(false); // Close Store Modal after adding the store
+  //   const updatedStores = [...(formik.values.stores || []), newStore];
+  //   formik.setFieldValue('stores', updatedStores);
+  // };
 
   const updateStore = (updatedStore: Store) => {
     setStores((prevStores) => {
@@ -302,7 +309,7 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
               </div>
             )} 
           </div>
-            <div className='fv-row mb-7'>
+            {/* <div className='fv-row mb-7'>
               <div className='d-flex justify-content-between align-items-center mb-2'>
                 <label className='required fw-bold fs-6 mb-2 mr-2'>Stores</label>
                 <button type="button" className='btn btn-primary btn-sm' onClick={() => {setEditStore(undefined);setShowStoreModal(true)}}> Add Store</button>
@@ -335,7 +342,7 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
                 <p>No stores added yet.</p>
               )}
               
-            </div>
+            </div> */}
         </div>
         {/* end::Scroll */}
 

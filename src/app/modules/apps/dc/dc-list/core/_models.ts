@@ -15,7 +15,6 @@ export type DC = {
   company_id?: number
   is_active?: boolean
   company_name?: string,
-  stores?: Store[]
 }
 
 export type DCQueryResponse = Response<Array<DC>>

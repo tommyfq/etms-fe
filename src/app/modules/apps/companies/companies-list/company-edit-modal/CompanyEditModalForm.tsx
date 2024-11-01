@@ -72,6 +72,8 @@ const editUserSchema = Yup.object().shape({
   //   .min(3, 'Minimum 3 symbols')
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
+  company_code: Yup.string()
+    .required('Company Code is required'),
   company_name: Yup.string()
     .required('Company Name is required'),
   default_agent_id: Yup.number()
@@ -89,11 +91,12 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
     const [userForEdit] = useState<Company>({
     ...company,
     id: company.id || initialCompany.id,
-  company_name: company.company_name || initialCompany.company_name,
-  contact_name: company.contact_name || initialCompany.contact_name,
-  contact_number: company.contact_number || initialCompany.contact_number,
-  default_agent_id: company.default_agent_id || initialCompany.default_agent_id,
-  is_active: company.is_active ?? initialCompany.is_active ?? false
+    company_code: company.company_code || initialCompany.company_code,
+    company_name: company.company_name || initialCompany.company_name,
+    contact_name: company.contact_name || initialCompany.contact_name,
+    contact_number: company.contact_number || initialCompany.contact_number,
+    default_agent_id: company.default_agent_id || initialCompany.default_agent_id,
+    is_active: company.is_active ?? initialCompany.is_active ?? false
   })
 
   useEffect(() => {
@@ -186,6 +189,31 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
           data-kt-scroll-wrappers='#kt_modal_add_user_scroll'
           data-kt-scroll-offset='300px'
         >
+          <div className='fv-row mb-7'>
+            <label className='required fw-bold fs-6 mb-2'>Company Code</label>
+            <input
+              placeholder='Company code'
+              {...formik.getFieldProps('company_code')}
+              type='text'
+              name='company_code'
+              className={clsx(
+                'form-control form-control-solid mb-3 mb-lg-0',
+                {'is-invalid': formik.touched.company_code && formik.errors.company_code},
+                {
+                  'is-valid': formik.touched.company_code && !formik.errors.company_code,
+                }
+              )}
+              autoComplete='off'
+              disabled={formik.isSubmitting || isUserLoading}
+            />
+            {formik.touched.company_code && formik.errors.company_code && (
+              <div className='fv-plugins-message-container'>
+                <div className='fv-help-block'>
+                  <span role='alert'>{formik.errors.company_code}</span>
+                </div>
+              </div>
+            )}
+          </div>
           <div className='fv-row mb-7'>
             <label className='required fw-bold fs-6 mb-2'>Company Name</label>
             <input

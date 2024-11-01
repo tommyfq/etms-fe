@@ -1,6 +1,7 @@
 import {ID, Response} from '../../../../../../_metronic/helpers'
 export type Company = {
   id?: ID
+  company_code?: string
   company_name?: string
   contact_name?: string
   contact_number?: string
@@ -12,6 +13,7 @@ export type CompaniesQueryResponse = Response<Array<Company>>
 
 export const initialCompany: Company = {
   id: 0,
+  company_code: "",
   company_name: "",
   contact_name: "",
   contact_number: "",

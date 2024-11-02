@@ -3,8 +3,9 @@ import {MenuComponent} from '../../../../../../../_metronic/assets/ts/components
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {getListDC} from '../../core/_requests'
+import {getListDC, getListCompany} from '../../core/_requests'
 import Select from 'react-select'
+import SearchableDropdown from './SearchableDropdown.tsx'
 
 const customStyles = {
     control: (provided, state) => ({
@@ -53,24 +54,26 @@ const customStyles = {
 const StoreListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
-  const [dcSelected, setDCSelected] = useState<any[]>()
-  const [dcOptions, setDCOptions] = useState<any[]>()
-  const [lastLogin, setLastLogin] = useState<string | undefined>()
+  const [companyOptions, setCompanyOptions] = useState<any[]>()
+  const [company, setCompany] = useState();
+
+  const [isActive, setIsActive] = useState(true); // State to track checkbox
 
   useEffect(() => {
     const fetchDC = async () => {
         try {
-            const dcs = await getListDC()
+            const companies = await getListCompany()
             const formattedOptions = [
                 { value: 0, label: "" }, // Add the null value and empty label option first
-                ...dcs.data?.map(dc => ({
-                    value: dc.dc_id,
-                    label: dc.dc_name,
+                ...companies.data?.map(c => ({
+                    value: c.company_id,
+                    label: c.company_name,
                 })) || []
             ];
 
             console.log(formattedOptions)
-            setDCOptions(formattedOptions)
+
+            setCompanyOptions(formattedOptions)
 
         } catch (error) {
             console.error('Error fetching agents:', error)
@@ -83,21 +86,33 @@ const StoreListFilter = () => {
   }, [])
 
   const resetData = () => {
+    setCompany("")
     updateState({filter: undefined, ...initialQueryState})
   }
 
   const filterData = () => {
-    const dc = dcSelected?.map(selected=>(selected.value))
-
+    //const is_active = isActive
+    console.log(company)
     updateState({
-      filter: {dc, last_login: lastLogin},
+      filter: {is_active : isActive, company: company},
       ...initialQueryState,
     })
   }
 
-  const handleChange = (selectedOption) => {
-    setDCSelected(selectedOption); // Set the selected option directly
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setIsActive(event.target.checked); // Update state based on checkbox status
+    // You can perform additional actions here if needed
+    console.log("Checkbox is now:", event.target.checked);
   };
+
+//   const handleCompanySelected = (event: React.ChangeEvent<HTMLSelectElement>) => {
+//     setCompany(event.target.value); // Update the selected role
+// };
+
+const handleCompanySelected = (selectedOption) => {
+  setCompany(selectedOption); // Update the selected role
+};
+
 
   return (
     <>
@@ -126,36 +141,7 @@ const StoreListFilter = () => {
         {/* end::Separator */}
 
         {/* begin::Content */}
-        <div className='px-7 py-5' data-kt-user-table-filter='form'>
-          {/* begin::Input group */}
-          <div className='mb-10'>
-            <label className='form-label fs-6 fw-bold'>DC Name</label>
-            <Select 
-                styles={customStyles} 
-                name="dc_id" 
-                options={dcOptions}
-                value={dcSelected}
-                onChange={handleChange}
-                isMulti
-                closeMenuOnSelect={false}
-            />
-
-            {/* <select
-              className='form-select form-select-solid fw-bolder'
-              data-kt-select2='true'
-              data-placeholder='Select option'
-              data-allow-clear='true'
-              data-kt-user-table-filter='role'
-              data-hide-search='true'
-              onChange={(e) => setDC(e.target.value)}
-              value={dc}
-            >
-                {dcOptions?.map((option)=>(
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-            </select> */}
-          </div>
-          {/* end::Input group */}
+        <div className='px-7 py-5'>
           <div className='mb-10'>
             <label className='form-label fw-bold'>Status:</label>
 
@@ -166,30 +152,55 @@ const StoreListFilter = () => {
                 value=''
                 name='is_active'
                 defaultChecked={true}
+                checked={isActive} // Use state value for controlled checkbox
+                onChange={handleCompanySelected} // Add change handler
                 />
                 <label className='form-check-label'>Active</label>
             </div>
           </div>
+
           {/* begin::Input group */}
           <div className='mb-10'>
-            <label className='form-label fs-6 fw-bold'>Last login:</label>
-            <select
+            <label className='form-label fs-6 fw-bold'>Company</label>
+            {/* <select
               className='form-select form-select-solid fw-bolder'
               data-kt-select2='true'
               data-placeholder='Select option'
               data-allow-clear='true'
-              data-kt-user-table-filter='two-step'
+              data-kt-user-table-filter='role'
               data-hide-search='true'
-              onChange={(e) => setLastLogin(e.target.value)}
-              value={lastLogin}
+              onChange={handleCompanySelected}
+              value={company}
             >
               <option value=''></option>
-              <option value='Yesterday'>Yesterday</option>
-              <option value='20 mins ago'>20 mins ago</option>
-              <option value='5 hours ago'>5 hours ago</option>
-              <option value='2 days ago'>2 days ago</option>
-            </select>
+                {companyOptions?.map((option) => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select> */}
+
+            <Select 
+              styles={customStyles} 
+              name="company_id" 
+              options={companyOptions}
+              // value={companyOptions?.find(option => option.value === company?.value) || null}
+              onChange={handleCompanySelected}
+              // onBlur={() => formik.setFieldTouched('company_id')}
+            />
           </div>
+           {/* <SearchableDropdown 
+                options={companyOptions || []}
+                label="Company"
+                onChange={handleCompanySelected}
+                dataAttributes={{
+                    'data-kt-select2': 'true',
+                    'data-placeholder': 'Select option',
+                    'data-allow-clear': 'true',
+                    'data-kt-user-table-filter': 'role',
+                    'data-hide-search': 'true',
+                }}
+            /> */}
           {/* end::Input group */}
 
           {/* begin::Actions */}

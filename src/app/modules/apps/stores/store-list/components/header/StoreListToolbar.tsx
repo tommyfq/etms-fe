@@ -4,7 +4,10 @@ import {useState} from 'react'
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {StoreUploadModal} from './StoreUploadModal'
-import {StoreListFilter} from './StoreListFilter'
+// import {StoreListFilter} from './StoreListFilter'
+// import {TooltipMenu} from './TooltipMenu'
+import {downloadExcelFile} from '../../core/_requests.ts'
+
 
 const StoreListToolbar = () => {
   const {setItemIdForUpdate} = useListView()
@@ -19,13 +22,20 @@ const StoreListToolbar = () => {
     setShowUploadModal(true)
   }
 
+  const handleDownload = async () => {
+    await downloadExcelFile();
+  };
+
+  // const handleOptionClick = (option: string) => {
+  //     console.log(`${option} clicked`);
+  // };
+
   return (
     <>
-      <div className='d-flex justify-content-end' style={{ width: '100%' }} data-kt-user-table-toolbar='base'>
-        <StoreListFilter />
-
+      <div className='d-flex justify-content-end' data-kt-user-table-toolbar='base'>
+        {/* <StoreListFilter /> */}
         {/* begin::Export */}
-        <button type='button' className='btn btn-light-primary me-3'>
+        <button type='button' className='btn btn-light-primary me-3' onClick={handleDownload}>
           <KTIcon iconName='exit-down' className='fs-2' />
           Export
         </button>

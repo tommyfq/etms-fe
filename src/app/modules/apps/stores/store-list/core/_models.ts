@@ -28,3 +28,10 @@ export type ListDC = {
 }
 
 export type ListDCQueryResponse = Response<Array<ListDC>>
+
+export type ListCompany = {
+  company_id?: ID,
+  company_name?: string
+}
+
+export type ListCompanyQueryResponse = Response<Array<ListCompany>>

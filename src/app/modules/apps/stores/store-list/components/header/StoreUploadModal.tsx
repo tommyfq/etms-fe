@@ -3,14 +3,22 @@ import {Modal} from 'react-bootstrap'
 import {KTIcon } from '../../../../../../../_metronic/helpers'
 import { useDropzone } from 'react-dropzone';
 import { uploadFile } from '../../core/_requests' 
+import { useQueryResponse } from '../../core/QueryResponseProvider'
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import LoadingScreen from '../../../../../../components/LoadingScreen';
 
 type Props = {
     show: boolean
     handleClose: () => void
 }
 
+const MySwal = withReactContent(Swal);
+
 const StoreUploadModal = ({show, handleClose}: Props) => {
+    const {refetch} = useQueryResponse()
     const [file, setFile] = useState(null);
+    const [isLoading, setIsLoading] = useState(false)
 
     const onDrop = useCallback((acceptedFiles) => {
         const selectedFile = acceptedFiles[0];
@@ -55,19 +63,21 @@ const StoreUploadModal = ({show, handleClose}: Props) => {
 
       const handleDownload = () => {
         // The file is located inside the "public" folder in Vite
-        const fileUrl = 'templates/SampleData-1.xlsx'; // No need for process.env.PUBLIC_URL in Vite
+        const fileUrl = 'templates/Template_Upload_Store.xlsx'; // No need for process.env.PUBLIC_URL in Vite
     
         // Create a temporary anchor tag to download the file
         const link = document.createElement('a');
         link.href = fileUrl;
-        link.setAttribute('download', 'template-dc.xlsx'); // Set the filename for download
+        link.setAttribute('download', 'Template_Upload_Store.xlsx'); // Set the filename for download
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       };
 
       const handleUpload = async () => {
-        if (!file) {
+          setIsLoading(true)
+          if (!file) {
+            setIsLoading(false)
             console.log('No file selected');
             return;
           }
@@ -78,6 +88,10 @@ const StoreUploadModal = ({show, handleClose}: Props) => {
           try {
             const response = await uploadFile(formData)
             console.log('File uploaded successfully:', response.data);
+            if(response){
+              setIsLoading(false)
+            }
+            handleAlert(response)
             // Clear the selected file after upload if desired
             //setSelectedFile(null);
           } catch (error) {
@@ -85,90 +99,121 @@ const StoreUploadModal = ({show, handleClose}: Props) => {
           }
       };
 
+      const handleAlert = (response:{is_ok:boolean, message:string, data:any[]}) => {
+        let title = "Error!";
+        const buttonText = 'Close'
+        if(response.is_ok){
+          title = "Success!"
+        }
+    
+        const details = response.data
+        .map((item) => 
+            `<span class="${item.is_ok ? 'text-success' : 'text-danger'}">${item.message}</span>`
+        )
+        .join('<br>');
+
+        MySwal.fire({
+          title: title,
+          text: response.message,
+          icon: 'info',
+          html: details,
+          confirmButtonText: buttonText,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            refetch()
+            handleClose()
+          }
+        })
+      };
+
       return (
-        <Modal
-          show={show}
-          onHide={handleClose}
-          size="lg"
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
-              Upload Store
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <div style={{
-                margin:'0px 0px 10px 0px'
-            }}>
-            <button
-                    onClick={handleDownload}
-                    type="button"
-                    className="btn btn-sm btn-light"
-                >
-                Download Template
-            </button>
-            </div>
-          <div
-            {...getRootProps()}
-            style={{
-                border: '2px dashed #007BFF',
-                padding: '20px',
-                textAlign: 'center',
-                cursor: 'pointer',
-            }}
-            >
-            <input {...getInputProps()} />
-            {isDragActive ? (
-                <p>Drop the files here...</p>
-            ) : (
-                <p>Drag & drop some files here, or click to select files</p>
-            )}
-            {file ? (
-                <div style={{ marginTop: '20px' }}>
-                <h4>File Selected:</h4>
-                <p>
-                    <strong>{file.name}</strong> - {Math.round(file.size / 1024)} KB
-                </p>
-                <button onClick={deleteFile} style={{
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    padding: '5px 10px',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                }}>
-                    Delete File
-                </button>
-                </div>
-            ) : (
-                <div style={{ marginTop: '20px' }}>
-                <p>No file selected</p>
-                </div>
-            )}
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-          <button
-                    type='button'
-                    className='btn btn-lg btn-light'
-                    data-kt-stepper-action='next'
-                    onClick={handleClose}
+        <>
+          <Modal
+            show={show}
+            onHide={handleClose}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title id="contained-modal-title-vcenter">
+                Upload Store
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div style={{
+                  margin:'0px 0px 10px 0px'
+              }}>
+              <button
+                      onClick={handleDownload}
+                      type="button"
+                      className="btn btn-sm btn-light"
                   >
-                    Close <KTIcon iconName='arrow-right' className='fs-3 ms-1 me-0' />
-            </button>
+                  Download Template
+              </button>
+              </div>
+            <div
+              {...getRootProps()}
+              style={{
+                  border: '2px dashed #007BFF',
+                  padding: '20px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+              }}
+              >
+              <input {...getInputProps()} />
+              {isDragActive ? (
+                  <p>Drop the files here...</p>
+              ) : (
+                  <p>Drag & drop some files here, or click to select files</p>
+              )}
+              {file ? (
+                  <div style={{ marginTop: '20px' }}>
+                  <h4>File Selected:</h4>
+                  <p>
+                      <strong>{file.name}</strong> - {Math.round(file.size / 1024)} KB
+                  </p>
+                  <button onClick={deleteFile} style={{
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      padding: '5px 10px',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                  }}>
+                      Delete File
+                  </button>
+                  </div>
+              ) : (
+                  <div style={{ marginTop: '20px' }}>
+                  <p>No file selected</p>
+                  </div>
+              )}
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
             <button
-                    type='button'
-                    className='btn btn-lg btn-primary'
-                    data-kt-stepper-action='next'
-                    onClick={handleUpload}
-                    disabled={!file}
-                  >
-                    Upload <KTIcon iconName='arrow-right' className='fs-3 ms-1 me-0' />
-            </button>
-          </Modal.Footer>
-        </Modal>
+                      type='button'
+                      className='btn btn-lg btn-light'
+                      data-kt-stepper-action='next'
+                      onClick={handleClose}
+                    >
+                      Close <KTIcon iconName='arrow-right' className='fs-3 ms-1 me-0' />
+              </button>
+              <button
+                      type='button'
+                      className='btn btn-lg btn-primary'
+                      data-kt-stepper-action='next'
+                      onClick={handleUpload}
+                      disabled={!file || isLoading}
+                    >
+                      Upload <KTIcon iconName='arrow-right' className='fs-3 ms-1 me-0' />
+              </button>
+            </Modal.Footer>
+          </Modal>
+          <LoadingScreen loading={isLoading} message="Uploading your file, please wait..." />
+        </>
+        
       );
   }
 

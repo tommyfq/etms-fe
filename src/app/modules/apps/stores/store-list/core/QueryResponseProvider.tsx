@@ -33,8 +33,6 @@ const QueryResponseProvider: FC<WithChildren> = ({children}) => {
   } = useQuery(
         query,
     () => {
-      console.log("===QUERY===")
-      console.log(query)
       return getStore(query)
     },
     {cacheTime: 0, keepPreviousData: true, refetchOnWindowFocus: false}

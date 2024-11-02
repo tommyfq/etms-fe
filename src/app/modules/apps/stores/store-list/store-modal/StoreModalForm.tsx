@@ -11,11 +11,15 @@ import {createStore, getListDC, updateStore } from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import Select from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type Props = {
   isUserLoading: boolean
   store: Store
 }
+
+const MySwal = withReactContent(Swal);
 
 const customStyles = {
   control: (provided, state) => ({
@@ -112,9 +116,10 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
     
     if (withRefresh) {
       refetch()
+      setItemIdForUpdate(undefined)
+    }else{
+      setShowCreateAppModal(false)
     }
-    setShowCreateAppModal(false)
-    setItemIdForUpdate(undefined)
   }
 
 //   const blankImg = toAbsoluteUrl('media/svg/avatars/blank.svg')
@@ -124,31 +129,11 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
     initialValues: userForEdit,
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
-      console.log("VALUES")
-      console.log(values);
       setSubmitting(true)
       try {
-        if (values.id != 0) {
-          console.log("UPDATE")
-          console.log(values);
-          let response = await updateStore(values)
-          console.log(response);
-          
-            setShowCreateAppModal(true)
-            setResultResponse(response)
-          
-        } else {
-          console.log("CREATE")
-          console.log(values);
-          let response = await createStore(values)
-          
-            setShowCreateAppModal(true)
-            setResultResponse(response)
-          
-          
-
-        //   console.log(response)
-        }
+        const response = values.id !== 0 ? await updateStore(values) : await createStore(values);
+        setResultResponse(response);
+        handleAlert(response)
       } catch (ex) {
         console.error(ex)
       }
@@ -157,10 +142,31 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
 
 
   const handleSelectChange = (selectedOption: any) => {
-    console.log("change role")
     formik.setFieldValue('dc_id', selectedOption ? selectedOption.value : null);
 
   };
+
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
+
 
   return (
     <>
@@ -199,7 +205,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 <label className='required fw-bold fs-6 mb-2'>Store Code</label>
                 <input
                 placeholder='Store Code'
-                {...formik.getFieldProps('store_cde')}
+                {...formik.getFieldProps('store_code')}
                 type='text'
                 name='store_code'
                 className={clsx(
@@ -224,7 +230,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
             <div className='fv-row mb-7'>
                 <label className='required fw-bold fs-6 mb-2'>Store Name</label>
                 <input
-                placeholder='store_name'
+                placeholder='Store Name'
                 {...formik.getFieldProps('store_name')}
                 type='text'
                 name='store_name'
@@ -266,29 +272,18 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
           </div>
 
             <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Address</label>
+                <label className='fw-bold fs-6 mb-2'>Address</label>
                 <input
                 placeholder='address'
                 {...formik.getFieldProps('address')}
                 type='text'
                 name='address'
                 className={clsx(
-                    'form-control form-control-solid mb-3 mb-lg-0',
-                    {'is-invalid': formik.touched.address && formik.errors.address},
-                    {
-                    'is-valid': formik.touched.address && !formik.errors.address,
-                    }
+                    'form-control form-control-solid mb-3 mb-lg-0'
                 )}
                 autoComplete='off'
                 disabled={formik.isSubmitting || isUserLoading}
                 />
-                {formik.touched.address && formik.errors.address && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.address}</span>
-                    </div>
-                </div>
-                )}
             </div>
         </div>
         {/* end::Scroll */}
@@ -297,7 +292,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
         <div className='text-center pt-15'>
           <button
             type='reset'
-            onClick={() => cancel()}
+            onClick={() => cancel(true)}
             className='btn btn-light me-3'
             data-kt-users-modal-action='cancel'
             disabled={formik.isSubmitting || isUserLoading}
@@ -324,7 +319,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
       </form>
       {
         showCreateAppModal && (
-          <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(true)} />
+          <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(resultResponse.is_ok)} />
         )
       }
       {(formik.isSubmitting || isUserLoading) && <TableListLoading />}

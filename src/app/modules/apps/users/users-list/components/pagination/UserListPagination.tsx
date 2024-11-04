@@ -42,10 +42,11 @@ const UserListPagination = () => {
       active: boolean
       url: string | null
       page: number | null
+      disabled: boolean
     }> = []
-    const previousLink: {label: string; active: boolean; url: string | null; page: number | null} =
+    const previousLink: {label: string; active: boolean; url: string | null; page: number | null, disabled: boolean} =
       scopedLinks.shift()!
-    const nextLink: {label: string; active: boolean; url: string | null; page: number | null} =
+    const nextLink: {label: string; active: boolean; url: string | null; page: number | null, disabled: boolean} =
       scopedLinks.pop()!
 
     const halfOfPagesCount = Math.floor(PAGINATION_PAGES_COUNT / 2)
@@ -116,7 +117,7 @@ const UserListPagination = () => {
                   key={link.label}
                   className={clsx('page-item', {
                     active: pagination.page === link.page,
-                    disabled: isLoading,
+                    disabled: isLoading || link.disabled,
                     previous: link.label === 'Previous',
                     next: link.label === 'Next',
                   })}

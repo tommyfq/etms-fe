@@ -1,6 +1,6 @@
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
-// import {CompaniesListFilter} from './CompaniesListFilter'
+import UserListFilter from './UserListFilter'
 
 const UserlistToolbar = () => {
   const {setItemIdForUpdate} = useListView()
@@ -10,7 +10,7 @@ const UserlistToolbar = () => {
   }
 
   return (
-    <div className='d-flex justify-content-end' style={{ width: '100%' }} data-kt-user-table-toolbar='base'>
+    <div className='d-flex justify-content-end' data-kt-user-table-toolbar='base'>
       {/* <CompaniesListFilter /> */}
 
       {/* begin::Export */}
@@ -22,6 +22,7 @@ const UserlistToolbar = () => {
 
       {/* begin::Add user */}
       {/* <Link to='/dashboard' className='d-lg-none'> */}
+        <UserListFilter />
         {/* <button type='button' className='btn btn-primary'> */}
         <button type='button' className='btn btn-primary' onClick={openAddCompanyrModal}>
           <KTIcon iconName='plus' className='fs-2' />

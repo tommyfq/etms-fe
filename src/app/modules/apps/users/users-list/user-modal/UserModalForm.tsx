@@ -7,15 +7,19 @@ import {User, initialUser} from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
-import {createUser, getListRole, updateUser } from '../core/_request'
+import {createUser, getListRole, getListDC, updateUser } from '../core/_request'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import Select from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type Props = {
   isUserLoading: boolean
   user: User
 }
+
+const MySwal = withReactContent(Swal);
 
 const customStyles = {
   control: (provided, state) => ({
@@ -69,6 +73,7 @@ const editUserSchema = Yup.object().shape({
   //   .required('Email is required'),
   name: Yup.string().required('Name is required'),
   username: Yup.string().required('Username is required'),
+  password: Yup.string().required('Password is required'),
   email: Yup.string().required('Email is required'),
   role_id: Yup.number().required('Role is required'),
 })
@@ -77,29 +82,64 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   const [roleOptions, setRoleOptions] = useState<any[]>([])
+  const [dcOptions, setDCOptions] = useState<any[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
+  const [role, setRole] = useState()
+  const [selectedDC, setSelectedDC] = useState([])
   
   const [userForEdit] = useState<User>({
     ...user,
     id: user.id || initialUser.id,
   name: user.name || initialUser.name,
   username: user.username || initialUser.username,
+  password: user.password || initialUser.password,
   email: user.email || initialUser.email,
   role_id: user.role_id || initialUser.role_id,
-  is_active: user.is_active ?? initialUser.is_active ?? false
+  is_active: user.is_active ?? initialUser.is_active ?? false,
+  dcs: user.dcs || initialUser.dcs
   })
 
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const dcs = await getListRole()
-        const formattedOptions = dcs.data?.map(dc => ({
-          value: dc.role_id,
-          label: dc.role_name,
-        }))
+        const roles = await getListRole()
+        const formattedOptions = roles.data?.map((r) => {
+          
+          if(user.role_id == r.role_id){
+            setRole(r.role_name)
+          }
+          
+          return {
+            value: r.role_id,
+            label: r.role_name,
+          }
+        })
         console.log(formattedOptions)
         setRoleOptions(formattedOptions)
+
+        let formattedSelectedDC = []
+        const dcs = await getListDC()
+        const formattedDCOptions = dcs.data?.map((d) => {
+          
+          for(const udc of user.dcs){
+            if(udc == d.dc_id){
+              formattedSelectedDC.push({
+                value: d.dc_id,
+                label: d.dc_name
+              })
+            }
+          }
+
+          return {
+            value: d.dc_id,
+            label: d.dc_name
+          }
+        })
+        
+        console.log(formattedDCOptions)
+        setDCOptions(formattedDCOptions)
+        setSelectedDC(formattedSelectedDC)
 
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -130,38 +170,49 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
       console.log(values);
       setSubmitting(true)
       try {
-        if (values.id != 0) {
-          console.log("UPDATE")
-          console.log(values);
-        //   let response = await updateUser(values)
-        //   console.log(response);
-        //   if(response.is_ok){
-        //     setShowCreateAppModal(true)
-        //     setResultResponse(response)
-        //   }
-        } else {
-          console.log("CREATE")
-          console.log(values);
-          let response = await createUser(values)
-          if(response.is_ok){
-            setShowCreateAppModal(true)
-            setResultResponse(response)
-          }
-          
-
-        //   console.log(response)
-        }
+        const response = values.id !== 0 ? await updateUser(values) : await createUser(values);
+        setResultResponse(response);
+        handleAlert(response)
       } catch (ex) {
         console.error(ex)
       }
     },
   })
 
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
+
 
   const handleSelectChange = (selectedOption: any) => {
     console.log("change role")
     formik.setFieldValue('role_id', selectedOption ? selectedOption.value : null);
+    setRole(selectedOption.label)
+  };
 
+  const handleSelectDCChange = (selectedOption: any) => {
+    console.log(selectedOption)
+    console.log("change dc")
+    formik.setFieldValue('dcs', selectedOption ? selectedOption.map((option: any) => option.value) : []);
+    setSelectedDC(selectedOption)
+    //setRole(selectedOption.label)
   };
 
   return (
@@ -208,7 +259,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             <div className='fv-row mb-7'>
                 <label className='required fw-bold fs-6 mb-2'>Username</label>
                 <input
-                placeholder='username'
+                placeholder='Username'
                 {...formik.getFieldProps('username')}
                 type='text'
                 name='username'
@@ -234,7 +285,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             <div className='fv-row mb-7'>
                 <label className='required fw-bold fs-6 mb-2'>Email</label>
                 <input
-                placeholder='email'
+                placeholder='Email'
                 {...formik.getFieldProps('email')}
                 type='text'
                 name='email'
@@ -258,6 +309,32 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             </div>
 
             <div className='fv-row mb-7'>
+                <label className='required fw-bold fs-6 mb-2'>Password</label>
+                <input
+                placeholder='Password'
+                {...formik.getFieldProps('password')}
+                type='password'
+                name='password'
+                className={clsx(
+                    'form-control form-control-solid mb-3 mb-lg-0',
+                    {'is-invalid': formik.touched.password && formik.errors.password},
+                    {
+                    'is-valid': formik.touched.password && !formik.errors.password,
+                    }
+                )}
+                autoComplete='off'
+                disabled={formik.isSubmitting || isUserLoading}
+                />
+                {formik.touched.password && formik.errors.password && (
+                <div className='fv-plugins-message-container'>
+                    <div className='fv-help-block'>
+                    <span role='alert'>{formik.errors.password}</span>
+                    </div>
+                </div>
+                )}
+            </div>
+
+            <div className='fv-row mb-7'>
                 <label className='required form-label fw-bold'>Role</label>
                 <Select 
                 styles={customStyles} 
@@ -275,6 +352,21 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
                 )}
             </div>
           
+          {
+            role == "agent" && 
+            <div className='fv-row mb-7'>
+                <label className='form-label fw-bold'>DC</label>
+                <Select 
+                styles={customStyles} 
+                name="dcs"
+                isMulti
+                options={dcOptions}
+                value={selectedDC}
+                onChange={handleSelectDCChange}
+                />
+            </div>
+          }
+
           <div className="fv-row mb-7">
             
             <label className='required fw-bold fs-6 mb-2'>Active</label>
@@ -290,10 +382,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
               />
               <label className='form-check-label'>Active</label>
             </div>
-            
           </div>
-
-          
         </div>
         {/* end::Scroll */}
 

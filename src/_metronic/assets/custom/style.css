@@ -14,3 +14,80 @@
     background-color: #e0f7fa; /* Light blue background */
     color: #00796b; /* Change text color to a darker shade */
   }
+
+  /* Main mt-dropdown button */
+.mt-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.mt-dropdown-toggle {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.mt-dropdown-toggle:hover {
+  background-color: #2980b9;
+}
+
+/* mt-dropdown menu */
+.mt-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+  min-width: 150px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.mt-dropdown-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+}
+
+.mt-dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.mt-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+/* Sub-menu */
+.mt-sub-menu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-width: 150px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.mt-sub-menu-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+.mt-sub-menu-item:hover {
+  background-color: #f1f1f1;
+}
+
+.mt-arrow {
+  float: right;
+  font-size: 12px;
+}

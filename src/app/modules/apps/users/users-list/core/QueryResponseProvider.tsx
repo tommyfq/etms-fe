@@ -31,13 +31,7 @@ const QueryResponseProvider: FC<WithChildren> = ({children}) => {
     refetch,
     data: response,
   } = useQuery(
-        `{
-        "search_dc_name":"",
-        "search_company_name":"",
-        "page":1,
-        "column_sort":"name",
-        "order":"asc"
-    }`,
+        query,
     () => {
       return getUser(query)
     },

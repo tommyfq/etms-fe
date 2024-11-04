@@ -8,6 +8,7 @@ export type User = {
   role_id?: number
   role_name?: string,
   is_active?: boolean
+  dcs: number[]
 }
 
 export type UsersQueryResponse = Response<Array<User>>
@@ -18,7 +19,8 @@ export const initialUser: User = {
     username: "",
     password: "",
     email: "",
-    role_id: 0
+    role_id: 0,
+    dcs:[]
 }
 
 export type ListRole = {
@@ -27,3 +29,10 @@ export type ListRole = {
   }
   
   export type ListRoleQueryResponse = Response<Array<ListRole>>
+
+  export type ListDC = {
+    dc_id?: ID,
+    dc_name?: string
+  }
+  
+  export type ListDCQueryResponse = Response<Array<ListDC>>

@@ -31,13 +31,7 @@ const QueryResponseProvider: FC<WithChildren> = ({children}) => {
     refetch,
     data: response,
   } = useQuery(
-        `{
-        "search_brand":"",
-        "search_model":"",
-        "page":1,
-        "column_sort":"brand",
-        "order":"asc"
-    }`,
+        query,
     () => {
       return getItem(query)
     },

@@ -10,11 +10,15 @@ import {TableListLoading} from '../../../../../components/TableListLoading'
 import {createItem, updateItem } from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type Props = {
   isUserLoading: boolean
   item: Item
 }
+
+const MySwal = withReactContent(Swal);
 
 // const customStyles = {
 //   control: (provided, state) => ({
@@ -89,6 +93,28 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
     
   }, [])
 
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
+
+
   const cancel = (withRefresh?: boolean) => {
     console.log("WITH REFRESH : "+withRefresh)
     if (withRefresh) {
@@ -110,23 +136,9 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
       console.log(values);
       setSubmitting(true)
       try {
-        if (values.id != 0) {
-          console.log("UPDATE")
-          console.log(values);
-          const response = await updateItem(values)
-          console.log(response);
-          setShowCreateAppModal(true)
-          setResultResponse(response)
-        } else {
-          console.log("CREATE")
-          console.log(values);
-          const response = await createItem(values)
-          setShowCreateAppModal(true)
-          setResultResponse(response)
-          
-
-        //   console.log(response)
-        }
+        const response = values.id !== 0 ? await updateItem(values) : await createItem(values);
+        setResultResponse(response);
+        handleAlert(response)
       } catch (ex) {
         console.error(ex)
       }

@@ -3,11 +3,12 @@ import {MenuComponent} from '../../../../../../../_metronic/assets/ts/components
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {getListDC, getListCompany} from '../../core/_requests'
-import Select from 'react-select'
-import SearchableDropdown from './SearchableDropdown.tsx'
+import {getListCompany} from '../../core/_requests'
+import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 
-const customStyles = {
+type Option = { value: number; label: string };
+
+const customStyles: StylesConfig<Option, false> = {
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#f8f9fa',
@@ -54,8 +55,8 @@ const customStyles = {
 const StoreListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
-  const [companyOptions, setCompanyOptions] = useState<any[]>()
-  const [company, setCompany] = useState();
+  const [companyOptions, setCompanyOptions] = useState<Option[]>()
+  const [company, setCompany] = useState<Option | null>(null)
 
   const [isActive, setIsActive] = useState(true); // State to track checkbox
 
@@ -65,9 +66,9 @@ const StoreListFilter = () => {
             const companies = await getListCompany()
             const formattedOptions = [
                 { value: 0, label: "" }, // Add the null value and empty label option first
-                ...companies.data?.map(c => ({
-                    value: c.company_id,
-                    label: c.company_name,
+                ...companies.data?.map((c): Option => ({ 
+                    value: c.company_id || 0,
+                    label: c.company_name || "",
                 })) || []
             ];
 
@@ -86,7 +87,7 @@ const StoreListFilter = () => {
   }, [])
 
   const resetData = () => {
-    setCompany("")
+    setCompany(null)
     updateState({filter: undefined, ...initialQueryState})
   }
 
@@ -109,7 +110,11 @@ const StoreListFilter = () => {
 //     setCompany(event.target.value); // Update the selected role
 // };
 
-const handleCompanySelected = (selectedOption) => {
+  const handleCompanySelected = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+  console.log(actionMeta)
   setCompany(selectedOption); // Update the selected role
 };
 
@@ -153,7 +158,7 @@ const handleCompanySelected = (selectedOption) => {
                 name='is_active'
                 defaultChecked={true}
                 checked={isActive} // Use state value for controlled checkbox
-                onChange={handleCompanySelected} // Add change handler
+                onChange={handleChange} // Add change handler
                 />
                 <label className='form-check-label'>Active</label>
             </div>

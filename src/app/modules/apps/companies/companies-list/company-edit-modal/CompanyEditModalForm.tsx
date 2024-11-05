@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import * as Yup from 'yup'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import {useFormik} from 'formik'
-import Select from 'react-select'
+import Select, {StylesConfig, ActionMeta, SingleValue} from 'react-select'
 import withReactContent from "sweetalert2-react-content";
 
 import {useListView} from '../core/ListViewProvider'
@@ -20,9 +20,11 @@ type Props = {
   company: Company
 }
 
+type Option = { value: number; label: string };
+
 const MySwal = withReactContent(Swal);
 
-const customStyles = {
+const customStyles: StylesConfig<Option, false> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -84,7 +86,7 @@ const editUserSchema = Yup.object().shape({
 const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const [agentsOptions, setAgentsOptions] = useState<any[]>([])
+  const [agentsOptions, setAgentsOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   
@@ -103,10 +105,10 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
     const fetchAgents = async () => {
       try {
         const agents = await getListAgent()
-        const formattedOptions = agents.data?.map(agent => ({
-          value: agent.id,
-          label: agent.name,
-        }))
+        const formattedOptions = agents.data?.map((agent): Option => ({ 
+          value: agent.id || 0,
+          label: agent.name || "",
+        })) || []
         setAgentsOptions(formattedOptions)
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -170,7 +172,11 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
     },
   })
 
-  const handleSelectChange = (selectedOption: any) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     formik.setFieldValue('default_agent_id', selectedOption ? selectedOption.value : null);
   };
 

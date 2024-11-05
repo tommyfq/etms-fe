@@ -3,9 +3,11 @@ import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 import {getListRole} from '../../core/_request'
-import Select from 'react-select'
+import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 
-const customStyles = {
+type Option = { value: number; label: string };
+
+const customStyles: StylesConfig<Option, false> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -52,13 +54,12 @@ const customStyles = {
 
 const UserListFilter = () => {
     const [openMenu, setOpenMenu] = useState(false);
-    const [openSubMenu, setOpenSubMenu] = useState(false);
-    const [roleOptions, setRoleOptions] = useState<any[]>([])
-    const [selectedRole, setSelectedRole] = useState()
+    const [roleOptions, setRoleOptions] = useState<Option[]>([])
+    const [selectedRole, setSelectedRole] = useState<Option | null>(null);
 
     const toggleMenu = () => setOpenMenu(!openMenu);
     // const toggleSubMenu = () => setOpenSubMenu(!openSubMenu);
-    const dropdownRef = useRef(null);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     const {updateState} = useQueryRequest()
     const {isLoading} = useQueryResponse()
@@ -68,23 +69,23 @@ const UserListFilter = () => {
     const [isActive, setIsActive] = useState(true);
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
+        const handleClickOutside = (event:any) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setOpenMenu(false); // Close menu
-                setOpenSubMenu(false); // Also close sub-menu
+                //setOpenSubMenu(false); // Also close sub-menu
             }
         };
 
         const fetchRole = async () => {
           try {
             const roles = await getListRole()
-            const formattedOptions = roles.data?.map((r) => {
+            const formattedOptions = roles.data?.map((r): Option => {
               
               return {
-                value: r.role_id,
-                label: r.role_name,
+                value: r.role_id || 0,
+                label: r.role_name || "",
               }
-            })
+            }) || []
             console.log(formattedOptions)
             setRoleOptions(formattedOptions)
     
@@ -126,7 +127,11 @@ const UserListFilter = () => {
     //     setCompany(event.target.value); // Update the selected role
     // };
 
-    const handleSelectChange = (selectedOption: any) => {
+    const handleSelectChange = (
+      selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+      actionMeta: ActionMeta<Option>
+    ) => {
+      console.log(actionMeta)
       console.log("change role")
       setSelectedRole(selectedOption)
     };

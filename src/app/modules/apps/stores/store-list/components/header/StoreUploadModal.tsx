@@ -17,17 +17,17 @@ const MySwal = withReactContent(Swal);
 
 const StoreUploadModal = ({show, handleClose}: Props) => {
     const {refetch} = useQueryResponse()
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false)
 
-    const onDrop = useCallback((acceptedFiles) => {
+    const onDrop = useCallback((acceptedFiles:any) => {
         const selectedFile = acceptedFiles[0];
         setFile(Object.assign(selectedFile, {
             preview: URL.createObjectURL(selectedFile),
           }));
 
         // Handle the dropped files
-        acceptedFiles.forEach((file) => {
+        acceptedFiles.forEach((file:any) => {
           const reader = new FileReader();
     
           reader.onload = () => {

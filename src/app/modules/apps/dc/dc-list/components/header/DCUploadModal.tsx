@@ -3,7 +3,7 @@ import {Modal} from 'react-bootstrap'
 import {KTIcon } from '../../../../../../../_metronic/helpers'
 import { useDropzone } from 'react-dropzone';
 import { uploadFile } from '../../core/_request' 
-import Swal, { SweetAlertIcon } from "sweetalert2";
+import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 
@@ -15,17 +15,17 @@ type Props = {
 const MySwal = withReactContent(Swal);
 
 const DCUploadModal = ({show, handleClose}: Props) => {
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState<any>(null);
     const {refetch} = useQueryResponse()
 
-    const onDrop = useCallback((acceptedFiles) => {
+    const onDrop = useCallback((acceptedFiles:any) => {
         const selectedFile = acceptedFiles[0];
         setFile(Object.assign(selectedFile, {
             preview: URL.createObjectURL(selectedFile),
           }));
 
         // Handle the dropped files
-        acceptedFiles.forEach((file) => {
+        acceptedFiles.forEach((file:any) => {
           const reader = new FileReader();
     
           reader.onload = () => {
@@ -57,11 +57,9 @@ const DCUploadModal = ({show, handleClose}: Props) => {
 
       const handleAlert = (response:{is_ok:boolean, message:string, data:any[]}) => {
         let title = "Error!";
-        let icon:SweetAlertIcon= "error";
         const buttonText = 'Close'
         if(response.is_ok){
           title = "Success!"
-          icon = "success"
         }
     
         const details = response.data

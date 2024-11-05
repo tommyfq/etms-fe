@@ -5,34 +5,34 @@ import api from "../../../../../services/api"
 
 const getTicket = (query: string): Promise<TicketQueryResponse> => {
   return api
-    .post(`/api/ticket/list`, query)
+    .post(`/ticket/list`, query)
     .then((d: AxiosResponse<TicketQueryResponse>) => d.data);
 };
 
 const getTicketById = (id: ID): Promise<TicketDetail | undefined> => {
   return api
-    .get(`/api/ticket/detail/${id}`)
+    .get(`/ticket/detail/${id}`)
     .then((response: AxiosResponse<Response<TicketDetail>>) => response.data)
     .then((response: Response<TicketDetail>) => response.data);
 };
 
-const createTicket = (ticket: TicketDetail): Promise<any> => {
+const createTicket = (ticket: FormData): Promise<any> => {
   console.log(ticket)
   return api
-    .post(`/api/ticket/create`, ticket)
+    .post(`/ticket/create`, ticket)
     .then((response: AxiosResponse<Response<Ticket>>) => {return response.data})
     //.then((response: Response<Company>) => response.data);
 };
 
-const updateTicket = (Store: TicketDetail): Promise<any | undefined> => {
+const updateTicket = (Store: FormData): Promise<any | undefined> => {
   return api
-    .post(`/api/ticket/update`, Store)
+    .post(`/ticket/update`, Store)
     .then((response: AxiosResponse<Response<Ticket>>) => response.data)
 };
 
 const getListAsset = (): Promise<AssetQueryResponse> => {
     return api
-      .get(`/api/asset/list-option`)
+      .get(`/asset/list-option`)
       .then((d: AxiosResponse<AssetQueryResponse>) => {
         console.log(d.data);
         return d.data
@@ -41,7 +41,7 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
 
   const getOverview = (): Promise<OverviewTicketQueryResponse> => {
     return api
-      .get(`/api/ticket/overview`)
+      .get(`/ticket/overview`)
       .then((d: AxiosResponse<OverviewTicketQueryResponse>) => {
         console.log(d.data);
         return d.data

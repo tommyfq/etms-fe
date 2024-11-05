@@ -9,7 +9,7 @@ import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import {createStore, getListDC, updateStore } from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import Select from 'react-select'
+import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -19,9 +19,11 @@ type Props = {
   store: Store
 }
 
+type Option = { value: number; label: string };
+
 const MySwal = withReactContent(Swal);
 
-const customStyles = {
+const customStyles: StylesConfig<Option, false> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -78,7 +80,7 @@ const editUserSchema = Yup.object().shape({
 const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const [dcOptions, setDCOptions] = useState<any[]>([])
+  const [dcOptions, setDCOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   
@@ -96,10 +98,10 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
     const fetchRole = async () => {
       try {
         const dcs = await getListDC()
-        const formattedOptions = dcs.data?.map(dc => ({
-          value: dc.dc_id,
-          label: dc.dc_name,
-        }))
+        const formattedOptions = dcs.data?.map((dc): Option => ({
+          value: dc.dc_id || 0,
+          label: dc.dc_name || "",
+        })) || []
         console.log(formattedOptions)
         setDCOptions(formattedOptions)
 
@@ -141,9 +143,12 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
   })
 
 
-  const handleSelectChange = (selectedOption: any) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+    ) => {
+    console.log(actionMeta)
     formik.setFieldValue('dc_id', selectedOption ? selectedOption.value : null);
-
   };
 
   const handleAlert = (response:{is_ok:boolean, message:string}) => {

@@ -8,7 +8,7 @@ import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import {createDC, getListCompany, updateDC } from '../core/_request'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import Select from 'react-select'
+import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 // import {KTIcon} from '../../../../../../_metronic/helpers'
 // import {StoreModalForm} from './StoreModalForm'
@@ -20,9 +20,11 @@ type Props = {
   dc: DC
 }
 
+type Option = { value: number; label: string };
+
 const MySwal = withReactContent(Swal);
 
-const customStyles = {
+const customStyles: StylesConfig<Option, false> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -88,7 +90,7 @@ const editUserSchema = Yup.object().shape({
 const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const [companyOptions, setCompanyOptions] = useState<any[]>([])
+  const [companyOptions, setCompanyOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   // const [stores, setStores] = useState<Store[]>([]);
@@ -109,10 +111,10 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
     const fetchAgents = async () => {
       try {
         const companies = await getListCompany()
-        const formattedOptions = companies.data?.map(c => ({
-          value: c.company_id,
-          label: c.company_name,
-        }))
+        const formattedOptions = companies.data?.map((c): Option => ({ 
+          value: c.company_id || 0,
+          label: c.company_name|| "",
+        })) || []
         setCompanyOptions(formattedOptions)
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -175,7 +177,11 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
     },
   })
 
-  const handleSelectChange = (selectedOption: any) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+    ) => {
+    console.log(actionMeta)
     formik.setFieldValue('company_id', selectedOption ? selectedOption.value : null);
   };
 
@@ -406,7 +412,7 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
       </form>
       {
         showCreateAppModal && (
-          <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(resultResponse.is_ok, true)} />
+          <ModalResultForm show={showCreateAppModal} resp={resultResponse} handleClose={() => cancel(resultResponse.is_ok)} />
         )
       }
       {/* {

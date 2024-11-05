@@ -25,7 +25,7 @@ const CardsWidgetTicket: FC<Props> = ({
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
   const [overview, setOverview] = useState<OverviewTicket[]>()
-  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState<string>();
   const {updateState} = useQueryRequest()
 
   useEffect(() => {

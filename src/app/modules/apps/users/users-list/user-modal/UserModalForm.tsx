@@ -9,7 +9,7 @@ import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import {createUser, getListRole, getListDC, updateUser } from '../core/_request'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import Select from 'react-select'
+import Select, { StylesConfig, ActionMeta, SingleValue, MultiValue } from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -19,9 +19,11 @@ type Props = {
   user: User
 }
 
+type Option = { value: number; label: string };
+
 const MySwal = withReactContent(Swal);
 
-const customStyles = {
+const customStyles: StylesConfig<Option, true> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -81,12 +83,12 @@ const editUserSchema = Yup.object().shape({
 const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const [roleOptions, setRoleOptions] = useState<any[]>([])
-  const [dcOptions, setDCOptions] = useState<any[]>([])
+  const [roleOptions, setRoleOptions] = useState<Option[]>([])
+  const [dcOptions, setDCOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
-  const [role, setRole] = useState()
-  const [selectedDC, setSelectedDC] = useState([])
+  const [role, setRole] = useState<string>()
+  const [selectedDC, setSelectedDC] = useState<MultiValue<Option>>([]);
   
   const [userForEdit] = useState<User>({
     ...user,
@@ -104,38 +106,40 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     const fetchRole = async () => {
       try {
         const roles = await getListRole()
-        const formattedOptions = roles.data?.map((r) => {
+        const formattedOptions = roles.data?.map((r): Option => {
           
           if(user.role_id == r.role_id){
             setRole(r.role_name)
           }
           
           return {
-            value: r.role_id,
-            label: r.role_name,
+            value: r.role_id || 0,
+            label: r.role_name || "",
           }
-        })
+        }) || []
         console.log(formattedOptions)
         setRoleOptions(formattedOptions)
 
-        let formattedSelectedDC = []
-        const dcs = await getListDC()
-        const formattedDCOptions = dcs.data?.map((d) => {
+        const formattedSelectedDC: Option[] = []
+        const dcList = await getListDC()
+        const formattedDCOptions = dcList.data?.map((d): Option => { 
           
-          for(const udc of user.dcs){
-            if(udc == d.dc_id){
-              formattedSelectedDC.push({
-                value: d.dc_id,
-                label: d.dc_name
-              })
+          if(user?.dcs){
+            for(const udc of user.dcs){
+              if(udc == d.dc_id){
+                formattedSelectedDC.push({
+                  value: d.dc_id || 0,
+                  label: d.dc_name || ""
+                })
+              }
             }
           }
 
           return {
-            value: d.dc_id,
-            label: d.dc_name
+            value: d.dc_id || 0,
+            label: d.dc_name || "" 
           }
-        })
+        }) || []
         
         console.log(formattedDCOptions)
         setDCOptions(formattedDCOptions)
@@ -201,16 +205,28 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   };
 
 
-  const handleSelectChange = (selectedOption: any) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+    ) => {
+    console.log(actionMeta)
     console.log("change role")
     formik.setFieldValue('role_id', selectedOption ? selectedOption.value : null);
-    setRole(selectedOption.label)
+    setRole(selectedOption?.label || "")
   };
 
-  const handleSelectDCChange = (selectedOption: any) => {
+  const handleSelectDCChange = (
+    selectedOption: MultiValue<Option>,
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
+    setSelectedDC(selectedOption);
     console.log(selectedOption)
     console.log("change dc")
-    formik.setFieldValue('dcs', selectedOption ? selectedOption.map((option: any) => option.value) : []);
+    formik.setFieldValue(
+      'dcs',
+      selectedOption ? selectedOption.map((option) => option.value) : []
+    );
     setSelectedDC(selectedOption)
     //setRole(selectedOption.label)
   };
@@ -356,10 +372,10 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             role == "agent" && 
             <div className='fv-row mb-7'>
                 <label className='form-label fw-bold'>DC</label>
-                <Select 
+                <Select<Option, true> 
                 styles={customStyles} 
                 name="dcs"
-                isMulti
+                isMulti={true}
                 options={dcOptions}
                 value={selectedDC}
                 onChange={handleSelectDCChange}

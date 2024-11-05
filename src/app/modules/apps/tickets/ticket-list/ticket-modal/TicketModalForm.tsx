@@ -3,7 +3,7 @@ import {FC, useState, useEffect, CSSProperties } from 'react'
 import * as Yup from 'yup'
 import clsx from 'clsx'
 import {useFormik} from 'formik'
-import Select from 'react-select'
+import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
 import { useDropzone } from 'react-dropzone'
 import {TicketDetail, initialTicket} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
@@ -17,7 +17,9 @@ type Props = {
   ticket: TicketDetail
 }
 
-const customStyles = {
+type Option = { value: number; label: string };
+
+const customStyles: StylesConfig<Option, false> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -113,7 +115,7 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
 
   const {refetch} = useQueryResponse()
-  const [assetOptions, setAssetOptions] = useState<any[]>([])
+  const [assetOptions, setAssetOptions] = useState<Option[]>([])
   
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
@@ -134,12 +136,12 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     const fetchAsset = async () => {
       try {
         const assets = await getListAsset()
-        const formattedOptions = assets.data?.map(asset => ({
-          value: asset.asset_id,
+        const formattedOptions = assets.data?.map((asset): Option => ({ 
+          value: asset.asset_id || 0,
           label: asset.brand + " " + asset.model,
-        }))
+        })) || []
         console.log(formattedOptions)
-        setAssetOptions(formattedOptions || [])
+        setAssetOptions(formattedOptions)
 
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -182,7 +184,11 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     },
   })
 
-  const handleSelectChange = (selectedOption: any) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     console.log("change asset")
     formik.setFieldValue('asset_id', selectedOption ? selectedOption.value : null);
     

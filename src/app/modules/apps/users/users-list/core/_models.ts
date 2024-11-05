@@ -8,7 +8,7 @@ export type User = {
   role_id?: number
   role_name?: string,
   is_active?: boolean
-  dcs: number[]
+  dcs?: number[]
 }
 
 export type UsersQueryResponse = Response<Array<User>>

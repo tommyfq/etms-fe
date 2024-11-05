@@ -3,10 +3,13 @@ import {MenuComponent} from '../../../../../../../_metronic/assets/ts/components
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {getListDC} from '../../core/_request'
-import Select from 'react-select'
+//import {getListDC} from '../../core/_request'
+// import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
 
-const customStyles = {
+//type Option = { value: number; label: string };
+
+/*
+const customStyles: StylesConfig<Option, false> = {
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#f8f9fa',
@@ -49,28 +52,30 @@ const customStyles = {
       display: 'none'  // Remove the vertical line before the dropdown arrow
     })
   };
+*/
 
 const StoreListFilter = () => {
   const {updateState} = useQueryRequest()
   const {isLoading} = useQueryResponse()
-  const [dcSelected, setDCSelected] = useState<any[]>()
-  const [dcOptions, setDCOptions] = useState<any[]>()
+  //const [dcSelected, setDCSelected] = useState<Option[]>()
+  //const [dcOptions, setDCOptions] = useState<Option[]>()
   const [lastLogin, setLastLogin] = useState<string | undefined>()
 
   useEffect(() => {
+    /*
     const fetchDC = async () => {
         try {
             const dcs = await getListDC()
             const formattedOptions = [
                 { value: 0, label: "" }, // Add the null value and empty label option first
-                ...dcs.data?.map(dc => ({
-                    value: dc.dc_id,
-                    label: dc.dc_name,
+                ...dcs.data?.map((dc:any) => ({ 
+                    value: dc.dc_id || 0,
+                    label: dc.dc_name || "",
                 })) || []
             ];
 
             console.log(formattedOptions)
-            setDCOptions(formattedOptions)
+            //setDCOptions(formattedOptions)
 
         } catch (error) {
             console.error('Error fetching agents:', error)
@@ -78,6 +83,7 @@ const StoreListFilter = () => {
     }
 
     fetchDC()
+    */
 
     MenuComponent.reinitialization()
   }, [])
@@ -86,6 +92,7 @@ const StoreListFilter = () => {
     updateState({filter: undefined, ...initialQueryState})
   }
 
+  /*
   const filterData = () => {
     const dc = dcSelected?.map(selected=>(selected.value))
 
@@ -95,9 +102,15 @@ const StoreListFilter = () => {
     })
   }
 
-  const handleChange = (selectedOption) => {
+  
+  const handleChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     setDCSelected(selectedOption); // Set the selected option directly
   };
+  */
 
   return (
     <>
@@ -130,7 +143,7 @@ const StoreListFilter = () => {
           {/* begin::Input group */}
           <div className='mb-10'>
             <label className='form-label fs-6 fw-bold'>DC Name</label>
-            <Select 
+            {/* <Select 
                 styles={customStyles} 
                 name="dc_id" 
                 options={dcOptions}
@@ -138,7 +151,7 @@ const StoreListFilter = () => {
                 onChange={handleChange}
                 isMulti
                 closeMenuOnSelect={false}
-            />
+            /> */}
 
             {/* <select
               className='form-select form-select-solid fw-bolder'
@@ -207,7 +220,7 @@ const StoreListFilter = () => {
             <button
               disabled={isLoading}
               type='button'
-              onClick={filterData}
+              //udahonClick={filterData}
               className='btn btn-primary fw-bold px-6'
               data-kt-menu-dismiss='true'
               data-kt-user-table-filter='filter'

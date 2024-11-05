@@ -7,7 +7,7 @@ export default defineConfig(({mode})=>{
 
   return {
     plugins: [react()],
-    base: "/etms/",
+    base: "/",
     build: {
       chunkSizeWarningLimit: 3000,
     },

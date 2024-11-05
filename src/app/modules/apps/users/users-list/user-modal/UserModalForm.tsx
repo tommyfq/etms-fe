@@ -216,16 +216,15 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   };
 
   const handleSelectDCChange = (
-    selectedOption: MultiValue<Option>,
-    actionMeta: ActionMeta<Option>
+    selectedOption: any
   ) => {
-    console.log(actionMeta)
+    //console.log(actionMeta)
     setSelectedDC(selectedOption);
     console.log(selectedOption)
     console.log("change dc")
     formik.setFieldValue(
       'dcs',
-      selectedOption ? selectedOption.map((option) => option.value) : []
+      selectedOption ? selectedOption.map((option:any) => option.value) : []
     );
     setSelectedDC(selectedOption)
     //setRole(selectedOption.label)

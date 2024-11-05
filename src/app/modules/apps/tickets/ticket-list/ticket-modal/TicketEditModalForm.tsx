@@ -6,7 +6,7 @@ import {useFormik} from 'formik'
 import {TicketDetail, initialTicket} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import {createTicket, updateTicket } from '../core/_request'
+import { updateTicket } from '../core/_request'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import ImageModal from '../../../../../components/ImageModal'
@@ -16,50 +16,6 @@ type Props = {
   isUserLoading: boolean
   ticket: TicketDetail
 }
-
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    backgroundColor: '#f8f9fa',
-    border: state.isFocused ? '0px solid #DBDFE9' : '0px solid #DBDFE9',
-    boxShadow: 'none',
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#4B5675',
-  }),
-  menu: (provided) => ({
-    ...provided,
-    position: 'absolute',
-    zIndex: 9999,
-    borderRadius: '4px',
-    border: '1px solid #ced4da',
-    marginTop: '0',
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '13px',
-    fontWeight: '400',
-    //color:'#99a1b7',
-  }),
-  menuPortal: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-    position: 'fixed', // Make the dropdown menu fixed
-    top: `${provided.top}px`, // Use calculated position from react-select
-    left: `${provided.left}px`, // Use calculated position from react-select
-    width: provided.width,  // Ensure the width matches the control
-    //color:'#99a1b7',
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '13px',
-    fontWeight: '500',
-    color: '#4B5675',
-  }),
-  indicatorSeparator: () => ({
-    display: 'none'  // Remove the vertical line before the dropdown arrow
-  })
-};
 
 const styles: { 
   dropzone: CSSProperties; 
@@ -151,14 +107,14 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     console.log(ticket);
     console.log("TICKET EDIT MODAL FORM")
     console.log(currentUser)
-    console.log(currentUser?.data)
-    setUser(currentUser?.data)
+    console.log(currentUser)
+    setUser(currentUser)
     //setUser(currentUser.data)
   }, [])
 
   useEffect(() => {
     if (currentUser) {
-      setUser(currentUser.data);
+      setUser(currentUser);
     }
   }, [currentUser]);
 

@@ -105,6 +105,7 @@ const styles: {
     justifyContent: 'center'
   }
 };
+
 const editUserSchema = Yup.object().shape({
   title: Yup.string().required('Title is required'),
   asset_id: Yup.string().required('Asset is required'),

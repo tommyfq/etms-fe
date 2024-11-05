@@ -17,6 +17,7 @@ const ListViewContext = createContext<ListViewContextProps>(initialListView)
 const ListViewProvider: FC<WithChildren> = ({children}) => {
   const [selected, setSelected] = useState<Array<ID>>(initialListView.selected)
   const [itemIdForUpdate, setItemIdForUpdate] = useState<ID>(initialListView.itemIdForUpdate)
+  const [ticketNo, setTicketNo] = useState<string>('');
   const {isLoading} = useQueryResponse()
   const data = useQueryResponseData()
   const disabled = useMemo(() => calculatedGroupingIsDisabled(isLoading, data), [isLoading, data])
@@ -30,14 +31,16 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
         setItemIdForUpdate,
         disabled,
         isAllSelected,
+        ticketNo,
+        setTicketNo,
         onSelect: (id: ID) => {
-          groupingOnSelect(id, selected, setSelected)
+          groupingOnSelect(id, selected, setSelected);
         },
         onSelectAll: () => {
-          groupingOnSelectAll(isAllSelected, setSelected, data)
+          groupingOnSelectAll(isAllSelected, setSelected, data);
         },
         clearSelected: () => {
-          setSelected([])
+          setSelected([]);
         },
       }}
     >

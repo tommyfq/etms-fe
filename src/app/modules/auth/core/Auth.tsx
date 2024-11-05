@@ -55,6 +55,8 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
       if (auth?.data.token) {
         try {
           const { data } = await getUserByToken(auth.data.token);
+          console.log("AUTH PROVIDER")
+          console.log(data);
           setCurrentUser(data);
         } catch (error) {
           console.error('Error fetching user:', error);
@@ -88,6 +90,8 @@ const AuthInit: FC<WithChildren> = ({children}) => {
       try {
         if (!currentUser) {
           const {data} = await getUserByToken(apiToken)
+          console.log("AUTH INIT")
+          console.log(data)
           if (data) {
             setCurrentUser(data)
           }

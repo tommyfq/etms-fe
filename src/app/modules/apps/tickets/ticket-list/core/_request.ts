@@ -24,7 +24,7 @@ const createTicket = (ticket: FormData): Promise<any> => {
     //.then((response: Response<Company>) => response.data);
 };
 
-const updateTicket = (Store: FormData): Promise<any | undefined> => {
+const updateTicket = (Store: TicketDetail): Promise<any | undefined> => {
   return api
     .post(`/ticket/update`, Store)
     .then((response: AxiosResponse<Response<Ticket>>) => response.data)

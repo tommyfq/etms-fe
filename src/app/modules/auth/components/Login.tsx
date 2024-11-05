@@ -40,9 +40,19 @@ export function Login() {
       setLoading(true)
       try {
         const {data: auth} = await login(values.username, values.password)
-        saveAuth(auth)
-        //const {data: user} = await getUserByToken(auth.data)
-        setCurrentUser(auth.data.user)
+        if(auth.is_ok){
+          saveAuth(auth)
+          console.log(auth)
+          const {data} = await getUserByToken(auth.data.token)
+          console.log(data)
+          setCurrentUser(data)
+        }else{
+          saveAuth(undefined)
+          setStatus(auth.message)
+          setSubmitting(false)
+          setLoading(false)
+        }
+       
       } catch (error) {
         console.error(error)
         saveAuth(undefined)

@@ -9,15 +9,21 @@ import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import {createAsset, getListDC, updateAsset, getListStore, getListBrand, getListModel } from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import Select from 'react-select'
+import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type Props = {
   isUserLoading: boolean
   asset: Asset
 }
 
-const customStyles = {
+type Option = { value: number; label: string };
+
+const MySwal = withReactContent(Swal);
+
+const customStyles: StylesConfig<Option, false> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -76,11 +82,11 @@ const editUserSchema = Yup.object().shape({
 const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const [dcOptions, setDCOptions] = useState<any[]>()
-  const [storeOptions, setStoreOptions] = useState<any[]>([])
-  const [brandOptions, setBrandOptions] = useState<any[]>([])
-  const [modelOptions, setModelOptions] = useState<any[]>([])
-  const [selectedBrand, setSelectedBrand] = useState<number>()
+  const [dcOptions, setDCOptions] = useState<Option[]>()
+  const [storeOptions, setStoreOptions] = useState<Option[]>([])
+  const [brandOptions, setBrandOptions] = useState<Option[]>([])
+  const [modelOptions, setModelOptions] = useState<Option[]>([])
+  const [selectedBrand, setSelectedBrand] = useState<string>()
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [selectedDCId, setSelectedDCId] = useState<number>()
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
@@ -97,27 +103,35 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
   item_id: asset.item_id || initialAsset.item_id
   })
 
+  function hashStringToNumber(str: string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash += str.charCodeAt(i);
+    }
+    return hash;
+  }
+
   useEffect(() => {
     const fetchDC = async () => {
       try {
         const dcs = await getListDC()
         console.log(dcs)
-        const formattedOptions = dcs.data?.map(dc => ({
-          value: dc.dc_id,
-          label: dc.dc_name,
-        }))
-        console.log(formattedOptions)
-        setDCOptions(formattedOptions)
+        const formattedDCOptions = dcs.data?.map((dc): Option => ({ 
+          value: dc?.dc_id || 0,
+          label: dc?.dc_name || "",
+        }));
+        console.log(formattedDCOptions)
+        setDCOptions(formattedDCOptions)
 
         if(asset?.dc_id != 0){
             const fetchStore = async () => {
                 try {
                   const stores = await getListStore(asset.dc_id ?? 0)
                   console.log(stores);
-                  const formattedStoreOptions = stores.data?.map(store => ({
-                    value: store.store_id,
-                    label: store.store_name,
-                  }))
+                  const formattedStoreOptions = stores.data?.map((store): Option => ({ 
+                    value: store.store_id || 0,
+                    label: store.store_name || "",
+                  })) || []
                   setStoreOptions(formattedStoreOptions)
                 } catch (error) {
                   console.error('Error fetching agents:', error)
@@ -129,10 +143,10 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
 
         const brands = await getListBrand()
         console.log(brands)
-        const formattedBrandOptions = brands.data?.map(brand => ({
-          value: brand,
+        const formattedBrandOptions = brands.data?.map((brand): Option => ({ 
+          value: hashStringToNumber(brand),
           label: brand
-        }))
+        })) || []
         console.log(formattedBrandOptions)
         setBrandOptions(formattedBrandOptions)
 
@@ -143,10 +157,10 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
               try {
                 const models = await getListModel(asset.brand ?? "")
                 console.log(models);
-                const formattedModeloptions = models.data?.map(model => ({
-                  value: model.item_id,
-                  label: model.model,
-                }))
+                const formattedModeloptions = models.data?.map((model): Option => ({ 
+                  value: model.item_id || 0,
+                  label: model.model || "",
+                })) || []
                 setModelOptions(formattedModeloptions)
               } catch (error) {
                 console.error('Error fetching agents:', error)
@@ -163,6 +177,27 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     fetchDC()
     console.log(asset);
   }, [])
+
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
 
   const cancel = (withRefresh?: boolean) => {
     
@@ -182,40 +217,32 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
       console.log(values);
       setSubmitting(true)
       try {
-        if (values.id != 0) {
-          console.log("UPDATE")
-          console.log(values);
-          let response = await updateAsset(values)
-          console.log(response);
-          setShowCreateAppModal(true)
-          setResultResponse(response)
-          
-        } else {
-          console.log("CREATE")
-          console.log(values);
-          let response = await createAsset(values)
-          setShowCreateAppModal(true)
-          setResultResponse(response)
-        }
+        const response = values.id !== 0 ? await updateAsset(values) : await createAsset(values);
+        setResultResponse(response);
+        handleAlert(response)
       } catch (ex) {
         console.error(ex)
       }
     },
   })
 
-  const handleSelectDCChange = (selectedOption: any) => {
+  const handleSelectDCChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     console.log("change dc")
     formik.setFieldValue('dc_id', selectedOption ? selectedOption.value : null);
-    setSelectedDCId(selectedOption.value)
+    setSelectedDCId(selectedOption?.value)
     console.log("selected_dc_id: "+selectedDCId)
     const fetchStore = async () => {
         try {
           const stores = await getListStore(selectedOption?.value ?? 0)
           console.log(stores);
-          const formattedOptions = stores.data?.map(store => ({
-            value: store.store_id,
-            label: store.store_name,
-          }))
+          const formattedOptions = stores.data?.map((store): Option => ({ 
+            value: store.store_id || 0,
+            label: store.store_name || "",
+          })) || []
           setStoreOptions(formattedOptions)
         } catch (error) {
           console.error('Error fetching agents:', error)
@@ -225,20 +252,25 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
       fetchStore()
   };
 
-  const handleSelectBrandChange = (selectedOption: any) => {
+  const handleSelectBrandChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     console.log("change brand")
     formik.setFieldValue('brand', selectedOption ? selectedOption.value : null);
     console.log(selectedOption);
-    setSelectedBrand(selectedOption.value)
+    setSelectedBrand(selectedOption?.label)
     console.log("selected_brand: "+selectedBrand)
+
     const fetchModel = async () => {
         try {
-          const models = await getListModel(selectedOption.label)
+          const models = await getListModel(selectedOption?.label || "")
           console.log(models);
-          const formattedModelOptions = models.data?.map(model => ({
-            value: model.item_id,
-            label: model.model,
-          }))
+          const formattedModelOptions = models.data?.map((model): Option => ({
+            value: model.item_id || 0,
+            label: model.model || "",
+          })) || []
           setModelOptions(formattedModelOptions)
           console.log(formattedModelOptions)
         } catch (error) {
@@ -246,16 +278,26 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
         }
       }
   
-      fetchModel()
+      if(selectedOption?.label != ""){
+        fetchModel()
+      }
   };
 
-  const handleSelectChange = (selectedOption: any) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     console.log("change dc")
     formik.setFieldValue('store_id', selectedOption ? selectedOption.value : null);
 
   };
 
-  const handleSelectItemChange = (selectedOption: any) => {
+  const handleSelectItemChange = (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
     console.log("change item")
     formik.setFieldValue('item_id', selectedOption ? selectedOption.value : null);
   };
@@ -318,7 +360,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                 styles={customStyles} 
                 name="brand" 
                 options={brandOptions}
-                value={brandOptions?.find(option => option.value === formik.values.brand) || null}
+                value={brandOptions?.find(option => option.label === formik.values.brand) || null}
                 onChange={handleSelectBrandChange}
                 />
                 {formik.touched.dc_id && formik.errors.dc_id && (

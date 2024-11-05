@@ -31,14 +31,7 @@ const QueryResponseProvider: FC<WithChildren> = ({children}) => {
     refetch,
     data: response,
   } = useQuery(
-        `{
-        "search_serial_number":"",
-        "search_dc_name":"",
-        "search_store_name":"",
-        "page":1,
-        "column_sort":"serial_number",
-        "order":"asc"
-    }`,
+        query,
     () => {
       return getAsset(query)
     },

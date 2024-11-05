@@ -3,7 +3,7 @@ import {Modal} from 'react-bootstrap'
 import {KTIcon } from '../../../../../../../_metronic/helpers'
 import { useDropzone } from 'react-dropzone';
 import { uploadFile } from '../../core/_requests' 
-import Swal, { SweetAlertIcon } from "sweetalert2";
+import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {useQueryResponse} from '../../core/QueryResponseProvider'
 
@@ -15,17 +15,17 @@ type Props = {
 const MySwal = withReactContent(Swal);
 
 const AssetUploadModal = ({show, handleClose}: Props) => {
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState<any>(null);
     const {refetch} = useQueryResponse()
 
-    const onDrop = useCallback((acceptedFiles) => {
+    const onDrop = useCallback((acceptedFiles:any) => {
         const selectedFile = acceptedFiles[0];
         setFile(Object.assign(selectedFile, {
             preview: URL.createObjectURL(selectedFile),
           }));
 
         // Handle the dropped files
-        acceptedFiles.forEach((file) => {
+        acceptedFiles.forEach((file:any) => {
           const reader = new FileReader();
     
           reader.onload = () => {
@@ -51,7 +51,12 @@ const AssetUploadModal = ({show, handleClose}: Props) => {
 
     useEffect(() => {
         // Revoke the data uri after component unmount
-        return () => file && URL.revokeObjectURL(file.preview);
+        return () => {
+          if (file) {
+            URL.revokeObjectURL(file.preview);
+          }
+          // No need to return anything, or you can return void explicitly
+        };
       }, [file]);
     
 

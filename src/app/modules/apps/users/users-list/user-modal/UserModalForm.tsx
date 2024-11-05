@@ -23,7 +23,51 @@ type Option = { value: number; label: string };
 
 const MySwal = withReactContent(Swal);
 
-const customStyles: StylesConfig<Option, true> = {
+const customStyles: StylesConfig<Option, false> = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: '#f8f9fa',
+    border: state.isFocused ? '0px solid #DBDFE9' : '0px solid #DBDFE9',
+    boxShadow: 'none',
+    fontFamily: 'Inter, Helvetica, sans-serif',
+    fontSize: '14px',
+    fontWeight: '600',
+    color:'#99a1b7',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    position: 'absolute',
+    zIndex: 9999,
+    borderRadius: '4px',
+    border: '1px solid #ced4da',
+    marginTop: '0',
+    fontFamily: 'Inter, Helvetica, sans-serif',
+    fontSize: '13px',
+    fontWeight: '400',
+    //color:'#99a1b7',
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+    position: 'fixed', // Make the dropdown menu fixed
+    top: `${provided.top}px`, // Use calculated position from react-select
+    left: `${provided.left}px`, // Use calculated position from react-select
+    width: provided.width,  // Ensure the width matches the control
+    //color:'#99a1b7',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    fontFamily: 'Inter, Helvetica, sans-serif',
+    fontSize: '13px',
+    fontWeight: '400',
+    color:'#99a1b7',
+  }),
+  indicatorSeparator: () => ({
+    display: 'none'  // Remove the vertical line before the dropdown arrow
+  })
+};
+
+const customDCStyles: StylesConfig<Option, true> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -216,18 +260,18 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   };
 
   const handleSelectDCChange = (
-    selectedOption: any
+    selectedOption: MultiValue<Option>, // Change the type here
+    actionMeta: ActionMeta<Option>
   ) => {
-    //console.log(actionMeta)
+    console.log(actionMeta);
     setSelectedDC(selectedOption);
-    console.log(selectedOption)
-    console.log("change dc")
+    console.log(selectedOption);
+    console.log("change dc");
+    
     formik.setFieldValue(
       'dcs',
-      selectedOption ? selectedOption.map((option:any) => option.value) : []
+      selectedOption ? selectedOption.map((option) => option.value) : []
     );
-    setSelectedDC(selectedOption)
-    //setRole(selectedOption.label)
   };
 
   return (
@@ -372,7 +416,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             <div className='fv-row mb-7'>
                 <label className='form-label fw-bold'>DC</label>
                 <Select<Option, true> 
-                styles={customStyles} 
+                styles={customDCStyles} 
                 name="dcs"
                 isMulti={true}
                 options={dcOptions}

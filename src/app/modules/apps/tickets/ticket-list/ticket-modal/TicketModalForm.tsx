@@ -8,7 +8,7 @@ import { useDropzone } from 'react-dropzone'
 import {TicketDetail, initialTicket} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import {createTicket, getListAsset, updateTicket } from '../core/_request'
+import {createTicket, getListAsset } from '../core/_request'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 
@@ -176,7 +176,7 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         formData.append("cc",values.cc || '')
         uploadedFiles.forEach((file) => formData.append("images", file)); // Append each file to formData
         console.log(formData)
-        const response = values.id !== 0 ? await updateTicket(formData) : await createTicket(formData);
+        const response = await createTicket(formData);
         setShowCreateAppModal(true);
         setResultResponse(response);
       } catch (ex) {

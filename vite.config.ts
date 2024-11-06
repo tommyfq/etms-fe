@@ -14,7 +14,7 @@ export default defineConfig(({mode})=>{
     server: {
       proxy: {
         '/proxy': {
-          target: `${env.VITE_ETMS_API_URL}:${env.VITE_ETMS_API_PORT}/api/`, // Use environment variable for backend URL
+          target: `${env.VITE_ETMS_API_URL}/api/`, // Use environment variable for backend URL
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/proxy/, ''), // Optional: remove `/api` prefix if not needed on the backend
         },

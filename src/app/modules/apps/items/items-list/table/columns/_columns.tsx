@@ -24,6 +24,11 @@ const itemsColumns: ReadonlyArray<Column<Item>> = [
     id: 'model',
     Cell: ({...props}) => <InfoCell data={props.data[props.row.index].model} />,
   },
+  {
+    Header: (props) => <ItemCustomHeader tableProps={props} title='Warranty Duration' className='min-w-125px' />,
+    id: 'warranty_duration',
+    Cell: ({...props}) => <InfoCell data={String(props.data[props.row.index].warranty_duration)} />,
+  },
 //   {
 //     Header: (props) => <UserCustomHeader tableProps={props} title='Role' className='min-w-125px' />,
 //     accessor: 'role',

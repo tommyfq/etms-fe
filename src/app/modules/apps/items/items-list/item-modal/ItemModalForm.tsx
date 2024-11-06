@@ -72,6 +72,7 @@ const editUserSchema = Yup.object().shape({
   //   .required('Email is required'),
   brand: Yup.string().required('Brand is required'),
   model: Yup.string().required('Model is required'),
+  warranty_duration: Yup.number().required('Warranty Duration is required'),
 })
 
 const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
@@ -86,6 +87,7 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
     id: item.id || initialItem.id,
   brand: item.brand || initialItem.brand,
   model: item.model || initialItem.model,
+  warranty_duration: item.warranty_duration || initialItem.warranty_duration,
   is_active: item.is_active ?? initialItem.is_active ?? false
   })
 
@@ -214,6 +216,32 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
                 <div className='fv-plugins-message-container'>
                     <div className='fv-help-block'>
                     <span role='alert'>{formik.errors.model}</span>
+                    </div>
+                </div>
+                )}
+            </div>
+
+            <div className='fv-row mb-7'>
+                <label className='required fw-bold fs-6 mb-2'>Warranty Duration</label>
+                <input
+                placeholder='Warranty Duration'
+                {...formik.getFieldProps('warranty_duration')}
+                type='number'
+                name='warranty_duration'
+                className={clsx(
+                    'form-control form-control-solid mb-3 mb-lg-0',
+                    {'is-invalid': formik.touched.warranty_duration && formik.errors.warranty_duration},
+                    {
+                    'is-valid': formik.touched.warranty_duration && !formik.errors.warranty_duration,
+                    }
+                )}
+                autoComplete='off'
+                disabled={formik.isSubmitting || isUserLoading}
+                />
+                {formik.touched.warranty_duration && formik.errors.warranty_duration && (
+                <div className='fv-plugins-message-container'>
+                    <div className='fv-help-block'>
+                    <span role='alert'>{formik.errors.warranty_duration}</span>
                     </div>
                 </div>
                 )}

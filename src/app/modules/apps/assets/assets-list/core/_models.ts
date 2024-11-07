@@ -9,7 +9,8 @@ export type Asset = {
   store_id?: number
   is_active?: boolean
   waranty_status?: boolean
-  waranty_date?: string
+  delivery_date?: string
+  warranty_expired?: string
   dc_name?: string, 
   store_name?: string
 }
@@ -23,7 +24,8 @@ export const initialAsset: Asset = {
   store_id: 0,
   is_active: true,
   waranty_status: false,
-  waranty_date: "",
+  delivery_date: "",
+  warranty_expired: "",
   dc_name: "",
   store_name: "",
   item_id: 0

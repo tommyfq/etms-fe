@@ -54,10 +54,17 @@ const companiesColumns: ReadonlyArray<Column<Asset>> = [
   },
   {
     Header: (props) => (
-      <AssetCustomHeader tableProps={props} title='Warranty Date' className='min-w-125px' />
+      <AssetCustomHeader tableProps={props} title='Delivery Date' className='min-w-125px' />
     ),
-    id: 'warranty_date',
-    Cell: ({...props}) => <AssetDataCell data={props.data[props.row.index].waranty_date} />,
+    id: 'delivery_date',
+    Cell: ({...props}) => <AssetDataCell data={props.data[props.row.index].delivery_date} />,
+  },
+  {
+    Header: (props) => (
+      <AssetCustomHeader tableProps={props} title='Warranty Expired' className='min-w-125px' />
+    ),
+    id: 'warranty_expired',
+    Cell: ({...props}) => <AssetDataCell data={props.data[props.row.index].warranty_expired} />,
   },
 //   {
 //     Header: (props) => (

@@ -76,7 +76,7 @@ const editUserSchema = Yup.object().shape({
   serial_number: Yup.string().required('Serial Number is required'),
   dc_id: Yup.number().required('DC ID is required'),
   store_id: Yup.number().required('Store ID is required'),
-  waranty_date: Yup.string().required('Warranty Date is required'),
+  delivery_date: Yup.string().required('Warranty Date is required'),
 })
 
 const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
@@ -96,7 +96,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     id: asset.id || initialAsset.id,
   serial_number: asset.serial_number || initialAsset.serial_number,
   waranty_status: asset.waranty_status || initialAsset.waranty_status,
-  waranty_date: asset.waranty_date || initialAsset.waranty_date,
+  delivery_date: asset.delivery_date || initialAsset.delivery_date,
   dc_id: asset.dc_id || initialAsset.dc_id,
   store_id: asset.store_id || initialAsset.store_id,
   is_active: asset.is_active ?? initialAsset.is_active ?? false,
@@ -258,8 +258,9 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
   ) => {
     console.log(actionMeta)
     console.log("change brand")
-    formik.setFieldValue('brand', selectedOption ? selectedOption.value : null);
+    formik.setFieldValue('brand', selectedOption ? selectedOption.label : null);
     console.log(selectedOption);
+    console.log(selectedOption?.label)
     setSelectedBrand(selectedOption?.label)
     console.log("selected_brand: "+selectedBrand)
 
@@ -360,7 +361,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                 styles={customStyles} 
                 name="brand" 
                 options={brandOptions}
-                value={brandOptions?.find(option => option.label === formik.values.brand) || null}
+                //value={brandOptions?.find(option => option.label === formik.values.brand) || null}
                 onChange={handleSelectBrandChange}
                 />
                 {formik.touched.dc_id && formik.errors.dc_id && (
@@ -453,26 +454,26 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
           </div>
 
           <div className='fv-row mb-7'>
-            <label className='required fw-bold fs-6 mb-2'>Warranty Date</label>
+            <label className='required fw-bold fs-6 mb-2'>Delivery Date</label>
             <input
-              placeholder='Warranty Date'
-              {...formik.getFieldProps('waranty_date')}
+              placeholder='Delivery Date'
+              {...formik.getFieldProps('delivery_date')}
               type='date'
-              name='waranty_date'
+              name='delivery_date'
               className={clsx(
                 'form-control form-control-solid mb-3 mb-lg-0',
-                {'is-invalid': formik.touched.waranty_date && formik.errors.waranty_date},
+                {'is-invalid': formik.touched.delivery_date && formik.errors.delivery_date},
                 {
-                  'is-valid': formik.touched.waranty_date && !formik.errors.waranty_date,
+                  'is-valid': formik.touched.delivery_date && !formik.errors.delivery_date,
                 }
               )}
               autoComplete='off'
               disabled={formik.isSubmitting || isUserLoading}
             />
-            {formik.touched.waranty_date && formik.errors.waranty_date && (
+            {formik.touched.delivery_date && formik.errors.delivery_date && (
               <div className='fv-plugins-message-container'>
                 <div className='fv-help-block'>
-                  <span role='alert'>{formik.errors.waranty_date}</span>
+                  <span role='alert'>{formik.errors.delivery_date}</span>
                 </div>
               </div>
             )}

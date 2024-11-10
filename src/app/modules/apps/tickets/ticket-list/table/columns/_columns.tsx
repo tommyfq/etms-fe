@@ -29,13 +29,6 @@ const ticketsColumns: ReadonlyArray<Column<TicketList>> = [
     id: 'priority',
     Cell: ({...props}) => <PriorityColumnCell data={props.data[props.row.index].priority} />,
   },
-  {
-    Header: (props) => (
-      <TicketCustomHeader tableProps={props} title='On Hold' className='min-w-125px' />
-    ),
-    id: 'on_hold',
-    Cell: ({...props}) => <OnHoldColumnCell on_hold={props.data[props.row.index].on_hold} />,
-  },
 //   {
 //     Header: (props) => <UserCustomHeader tableProps={props} title='Role' className='min-w-125px' />,
 //     accessor: 'role',

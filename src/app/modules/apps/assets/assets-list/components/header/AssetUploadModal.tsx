@@ -95,7 +95,7 @@ const AssetUploadModal = ({show, handleClose}: Props) => {
 
       const handleDownload = () => {
         // The file is located inside the "public" folder in Vite
-        const fileUrl = `${import.meta.env.VITE_ETMS_TEMPLATES_URL}/Template_Upload_Asset.xlsx`; // No need for process.env.PUBLIC_URL in Vite
+        const fileUrl = `/templates/Template_Upload_Asset.xlsx`; // No need for process.env.PUBLIC_URL in Vite
     
         // Create a temporary anchor tag to download the file
         const link = document.createElement('a');

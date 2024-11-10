@@ -5,17 +5,21 @@ import clsx from 'clsx'
 import {useFormik} from 'formik'
 import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
 import { useDropzone } from 'react-dropzone'
-import {TicketDetail, initialTicket} from '../core/_models'
+import {TicketDetail, initialTicket, Asset} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import {createTicket, getListAsset } from '../core/_request'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
+import Swal, { SweetAlertIcon } from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 type Props = {
   isUserLoading: boolean
   ticket: TicketDetail
 }
+
+const MySwal = withReactContent(Swal);
 
 type Option = { value: number; label: string };
 
@@ -117,6 +121,8 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
 
   const {refetch} = useQueryResponse()
   const [assetOptions, setAssetOptions] = useState<Option[]>([])
+  const [assetList, setAssetList] = useState<Asset[]>()
+  const [selectedAsset, setSelectedAsset] = useState<Asset>()
   
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
@@ -139,10 +145,11 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         const assets = await getListAsset()
         const formattedOptions = assets.data?.map((asset): Option => ({ 
           value: asset.asset_id || 0,
-          label: asset.brand + " " + asset.model,
+          label: asset.brand + " " + asset.model + " | "+asset.serial_number,
         })) || []
         console.log(formattedOptions)
         setAssetOptions(formattedOptions)
+        setAssetList(assets.data)
 
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -163,6 +170,27 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     }
   }
 
+  const handleAlert = (response:{is_ok:boolean, message:string}) => {
+    let title = "Error!";
+    let icon:SweetAlertIcon= "error";
+    const buttonText = 'Close'
+    if(response.is_ok){
+      title = "Success!"
+      icon = "success"
+    }
+
+    MySwal.fire({
+      title: title,
+      text: response.message,
+      icon: icon,
+      confirmButtonText: buttonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancel(response.is_ok)
+      }
+    })
+  };
+
   const formik = useFormik({
     initialValues: userForEdit,
     validationSchema: editUserSchema,
@@ -177,8 +205,8 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         uploadedFiles.forEach((file) => formData.append("images", file)); // Append each file to formData
         console.log(formData)
         const response = await createTicket(formData);
-        setShowCreateAppModal(true);
         setResultResponse(response);
+        handleAlert(response)
       } catch (ex) {
         setSubmitting(false);
       }
@@ -192,7 +220,11 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     console.log(actionMeta)
     console.log("change asset")
     formik.setFieldValue('asset_id', selectedOption ? selectedOption.value : null);
-    
+    const selected = assetList?.find((a) => {
+      return a.asset_id == selectedOption?.value
+    })
+
+    setSelectedAsset(selected)
   };
 
   const onDrop = (acceptedFiles: File[]) => {
@@ -257,98 +289,155 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 )}
             </div>
             
-            <div className='fv-row mb-7'>
-                <label className='required form-label fw-bold'>Asset</label>
-                <Select 
-                styles={customStyles} 
-                name="dc_id" 
-                options={assetOptions}
-                value={assetOptions.find(option => option.value === formik.values.asset_id) || null}
-                onChange={handleSelectChange}
-                />
-                {formik.touched.asset_id && formik.errors.asset_id && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.asset_id}</span>
+            <div className='row mb-7'>
+                <div className="col-12 col-md-6">
+                  <div className="fv-row">
+                    <label className='required form-label fw-bold'>Asset</label>
+                    <Select 
+                    styles={customStyles} 
+                    name="dc_id" 
+                    options={assetOptions}
+                    value={assetOptions.find(option => option.value === formik.values.asset_id) || null}
+                    onChange={handleSelectChange}
+                    />
+                    {formik.touched.asset_id && formik.errors.asset_id && (
+                    <div className='fv-plugins-message-container'>
+                        <div className='fv-help-block'>
+                        <span role='alert'>{formik.errors.asset_id}</span>
+                        </div>
                     </div>
+                    )}
+                    { selectedAsset && 
+                      <div className='card-body p-3'>
+                        <div className='row mb-3'>
+                            <label className='col-lg-4 fw-bold text-muted'>Serial Number</label>
+                            <div className='col-lg-8'>
+                                <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.serial_number}</span>
+                            </div>
+                        </div>
+
+                        <div className='row mb-3'>
+                            <label className='col-lg-4 fw-bold text-muted'>Brand</label>
+                            <div className='col-lg-8'>
+                                <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.brand}</span>
+                            </div>
+                        </div>
+
+                        <div className='row mb-3'>
+                            <label className='col-lg-4 fw-bold text-muted'>Model</label>
+                            <div className='col-lg-8 fv-row'>
+                                <span className='fw-bold fs-6'>{selectedAsset.model}</span>
+                            </div>
+                        </div>
+
+                        <div className='row mb-3'>
+                            <label className='col-lg-4 fw-bold text-muted'>DC</label>
+                            <div className='col-lg-8 fv-row'>
+                                <span className='fw-bold fs-6'>{selectedAsset.dc_name}</span>
+                            </div>
+                        </div>
+
+                        <div className='row'>
+                            <label className='col-lg-4 fw-bold text-muted'>Store</label>
+                            <div className='col-lg-8'>
+                                <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.store_name}</span>
+                            </div>
+                        </div>
+                      </div>
+                    }
+                    
+                  </div>
+                  
                 </div>
-                )}
+                <div className="col-12 col-md-6">
+                  <div className="fv-row">
+                    <label className='required fw-bold fs-6 mb-2'>Description</label>
+                    <textarea
+                        placeholder='Description'
+                        {...formik.getFieldProps('description')} // corrected the name here to 'description'
+                        name='description' // corrected name to match field
+                        className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                        {'is-invalid': formik.touched.description && formik.errors.description},
+                        {'is-valid': formik.touched.description && !formik.errors.description}
+                        )}
+                        autoComplete='off'
+                        disabled={formik.isSubmitting || isUserLoading}
+                    />
+                    {formik.touched.description && formik.errors.description && (
+                        <div className='fv-plugins-message-container'>
+                            <div className='fv-help-block'>
+                                <span role='alert'>{formik.errors.description}</span>
+                            </div>
+                        </div>
+                    )}
+                  </div>
+                  
+                </div>
             </div>
 
             <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Description</label>
-                <textarea
-                    placeholder='Description'
-                    {...formik.getFieldProps('description')} // corrected the name here to 'description'
-                    name='description' // corrected name to match field
+                
+            </div>
+
+            <div className="row mb-7">
+              <div className="col-12 col-lg-6">
+                <div className='fv-row'>
+                  <label className='required fw-bold fs-6 mb-2'>Due Date</label>
+                  <input
+                  placeholder='Due Date'
+                  {...formik.getFieldProps('due_date')}
+                  type='date'
+                  name='due_date'
+                  className={clsx(
+                      'form-control form-control-solid mb-3 mb-lg-0',
+                      {'is-invalid': formik.touched.due_date && formik.errors.due_date},
+                      {
+                      'is-valid': formik.touched.due_date && !formik.errors.due_date,
+                      }
+                  )}
+                  autoComplete='off'
+                  min={new Date().toISOString().split("T")[0]}
+                  disabled={formik.isSubmitting || isUserLoading}
+                  />
+                  {formik.touched.due_date && formik.errors.due_date && (
+                  <div className='fv-plugins-message-container'>
+                      <div className='fv-help-block'>
+                      <span role='alert'>{formik.errors.due_date}</span>
+                      </div>
+                  </div>
+                  )}
+                </div>
+              </div>
+              <div className="col-12 col-lg-6">
+                  <div className='fv-row'>
+                    <label className='fw-bold fs-6 mb-2'>CC</label>
+                    <input
+                    placeholder='cc'
+                    {...formik.getFieldProps('cc')}
+                    type='text'
+                    name='cc'
                     className={clsx(
-                    'form-control form-control-solid mb-3 mb-lg-0',
-                    {'is-invalid': formik.touched.description && formik.errors.description},
-                    {'is-valid': formik.touched.description && !formik.errors.description}
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                        {'is-invalid': formik.touched.cc && formik.errors.cc},
+                        {
+                        'is-valid': formik.touched.cc && !formik.errors.cc,
+                        }
                     )}
                     autoComplete='off'
                     disabled={formik.isSubmitting || isUserLoading}
-                />
-                {formik.touched.description && formik.errors.description && (
+                    />
+                    {formik.touched.cc && formik.errors.cc && (
                     <div className='fv-plugins-message-container'>
                         <div className='fv-help-block'>
-                            <span role='alert'>{formik.errors.description}</span>
+                        <span role='alert'>{formik.errors.cc}</span>
                         </div>
                     </div>
-                )}
-            </div>
-
-            <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>CC</label>
-                <input
-                placeholder='cc'
-                {...formik.getFieldProps('cc')}
-                type='text'
-                name='cc'
-                className={clsx(
-                    'form-control form-control-solid mb-3 mb-lg-0',
-                    {'is-invalid': formik.touched.cc && formik.errors.cc},
-                    {
-                    'is-valid': formik.touched.cc && !formik.errors.cc,
-                    }
-                )}
-                autoComplete='off'
-                disabled={formik.isSubmitting || isUserLoading}
-                />
-                {formik.touched.cc && formik.errors.cc && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.cc}</span>
-                    </div>
+                    )}
                 </div>
-                )}
+              </div>
             </div>
-
-            <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Due Date</label>
-                <input
-                placeholder='Due Date'
-                {...formik.getFieldProps('due_date')}
-                type='date'
-                name='due_date'
-                className={clsx(
-                    'form-control form-control-solid mb-3 mb-lg-0',
-                    {'is-invalid': formik.touched.due_date && formik.errors.due_date},
-                    {
-                    'is-valid': formik.touched.due_date && !formik.errors.due_date,
-                    }
-                )}
-                autoComplete='off'
-                disabled={formik.isSubmitting || isUserLoading}
-                />
-                {formik.touched.due_date && formik.errors.due_date && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.due_date}</span>
-                    </div>
-                </div>
-                )}
-            </div>
+            
             <div className='fv-row mb-7'>
                 <label className='required fw-bold fs-6 mb-2'>Attachments</label>
                 <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>

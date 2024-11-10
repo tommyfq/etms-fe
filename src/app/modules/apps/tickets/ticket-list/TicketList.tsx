@@ -8,8 +8,8 @@ import {KTCard} from '../../../../../_metronic/helpers'
 import { ToolbarWrapper } from '../../../../../_metronic/layout/components/toolbar'
 import { Content } from '../../../../../_metronic/layout/components/content'
 import { TicketModal } from './ticket-modal/TicketModal'
-import {CardsWidgetTicket} from './components/CardsWidgetTicket.tsx'
-import { useEffect } from 'react'
+// import {CardsWidgetTicket} from './components/CardsWidgetTicket.tsx'
+// import { useEffect } from 'react'
 
 
 const TicketList = () => {
@@ -33,7 +33,7 @@ const TicketListWrapper = () => (
         <Content>
           <div className='g-5 g-xl-10 mb-5 mb-xl-10'>
             <div className='col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-md-5 mb-xl-10'>
-              <CardsWidgetTicket className='h-md-50 mb-5 mb-xl-10' />
+              {/* <CardsWidgetTicket className='h-md-50 mb-5 mb-xl-10' /> */}
             </div>
           </div>
           <TicketList />

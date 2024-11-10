@@ -22,6 +22,18 @@ export type TicketAttachment = {
     full_url: string;
 };
 
+export type TicketLog = {
+    status?: string;
+    createdAt?: string;
+    user?: TicketLogUser;
+    text?: string;
+}
+
+export type TicketLogUser = {
+    username?: string;
+    email?: string;
+}
+
 export type TicketDetail = {
     id?: ID,
     ticket_no?: string
@@ -47,6 +59,8 @@ export type TicketDetail = {
     comment_internal_by?: string,
     serial_number?:string,
     attachments?: TicketAttachment[]
+    ticket_logs?: TicketLog[],
+    swap_asset_id?:number,
 }
 
 export type TicketQueryResponse = Response<Array<TicketList>>
@@ -75,7 +89,9 @@ export const initialTicket: TicketDetail = {
     comment_internal_date: "",
     comment_internal_by: "",
     serial_number:"",
-    attachments: []
+    attachments: [],
+    ticket_logs:[],
+    swap_asset_id:0
 }
 
 export type Asset = {

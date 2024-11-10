@@ -160,6 +160,9 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
           
           if(user.role_id == r.role_id){
             setRole(r.role_name)
+            if(r.role_name == "agent"){
+              setIsMultiDC(true)
+            }
           }
           
           return {

@@ -13,6 +13,7 @@ import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { useAuth } from '../../../../../modules/auth'
 
 type Props = {
   isUserLoading: boolean
@@ -83,6 +84,8 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
   const [dcOptions, setDCOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
+  const {currentUser} = useAuth()
+  const [readOnly, setReadOnly] = useState<boolean>(true) 
   
   const [userForEdit] = useState<Store>({
     ...store,
@@ -111,6 +114,9 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
     }
 
     fetchRole()
+    if(currentUser?.role_name == "admin"){
+      setReadOnly(false)
+    }
     console.log(store);
   }, [])
 
@@ -196,6 +202,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 options={dcOptions}
                 value={dcOptions.find(option => option.value === formik.values.dc_id) || null}
                 onChange={handleSelectChange}
+                isDisabled={readOnly}
                 />
                 {formik.touched.dc_id && formik.errors.dc_id && (
                 <div className='fv-plugins-message-container'>
@@ -222,6 +229,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 )}
                 autoComplete='off'
                 disabled={formik.isSubmitting || isUserLoading}
+                readOnly={readOnly}
                 />
                 {formik.touched.store_code && formik.errors.store_code && (
                 <div className='fv-plugins-message-container'>
@@ -248,6 +256,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 )}
                 autoComplete='off'
                 disabled={formik.isSubmitting || isUserLoading}
+                readOnly={readOnly}
                 />
                 {formik.touched.store_name && formik.errors.store_name && (
                 <div className='fv-plugins-message-container'>
@@ -270,6 +279,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 checked={formik.values.is_active}
+                disabled={readOnly}
               />
               <label className='form-check-label'>Active</label>
             </div>
@@ -288,6 +298,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 )}
                 autoComplete='off'
                 disabled={formik.isSubmitting || isUserLoading}
+                readOnly={readOnly}
                 />
             </div>
         </div>
@@ -305,21 +316,24 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
             Discard
           </button>
 
-          <button
-            type='submit'
-            className='btn btn-primary'
-            data-kt-users-modal-action='submit'
-            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched}
-          >
-            <span className='indicator-label'>Submit</span>
-            {(formik.isSubmitting || isUserLoading) && (
-              <span className='indicator-progress'>
-                Please wait...{' '}
-                <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
-              </span>
-            )}
-          </button>
+          {!readOnly && 
+            <button
+              type='submit'
+              className='btn btn-primary'
+              data-kt-users-modal-action='submit'
+              disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched}
+            >
+              <span className='indicator-label'>Submit</span>
+              {(formik.isSubmitting || isUserLoading) && (
+                <span className='indicator-progress'>
+                  Please wait...{' '}
+                  <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                </span>
+              )}
+            </button>
+          }
         </div>
+        
         {/* end::Actions */}
       </form>
       {

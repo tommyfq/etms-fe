@@ -64,7 +64,7 @@ const AssetUploadModal = ({show, handleClose}: Props) => {
         let title = "Error!";
         const buttonText = 'Close'
         if(response.is_ok){
-          title = "Success!"
+          title = "Info!"
         }
     
         const details = response.data

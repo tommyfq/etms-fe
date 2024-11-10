@@ -13,6 +13,7 @@ import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { useAuth } from '../../../../../modules/auth'
 
 type Props = {
   isUserLoading: boolean
@@ -90,6 +91,9 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [selectedDCId, setSelectedDCId] = useState<number>()
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(true)
+  const {currentUser} = useAuth()
+  const [readOnly, setReadOnly] = useState<boolean>(true) 
   
   const [userForEdit] = useState<Asset>({
     ...asset,
@@ -172,9 +176,14 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
       } catch (error) {
         console.error('Error fetching agents:', error)
       }
+      setIsLoadingData(false)
     }
 
     fetchDC()
+    //setUser(currentUser)
+    if(currentUser?.role_name == "admin"){
+      setReadOnly(false)
+    }
     console.log(asset);
   }, [])
 
@@ -327,6 +336,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                 options={dcOptions}
                 value={dcOptions?.find(option => option.value === formik.values.dc_id) || null}
                 onChange={handleSelectDCChange}
+                isDisabled={readOnly}
                 />
                 {formik.touched.dc_id && formik.errors.dc_id && (
                 <div className='fv-plugins-message-container'>
@@ -345,6 +355,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                   options={storeOptions}
                   value={storeOptions?.find(option => option.value === formik.values.store_id) || null}
                   onChange={handleSelectChange}
+                  isDisabled={readOnly}
                 />
                 {formik.touched.store_id && formik.errors.store_id && (
                   <div className='fv-plugins-message-container'>
@@ -361,8 +372,9 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                 styles={customStyles} 
                 name="brand" 
                 options={brandOptions}
-                //value={brandOptions?.find(option => option.label === formik.values.brand) || null}
+                value={brandOptions?.find(option => option.label === formik.values.brand) || null}
                 onChange={handleSelectBrandChange}
+                isDisabled={readOnly}
                 />
                 {formik.touched.dc_id && formik.errors.dc_id && (
                 <div className='fv-plugins-message-container'>
@@ -381,6 +393,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                 options={modelOptions}
                 value={modelOptions?.find(option => option.value === formik.values.item_id) || null}
                 onChange={handleSelectItemChange}
+                isDisabled={readOnly}
               />
               {formik.touched.item_id && formik.errors.item_id && (
                 <div className='fv-plugins-message-container'>
@@ -407,6 +420,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
               )}
               autoComplete='off'
               disabled={formik.isSubmitting || isUserLoading}
+              readOnly={readOnly}
             />
             {formik.touched.serial_number && formik.errors.serial_number && (
               <div className='fv-plugins-message-container'>
@@ -429,29 +443,42 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 checked={formik.values.is_active}
+                disabled={readOnly}
               />
               <label className='form-check-label'>Active</label>
             </div>
             
           </div>
 
-          <div className="fv-row mb-7">
-            
-            <label className='required fw-bold fs-6 mb-2'>Warranty Status</label>
-
-            <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
-              <input
-                className='form-check-input'
-                type='checkbox'
-                name='waranty_status'
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                checked={formik.values.waranty_status}
-              />
-              <label className='form-check-label'>Active</label>
+          <div className="row mb-7">
+            <div className="col-12 col-lg-6">
+              <div className="fv-row">
+                <label className='required fw-bold fs-6 mb-2'>Warranty Status</label>
+                <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
+                  <input
+                    className='form-check-input'
+                    type='checkbox'
+                    name='waranty_status'
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    checked={formik.values.waranty_status}
+                    disabled={readOnly}
+                  />
+                  <label className='form-check-label'>Active</label>
+                </div>
+              </div>
             </div>
+            {
+              asset.id != 0 && 
+              <div className="col-12 col-lg-6">
+                <div className='fv-row'>
+                  <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
+                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired}</label>
+                </div>
+              </div>
+            }
             
-          </div>
+          </div>  
 
           <div className='fv-row mb-7'>
             <label className='required fw-bold fs-6 mb-2'>Delivery Date</label>
@@ -469,6 +496,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
               )}
               autoComplete='off'
               disabled={formik.isSubmitting || isUserLoading}
+              readOnly={readOnly}
             />
             {formik.touched.delivery_date && formik.errors.delivery_date && (
               <div className='fv-plugins-message-container'>
@@ -495,20 +523,24 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
             Discard
           </button>
 
-          <button
-            type='submit'
-            className='btn btn-primary'
-            data-kt-users-modal-action='submit'
-            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched}
-          >
-            <span className='indicator-label'>Submit</span>
-            {(formik.isSubmitting || isUserLoading) && (
-              <span className='indicator-progress'>
-                Please wait...{' '}
-                <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
-              </span>
-            )}
-          </button>
+          {
+            !readOnly && 
+            <button
+              type='submit'
+              className='btn btn-primary'
+              data-kt-users-modal-action='submit'
+              disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || isLoadingData }
+            >
+              <span className='indicator-label'>Submit</span>
+              {(formik.isSubmitting || isUserLoading) && (
+                <span className='indicator-progress'>
+                  Please wait...{' '}
+                  <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                </span>
+              )}
+            </button>
+          }
+          
         </div>
         {/* end::Actions */}
       </form>

@@ -1,10 +1,21 @@
+import { useState, useEffect } from 'react'
 import {useIntl} from 'react-intl'
 // import {KTIcon} from '../../../../helpers'
 // import {SidebarMenuItemWithSub} from './SidebarMenuItemWithSub'
 import {SidebarMenuItem} from './SidebarMenuItem'
+import { useAuth, AuthModelUser } from '../../../../../app/modules/auth'
 
 const SidebarMenuMain = () => {
+  const {currentUser} = useAuth()
+  const [user, setUser] = useState<AuthModelUser>();
+
   const intl = useIntl()
+
+  useEffect(() => {
+    console.log(currentUser)
+    setUser(currentUser)
+    //setUser(currentUser.data)
+  }, [])
 
   return (
     <>
@@ -115,48 +126,64 @@ const SidebarMenuMain = () => {
         title='Tickets'
         fontIcon='bi-card-list'
       />
-      <SidebarMenuItem
-        to='/apps/items/list'
-        icon='package'
-        title='Items'
-        fontIcon='bi-card-list'
-      />
+      
       <SidebarMenuItem
         to='/apps/assets/list'
         icon='tablet-text-up'
         title='Assets'
         fontIcon='bi-card-list'
       />
-      <SidebarMenuItem
-        to='/apps/companies/list'
-        icon='briefcase'
-        title='Companies'
-        fontIcon='bi-truck'
-      />
-      <SidebarMenuItem
-        to='/apps/dc/list'
-        icon='safe-home'
-        title='DC'
-        fontIcon='bi-truck'
-      />
+      
+      {
+        user?.role_name != "client" && 
+        <SidebarMenuItem
+          to='/apps/dc/list'
+          icon='safe-home'
+          title='DC'
+          fontIcon='bi-truck'
+        />
+      }
       <SidebarMenuItem
         to='/apps/store/list'
         icon='shop'
         title='Store'
         fontIcon='bi-truck'
       />
-      <SidebarMenuItem
-        to='/apps/users/list'
-        icon='abstract-28'
-        title='Users'
-        fontIcon='bi-layers'
-      />
-      <SidebarMenuItem
+      {
+        user?.role_name == "admin" && 
+      <>
+        <div className='menu-item'>
+          <div className='menu-content pt-8 pb-2'>
+            <span className='menu-section text-muted text-uppercase fs-8 ls-1'>Admin Access</span>
+          </div>
+        </div>
+          <SidebarMenuItem
+            to='/apps/companies/list'
+            icon='briefcase'
+            title='Companies'
+            fontIcon='bi-truck'
+          />
+          <SidebarMenuItem
+            to='/apps/users/list'
+            icon='abstract-28'
+            title='Users'
+            fontIcon='bi-layers'
+          />
+          <SidebarMenuItem
+            to='/apps/items/list'
+            icon='package'
+            title='Items'
+            fontIcon='bi-card-list'
+          />
+      </>
+      }
+      
+      {/* <SidebarMenuItem
         to='/apps/roles/list'
         icon='crown-2'
         title='Roles'
         fontIcon='bi-layers'
-      />
+      /> */}
     </>
   )
 }

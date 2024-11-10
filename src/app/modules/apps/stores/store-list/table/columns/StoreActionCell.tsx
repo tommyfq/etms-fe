@@ -1,5 +1,5 @@
 
-import {FC, useEffect} from 'react'
+import {FC, useEffect, useState } from 'react'
 //import {useMutation, useQueryClient} from 'react-query'
 import {MenuComponent} from '../../../../../../../_metronic/assets/ts/components'
 //import {ID, KTIcon, QUERIES} from '../../../../../../../_metronic/helpers'
@@ -7,6 +7,7 @@ import {ID} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 // import {useQueryResponse} from '../../core/QueryResponseProvider'
 // import {deleteUser} from '../../core/_requests'
+import { useAuth, AuthModelUser } from '../../../../../../modules/auth'
 
 type Props = {
   id: ID
@@ -14,10 +15,13 @@ type Props = {
 
 const StoreActionCell: FC<Props> = ({id}) => {
   const {setItemIdForUpdate} = useListView()
+  const {currentUser} = useAuth()
+  const [user, setUser] = useState<AuthModelUser>()
 //   const {query} = useQueryResponse()
 //   const queryClient = useQueryClient()
 
   useEffect(() => {
+    setUser(currentUser)
     MenuComponent.reinitialization()
   }, [])
 
@@ -38,7 +42,7 @@ const StoreActionCell: FC<Props> = ({id}) => {
     <>
       <div className='menu-item px-3'>
         <button className='btn btn-sm btn-primary' onClick={openEditModal}>
-          Edit
+        { user?.role_name == "admin" ? 'Edit' : 'View' }
         </button>
       </div>
     </>

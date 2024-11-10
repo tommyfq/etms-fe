@@ -667,7 +667,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                     } 
                 </div>
                 <div className="col-12 col-lg-6">
-                  <label className='col-lg-3 fw-bold text-muted'>Ticket Logs</label>
+                  <label className='col-lg-3 fw-bold text-muted mb-3'>Ticket Logs</label>
                   <div className='timeline-label'>
                     {
                       ticket.ticket_logs?.map((log)=>(
@@ -716,7 +716,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               data-kt-users-modal-action='submit'
               disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || statusSelected == "" || !prioritySelected || (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset)}
             >
-              <span className='indicator-label'>Submit {statusSelected}</span>
+              <span className='indicator-label'>Submit</span>
               {(formik.isSubmitting || isUserLoading) && (
                 <span className='indicator-progress'>
                   Please wait...{' '}
@@ -726,7 +726,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             </button>
           }
           {
-            (/*user?.role_name == "client" &&*/ ticket.status == "Open") && 
+            (user?.role_name == "client" && ticket.status == "Open") && 
             <button
               type='button'
               className='btn btn-danger'

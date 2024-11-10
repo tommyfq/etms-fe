@@ -88,9 +88,15 @@ function getChartOptions(): ApexOptions {
   const borderColor = getCSSVariableValue('--bs-gray-200')
   const baseColor = getCSSVariableValue('--bs-info')
   const lightColor = getCSSVariableValue('--bs-info-light')
+  const grossProfitColor = getCSSVariableValue('--bs-success')
+  const grossLightProfitColor = getCSSVariableValue('--bs-success-light')
 
   return {
     series: [
+      {
+        name: 'Gross Profit',
+        data: [35, 45, 45, 100, 95, 80, 75],
+      },
       {
         name: 'Net Profit',
         data: [30, 40, 40, 90, 90, 70, 70],
@@ -119,7 +125,7 @@ function getChartOptions(): ApexOptions {
       curve: 'smooth',
       show: true,
       width: 3,
-      colors: [baseColor],
+      colors: [grossProfitColor, baseColor],
     },
     xaxis: {
       categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
@@ -191,7 +197,7 @@ function getChartOptions(): ApexOptions {
         },
       },
     },
-    colors: [lightColor],
+    colors: [grossLightProfitColor, lightColor],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

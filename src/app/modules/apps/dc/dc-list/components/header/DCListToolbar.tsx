@@ -1,13 +1,16 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {DCUploadModal} from './DCUploadModal'
 import {downloadExcelFile} from '../../core/_request.ts'
 // import {CompaniesListFilter} from './CompaniesListFilter'
+import { useAuth } from '../../../../../auth'
 
 const DCListToolbar = () => {
   const {setItemIdForUpdate} = useListView()
   const [showUploadModal, setShowUploadModal] = useState<boolean>(false)
+  const {currentUser} = useAuth()
+  const [readOnly, setReadOnly] = useState<boolean>(true) 
 
   const openAddCompanyrModal = () => {
     console.log("OPEN");
@@ -22,6 +25,12 @@ const DCListToolbar = () => {
   const handleDownload = async () => {
     await downloadExcelFile();
   };
+
+  useEffect(() => {
+    if(currentUser?.role_name == "admin"){
+      setReadOnly(false)
+    }
+  }, [])
 
   return (
     <>
@@ -42,14 +51,19 @@ const DCListToolbar = () => {
             <KTIcon iconName='exit-down' className='fs-2' />
             Export
           </button>
-          <button type='button' className='btn btn-info me-2' onClick={openUploadModal}>
-            <KTIcon iconName='exit-up' className='fs-2' />
-            Upload
-          </button>
-          <button type='button' className='btn btn-primary' onClick={openAddCompanyrModal}>
-            <KTIcon iconName='plus' className='fs-2' />
-            Add DC
-          </button>
+          {
+            !readOnly &&
+            <>
+              <button type='button' className='btn btn-info me-2' onClick={openUploadModal}>
+                <KTIcon iconName='exit-up' className='fs-2' />
+                Upload
+              </button>
+              <button type='button' className='btn btn-primary' onClick={openAddCompanyrModal}>
+                <KTIcon iconName='plus' className='fs-2' />
+                Add DC
+              </button>
+          </>
+          }
         
         {/* </Link> */}
         

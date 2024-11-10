@@ -1,17 +1,20 @@
 
 
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {StoreUploadModal} from './StoreUploadModal'
 // import {StoreListFilter} from './StoreListFilter'
 // import {TooltipMenu} from './TooltipMenu'
 import {downloadExcelFile} from '../../core/_requests.ts'
+import { useAuth } from '../../../../../auth'
 
 
 const StoreListToolbar = () => {
   const {setItemIdForUpdate} = useListView()
   const [showUploadModal, setShowUploadModal] = useState<boolean>(false)
+  const {currentUser} = useAuth()
+  const [readOnly, setReadOnly] = useState<boolean>(true) 
 
   const openAddCompanyModal = () => {
     console.log("OPEN");
@@ -30,6 +33,12 @@ const StoreListToolbar = () => {
   //     console.log(`${option} clicked`);
   // };
 
+  useEffect(() => {
+    if(currentUser?.role_name == "admin"){
+      setReadOnly(false)
+    }
+  }, [])
+
   return (
     <>
       <div className='d-flex justify-content-end' data-kt-user-table-toolbar='base'>
@@ -41,21 +50,19 @@ const StoreListToolbar = () => {
         </button>
         {/* end::Export */}
 
-        {/* begin::Add user */}
-        {/* <Link to='/dashboard' className='d-lg-none'> */}
-          {/* <button type='button' className='btn btn-primary'> */}
-          <button type='button' className='btn btn-info me-2' onClick={openUploadModal}>
-            <KTIcon iconName='exit-up' className='fs-2'/>
-            Upload
-          </button>
-          <button type='button' className='btn btn-primary' onClick={openAddCompanyModal}>
-            <KTIcon iconName='plus' className='fs-2' />
-            Add Store
-          </button>
-        
-        {/* </Link> */}
-        
-        {/* end::Add user */}
+        {
+          !readOnly &&
+          <>
+            <button type='button' className='btn btn-info me-2' onClick={openUploadModal}>
+              <KTIcon iconName='exit-up' className='fs-2'/>
+              Upload
+            </button>
+            <button type='button' className='btn btn-primary' onClick={openAddCompanyModal}>
+              <KTIcon iconName='plus' className='fs-2' />
+              Add Store
+            </button>
+          </>
+        }
       </div>
       {
         showUploadModal && (

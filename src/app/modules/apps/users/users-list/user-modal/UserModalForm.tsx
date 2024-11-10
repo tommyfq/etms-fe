@@ -67,7 +67,7 @@ const customStyles: StylesConfig<Option, false> = {
   })
 };
 
-const customDCStyles: StylesConfig<Option, true> = {
+const customDCStyles: StylesConfig<Option, boolean> = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: '#f8f9fa',
@@ -119,7 +119,11 @@ const editUserSchema = Yup.object().shape({
   //   .required('Email is required'),
   name: Yup.string().required('Name is required'),
   username: Yup.string().required('Username is required'),
-  password: Yup.string().required('Password is required'),
+  password: Yup.string().when('id', {
+    is: 0, // Password required if `id` is 0
+    then: (schema) => schema.required('Password is required').min(8, 'Password must be at least 8 characters'),
+    otherwise: (schema) => schema.notRequired(), // Password not required if `id` is not 0
+  }),
   email: Yup.string().required('Email is required'),
   role_id: Yup.number().required('Role is required'),
 })
@@ -132,8 +136,10 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   const [role, setRole] = useState<string>()
-  const [selectedDC, setSelectedDC] = useState<MultiValue<Option>>([]);
-  
+  const [selectedDC, setSelectedDC] = useState<SingleValue<Option> | MultiValue<Option> | null>(null);
+  const [isMultiDC, setIsMultiDC] = useState<boolean>(false)
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(true)
+
   const [userForEdit] = useState<User>({
     ...user,
     id: user.id || initialUser.id,
@@ -188,6 +194,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
         console.log(formattedDCOptions)
         setDCOptions(formattedDCOptions)
         setSelectedDC(formattedSelectedDC)
+        setIsLoadingData(false)
 
       } catch (error) {
         console.error('Error fetching agents:', error)
@@ -210,9 +217,9 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
 //   const blankImg = toAbsoluteUrl('media/svg/avatars/blank.svg')
 //   const userAvatarImg = toAbsoluteUrl(`media/${userForEdit.avatar}`)
 
-  const formik = useFormik({
+  const formik = useFormik<User>({
     initialValues: userForEdit,
-    validationSchema: editUserSchema,
+    validationSchema: (values: User) => editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
       console.log("VALUES")
       console.log(values);
@@ -257,10 +264,16 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     console.log("change role")
     formik.setFieldValue('role_id', selectedOption ? selectedOption.value : null);
     setRole(selectedOption?.label || "")
+    setSelectedDC(null)
+    if(selectedOption?.label == "client"){
+      setIsMultiDC(false)
+    }else if(selectedOption?.label == "agent"){
+      setIsMultiDC(true)
+    }
   };
 
   const handleSelectDCChange = (
-    selectedOption: MultiValue<Option>, // Change the type here
+    selectedOption: SingleValue<Option> | MultiValue<Option>,
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta);
@@ -268,10 +281,25 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     console.log(selectedOption);
     console.log("change dc");
     
-    formik.setFieldValue(
-      'dcs',
-      selectedOption ? selectedOption.map((option) => option.value) : []
-    );
+    
+    if (Array.isArray(selectedOption)) {
+      // Multiple values for agents
+      formik.setFieldValue(
+        'dcs',
+        selectedOption.map((option) => option.value)
+      );
+    } else if (selectedOption){
+      console.log(selectedOption)
+      console.log((selectedOption as Option).value)
+      // Single value for clients
+      formik.setFieldValue(
+        'dcs',
+        [(selectedOption as Option).value]
+      );
+    } else {
+      // No selection
+      formik.setFieldValue('dcs', []);
+    }
   };
 
   return (
@@ -368,7 +396,14 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             </div>
 
             <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Password</label>
+                {
+                  user.id != 0 &&
+                  <label className='fw-bold fs-6 mb-2'>Password</label>
+                }
+                {
+                  user.id == 0 &&
+                  <label className='required fw-bold fs-6 mb-2'>Password</label>
+                }
                 <input
                 placeholder='Password'
                 {...formik.getFieldProps('password')}
@@ -412,13 +447,13 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             </div>
           
           {
-            role == "agent" && 
+            role != "admin" && 
             <div className='fv-row mb-7'>
                 <label className='form-label fw-bold'>DC</label>
-                <Select<Option, true> 
+                <Select<Option, boolean> 
                 styles={customDCStyles} 
                 name="dcs"
-                isMulti={true}
+                isMulti={isMultiDC}
                 options={dcOptions}
                 value={selectedDC}
                 onChange={handleSelectDCChange}
@@ -461,7 +496,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             type='submit'
             className='btn btn-primary'
             data-kt-users-modal-action='submit'
-            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched}
+            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || isLoadingData}
           >
             <span className='indicator-label'>Submit</span>
             {(formik.isSubmitting || isUserLoading) && (

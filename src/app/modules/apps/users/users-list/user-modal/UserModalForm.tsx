@@ -496,7 +496,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             type='submit'
             className='btn btn-primary'
             data-kt-users-modal-action='submit'
-            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || isLoadingData}
+            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || isLoadingData || !role || ((Array.isArray(selectedDC) ? selectedDC.length === 0 : !selectedDC) && role != "admin")}
           >
             <span className='indicator-label'>Submit</span>
             {(formik.isSubmitting || isUserLoading) && (

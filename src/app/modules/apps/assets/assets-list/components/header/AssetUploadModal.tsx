@@ -65,26 +65,40 @@ const AssetUploadModal = ({show, handleClose}: Props) => {
         const buttonText = 'Close'
         if(response.is_ok){
           title = "Info!"
+  
+          const details = response.data
+          .map((item) => 
+              `<span class="${item.is_ok ? 'text-success' : 'text-danger'}">${item.message}</span>`
+          )
+          .join('<br>');
+  
+          MySwal.fire({
+            title: title,
+            text: response.message,
+            icon: 'info',
+            html: details,
+            confirmButtonText: buttonText,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              refetch()
+              handleClose()
+            }
+          })
+  
+        }else{
+          title = "Error"
+          MySwal.fire({
+            title: title,
+            text: response.message,
+            icon: 'error',
+            confirmButtonText: buttonText,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              refetch()
+              handleClose()
+            }
+          })
         }
-    
-        const details = response.data
-        .map((item) => 
-            `<span class="${item.is_ok ? 'text-success' : 'text-danger'}">${item.message}</span>`
-        )
-        .join('<br>');
-
-        MySwal.fire({
-          title: title,
-          text: response.message,
-          icon: 'info',
-          html: details,
-          confirmButtonText: buttonText,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            refetch()
-            handleClose()
-          }
-        })
       };
 
       const deleteFile = () => {

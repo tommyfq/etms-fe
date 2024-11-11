@@ -47,13 +47,6 @@ const companiesColumns: ReadonlyArray<Column<Asset>> = [
   },
   {
     Header: (props) => (
-      <AssetCustomHeader tableProps={props} title='Warrany Status' className='min-w-125px' />
-    ),
-    id: 'warranty_status',
-    Cell: ({...props}) => <StatusCell is_active={props.data[props.row.index].waranty_status} />,
-  },
-  {
-    Header: (props) => (
       <AssetCustomHeader tableProps={props} title='Delivery Date' className='min-w-125px' />
     ),
     id: 'delivery_date',

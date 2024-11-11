@@ -91,3 +91,9 @@
   float: right;
   font-size: 12px;
 }
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

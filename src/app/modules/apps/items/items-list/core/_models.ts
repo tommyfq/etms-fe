@@ -13,6 +13,6 @@ export const initialItem: Item = {
   id: 0,
   brand: "",
   model: "",
-  warranty_duration:0,
+  warranty_duration:1,
   is_active: true
 }

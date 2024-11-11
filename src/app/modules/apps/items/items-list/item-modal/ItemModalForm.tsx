@@ -72,7 +72,9 @@ const editUserSchema = Yup.object().shape({
   //   .required('Email is required'),
   brand: Yup.string().required('Brand is required'),
   model: Yup.string().required('Model is required'),
-  warranty_duration: Yup.number().required('Warranty Duration is required'),
+  warranty_duration: Yup.number()
+  .required('Warranty Duration is required')
+  .min(1, 'Warranty Duration must be greater than 0'),
 })
 
 const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
@@ -222,7 +224,7 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
             </div>
 
             <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Warranty Duration</label>
+                <label className='required fw-bold fs-6 mb-2'>Warranty Duration (Years)</label>
                 <input
                 placeholder='Warranty Duration'
                 {...formik.getFieldProps('warranty_duration')}
@@ -249,7 +251,7 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
           
           <div className="fv-row mb-7">
             
-            <label className='required fw-bold fs-6 mb-2'>Active</label>
+            <label className='required fw-bold fs-6 mb-2'>Status</label>
 
             <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
               <input

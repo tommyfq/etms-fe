@@ -74,7 +74,9 @@ const editUserSchema = Yup.object().shape({
   //   .min(3, 'Minimum 3 symbols')
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
-  serial_number: Yup.string().required('Serial Number is required'),
+  serial_number: Yup.string()
+    .required('Serial Number is required')
+    .matches(/^\S*$/, 'Serial Number cannot contain spaces'),
   dc_id: Yup.number().required('DC ID is required'),
   store_id: Yup.number().required('Store ID is required'),
   delivery_date: Yup.string().required('Warranty Date is required'),
@@ -99,7 +101,6 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     ...asset,
     id: asset.id || initialAsset.id,
   serial_number: asset.serial_number || initialAsset.serial_number,
-  waranty_status: asset.waranty_status || initialAsset.waranty_status,
   delivery_date: asset.delivery_date || initialAsset.delivery_date,
   dc_id: asset.dc_id || initialAsset.dc_id,
   store_id: asset.store_id || initialAsset.store_id,
@@ -433,7 +434,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
           
           <div className="fv-row mb-7">
             
-            <label className='required fw-bold fs-6 mb-2'>Active</label>
+            <label className='required fw-bold fs-6 mb-2'>Status</label>
 
             <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
               <input
@@ -449,36 +450,6 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
             </div>
             
           </div>
-
-          <div className="row mb-7">
-            <div className="col-12 col-lg-6">
-              <div className="fv-row">
-                <label className='required fw-bold fs-6 mb-2'>Warranty Status</label>
-                <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
-                  <input
-                    className='form-check-input'
-                    type='checkbox'
-                    name='waranty_status'
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    checked={formik.values.waranty_status}
-                    disabled={readOnly}
-                  />
-                  <label className='form-check-label'>Active</label>
-                </div>
-              </div>
-            </div>
-            {
-              asset.id != 0 && 
-              <div className="col-12 col-lg-6">
-                <div className='fv-row'>
-                  <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
-                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired}</label>
-                </div>
-              </div>
-            }
-            
-          </div>  
 
           <div className='fv-row mb-7'>
             <label className='required fw-bold fs-6 mb-2'>Delivery Date</label>
@@ -506,6 +477,38 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
               </div>
             )}
           </div>
+
+          <div className="row mb-7">
+            {/* <div className="col-12 col-lg-6">
+              <div className="fv-row">
+                <label className='required fw-bold fs-6 mb-2'>Warranty Status</label>
+                <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
+                  <input
+                    className='form-check-input'
+                    type='checkbox'
+                    name='waranty_status'
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    checked={formik.values.waranty_status}
+                    disabled={readOnly}
+                  />
+                  <label className='form-check-label'>Active</label>
+                </div>
+              </div>
+            </div> */}
+            {
+              asset.id != 0 && 
+              <div className="col-12 col-lg-6">
+                <div className='fv-row'>
+                  <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
+                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired}</label>
+                </div>
+              </div>
+            }
+            
+          </div>  
+
+
 
           
         </div>

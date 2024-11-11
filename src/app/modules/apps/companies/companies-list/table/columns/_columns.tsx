@@ -16,6 +16,11 @@ const companiesColumns: ReadonlyArray<Column<Company>> = [
 //     Cell: ({...props}) => <UserSelectionCell id={props.data[props.row.index].id} />,
 //   },
   {
+    Header: (props) => <CompanyCustomerHeader tableProps={props} title='Company Code' className='min-w-125px' />,
+    id: 'company_code',
+    Cell: ({...props}) => <InfoCell data={props.data[props.row.index].company_code} />,
+  },
+  {
     Header: (props) => <CompanyCustomerHeader tableProps={props} title='Name' className='min-w-125px' />,
     id: 'name',
     Cell: ({...props}) => <InfoCell data={props.data[props.row.index].company_name} />,

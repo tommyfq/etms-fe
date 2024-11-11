@@ -74,7 +74,8 @@ const editUserSchema = Yup.object().shape({
   //   .min(3, 'Minimum 3 symbols')
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
-  store_code: Yup.string().required('Store Code is required'),
+  store_code: Yup.string().required('Store Code is required')
+  .matches(/^\S*$/, 'Store Code cannot contain spaces'),
   store_name: Yup.string().required('Store Name is required')
 })
 
@@ -269,7 +270,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
 
             <div className="fv-row mb-7">
             
-            <label className='required fw-bold fs-6 mb-2'>Active</label>
+            <label className='required fw-bold fs-6 mb-2'>Status</label>
 
             <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
               <input

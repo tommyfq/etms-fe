@@ -347,7 +347,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             <div className='row mb-7'>
                 {ticket.status != "Cancel" && 
                   <div className='col-12 col-md-6'>
-                    {(ticket.priority == null && user?.role_name == "agent") ?
+                    {(ticket.priority == null && user?.role_name != "client") ?
                     <div className='fv-row'>
                         <label className='required fw-bold fs-6 mb-2'>Priority</label>
                         <select

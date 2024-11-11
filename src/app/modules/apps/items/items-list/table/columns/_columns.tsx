@@ -27,7 +27,12 @@ const itemsColumns: ReadonlyArray<Column<Item>> = [
   {
     Header: (props) => <ItemCustomHeader tableProps={props} title='Warranty Duration' className='min-w-125px' />,
     id: 'warranty_duration',
-    Cell: ({...props}) => <InfoCell data={String(props.data[props.row.index].warranty_duration)} />,
+    Cell: ({...props}) => <InfoCell data={
+      props.data[props.row.index].warranty_duration == 1 ?  
+        String(props.data[props.row.index].warranty_duration)+" Year"
+        : 
+        String(props.data[props.row.index].warranty_duration) + " Years"
+    } />,
   },
 //   {
 //     Header: (props) => <UserCustomHeader tableProps={props} title='Role' className='min-w-125px' />,
@@ -35,7 +40,7 @@ const itemsColumns: ReadonlyArray<Column<Item>> = [
 //   },
   {
     Header: (props) => (
-      <ItemCustomHeader tableProps={props} title='Active' className='min-w-125px' />
+      <ItemCustomHeader tableProps={props} title='Status' className='min-w-125px' />
     ),
     id: 'is_active',
     Cell: ({...props}) => <StatusCell is_active={props.data[props.row.index].is_active} />,

@@ -466,7 +466,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
 
           <div className="fv-row mb-7">
             
-            <label className='required fw-bold fs-6 mb-2'>Active</label>
+            <label className='required fw-bold fs-6 mb-2'>Status</label>
 
             <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
               <input

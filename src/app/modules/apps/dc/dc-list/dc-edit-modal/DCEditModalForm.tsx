@@ -76,7 +76,8 @@ const editUserSchema = Yup.object().shape({
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
   dc_code: Yup.string()
-    .required('DC Code is required'),
+    .required('DC Code is required')
+    .matches(/^\S*$/, 'DC Code cannot contain spaces'),
   dc_name: Yup.string()
     .required('DC Name is required'),
   company_id: Yup.number()
@@ -315,7 +316,7 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
           
           <div className="fv-row mb-7">
             
-            <label className='required fw-bold fs-6 mb-2'>Active</label>
+            <label className='required fw-bold fs-6 mb-2'>Status</label>
 
             <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
               <input

@@ -28,7 +28,8 @@ const editUserSchema = Yup.object().shape({
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
   company_code: Yup.string()
-    .required('Company Code is required'),
+    .required('Company Code is required')
+    .matches(/^\S*$/, 'Company Code cannot contain spaces'),
   company_name: Yup.string()
     .required('Company Name is required'),
   contact_number: Yup.string()
@@ -174,7 +175,7 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
           
           <div className="fv-row mb-7">
             
-            <label className='required fw-bold fs-6 mb-2'>Active</label>
+            <label className='required fw-bold fs-6 mb-2'>Status</label>
 
             <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
               <input

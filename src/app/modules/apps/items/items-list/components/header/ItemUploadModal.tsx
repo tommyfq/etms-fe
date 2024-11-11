@@ -55,13 +55,12 @@ const ItemUploadModal = ({show, handleClose}: Props) => {
       }, [file]);
     
 
-      const handleAlert = (response:{is_ok:boolean, message:string, data:any[]}) => {
-        let title = "Error!";
-        const buttonText = 'Close'
-        if(response.is_ok){
-          title = "Info!"
-        }
-    
+    const handleAlert = (response:{is_ok:boolean, message:string, data:any[]}) => {
+      let title = "Error!";
+      const buttonText = 'Close'
+      if(response.is_ok){
+        title = "Info!"
+
         const details = response.data
         .map((item) => 
             `<span class="${item.is_ok ? 'text-success' : 'text-danger'}">${item.message}</span>`
@@ -80,7 +79,22 @@ const ItemUploadModal = ({show, handleClose}: Props) => {
             handleClose()
           }
         })
-      };
+
+      }else{
+        title = "Error"
+        MySwal.fire({
+          title: title,
+          text: response.message,
+          icon: 'error',
+          confirmButtonText: buttonText,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            refetch()
+            handleClose()
+          }
+        })
+      }
+    };
 
       const deleteFile = () => {
         URL.revokeObjectURL(file.preview); // Clean up preview URL

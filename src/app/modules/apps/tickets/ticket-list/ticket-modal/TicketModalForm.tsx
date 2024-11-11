@@ -202,6 +202,7 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         formData.append("asset_id", values.asset_id?.toString() || '');
         formData.append("due_date", values.due_date || '');
         formData.append("cc",values.cc || '')
+        formData.append("description",values.description || '')
         uploadedFiles.forEach((file) => formData.append("images", file)); // Append each file to formData
         console.log(formData)
         const response = await createTicket(formData);

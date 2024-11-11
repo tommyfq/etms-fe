@@ -6,6 +6,7 @@ import {Link} from 'react-router-dom'
 import {useFormik} from 'formik'
 import {getUserByToken, login} from '../core/_requests'
 import {useAuth} from '../core/Auth'
+import {toAbsoluteUrl} from '../../../../_metronic/helpers'
 
 const loginSchema = Yup.object().shape({
   username: Yup.string()
@@ -70,23 +71,24 @@ export function Login() {
       noValidate
       id='kt_login_signin_form'
     >
+      <div
+        className='d-flex flex-lg-row-fluid bgi-size-cover bgi-position-center order-1 order-lg-2'
+      >
+        <div className='d-flex flex-column flex-center w-100'>
+        <Link to='/' className='mb-12'>
+              <img alt='Logo' src={toAbsoluteUrl('media/logos/epsindo-logo2.png')} className='h-75px' />
+        </Link>
+        </div>
+      </div>
       {/* begin::Heading */}
       <div className='text-center mb-11'>
         <h1 className='text-gray-900 fw-bolder mb-3'>Sign In</h1>
-        <div className='text-gray-500 fw-semibold fs-6'>Your Social Campaigns</div>
       </div>
       {/* begin::Heading */}
 
-      {formik.status ? (
+      {formik.status && (
         <div className='mb-lg-15 alert alert-danger'>
           <div className='alert-text font-weight-bold'>{formik.status}</div>
-        </div>
-      ) : (
-        <div className='mb-10 bg-light-info p-8 rounded'>
-          <div className='text-info'>
-            Use account <strong>admin@demo.com</strong> and password <strong>demo</strong> to
-            continue.
-          </div>
         </div>
       )}
 
@@ -119,6 +121,7 @@ export function Login() {
       <div className='fv-row mb-3'>
         <label className='form-label fw-bolder text-gray-900 fs-6 mb-0'>Password</label>
         <input
+          placeholder='Password'
           type='password'
           autoComplete='off'
           {...formik.getFieldProps('password')}

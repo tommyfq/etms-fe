@@ -53,8 +53,8 @@ const SidebarLogo = (props: PropsType) => {
         {config.layoutType === 'dark-sidebar' ? (
           <img
             alt='Logo'
-            src={toAbsoluteUrl('media/logos/default-dark.svg')}
-            className='h-25px app-sidebar-logo-default'
+            src={toAbsoluteUrl('media/logos/epsindo-logo2.png')}
+            className='h-75px app-sidebar-logo-default'
           />
         ) : (
           <>
@@ -65,8 +65,8 @@ const SidebarLogo = (props: PropsType) => {
             />
             <img
               alt='Logo'
-              src={toAbsoluteUrl('media/logos/default-dark.svg')}
-              className='h-25px app-sidebar-logo-default theme-dark-show'
+              src={toAbsoluteUrl('media/logos/epsindo-logo2.png')}
+              className='h-75px app-sidebar-logo-default theme-dark-show'
             />
           </>
         )}

@@ -347,7 +347,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             <div className='row mb-7'>
                 {ticket.status != "Cancel" && 
                   <div className='col-12 col-md-6'>
-                    {ticket.priority == null ?
+                    {(ticket.priority == null && user?.role_name == "agent") ?
                     <div className='fv-row'>
                         <label className='required fw-bold fs-6 mb-2'>Priority</label>
                         <select
@@ -364,6 +364,15 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             <option value='Low'>Low</option>
                         </select>
                     </div>
+                    : (ticket.priority == null && user?.role_name == "client") ? 
+                      <div className="fv-row">
+                        <label className='required fw-bold fs-6 mb-2'>Priority</label> 
+                        <div className='card-toolbar'>
+                            <span className={`badge badge-light-secondary fw-bolder me-auto px-4 py-3`}>
+                              Unassigned
+                            </span>
+                        </div>
+                      </div>
                     : 
                     <div className='fv-row'>
                         <label className='required fw-bold fs-6 mb-2'>Priority</label> 
@@ -510,22 +519,42 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 </div>
               </div>
             }
-            
-            <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Title</label>
-                <input
-                placeholder='Title'
-                {...formik.getFieldProps('title')}
-                type='text'
-                name='title'
-                className={clsx(
-                    'form-control form-control-solid mb-3 mb-lg-0',
-                )}
-                autoComplete='off'
-                readOnly={true}
-                //style={styles.formControlDisabled}
-                />
+            <div className="row mb-7">
+              <div className="col-12 col-lg-6">
+                <div className='fv-row'>
+                    <label className='required fw-bold fs-6 mb-2'>Title</label>
+                    <input
+                    placeholder='Title'
+                    {...formik.getFieldProps('title')}
+                    type='text'
+                    name='title'
+                    className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                    )}
+                    autoComplete='off'
+                    readOnly={true}
+                    //style={styles.formControlDisabled}
+                    />
+                </div>
+              </div>
+              <div className="col-12 col-lg-6">
+                <div className='fv-row'>
+                    <label className='fw-bold fs-6 mb-2'>Customer Reference Number</label>
+                    <input
+                    {...formik.getFieldProps('customer_reference_no')}
+                    type='text'
+                    name='customer_reference_no'
+                    className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                    )}
+                    autoComplete='off'
+                    readOnly={true}
+                    //style={styles.formControlDisabled}
+                    />
+                </div>
+              </div>
             </div>
+            
             <div className="row mb-7">
               <div className="col-12 col-md-6">
                 <div className='fv-row'>
@@ -570,7 +599,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               </div>
               <div className="col-12 col-md-6">
                 <div className='fv-row'>
-                    <label className='required fw-bold fs-6 mb-2'>Description</label>
+                    <label className='fw-bold fs-6 mb-2'>Description</label>
                     <textarea
                         placeholder='Description'
                         {...formik.getFieldProps('description')} // corrected the name here to 'description'
@@ -588,7 +617,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             <div className="row mb-7">
               <div className="col-12 col-md-6">
                 <div className='fv-row mb-7'>
-                  <label className='required fw-bold fs-6 mb-2'>CC</label>
+                  <label className='fw-bold fs-6 mb-2'>CC</label>
                   <input
                   placeholder='cc'
                   {...formik.getFieldProps('cc')}
@@ -621,7 +650,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               </div>
             </div>
             <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Attachments</label>
+                <label className='fw-bold fs-6 mb-2'>Attachments</label>
                   {/* Scrollable image previews with delete option */}
                   <div style={styles.imagePreviewsContainer}>
                     {ticket.attachments?.map((attach, index) => (
@@ -709,7 +738,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
           </button>
 
           {
-            !["Rejected", "Closed", "Cancel"].includes(ticket.status ?? "") && 
+            (!["Rejected", "Closed", "Cancel"].includes(ticket.status ?? "") && user?.role_name != "client") && 
             <button
               type='submit'
               className='btn btn-primary me-3'

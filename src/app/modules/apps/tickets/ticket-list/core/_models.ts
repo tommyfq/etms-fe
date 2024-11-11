@@ -61,6 +61,7 @@ export type TicketDetail = {
     attachments?: TicketAttachment[]
     ticket_logs?: TicketLog[],
     swap_asset_id?:number,
+    customer_reference_no?: string
 }
 
 export type TicketQueryResponse = Response<Array<TicketList>>
@@ -91,7 +92,8 @@ export const initialTicket: TicketDetail = {
     serial_number:"",
     attachments: [],
     ticket_logs:[],
-    swap_asset_id:0
+    swap_asset_id:0,
+    customer_reference_no:""
 }
 
 export type Asset = {

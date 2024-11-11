@@ -136,7 +136,8 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     status: ticket.status || initialTicket.status,
     description: ticket.description || initialTicket.description,
     cc: ticket.cc || initialTicket.cc,
-    due_date: ticket.due_date || initialTicket.due_date
+    due_date: ticket.due_date || initialTicket.due_date,
+    customer_reference_no: ticket.customer_reference_no || initialTicket.customer_reference_no
   })
 
   useEffect(() => {
@@ -203,6 +204,7 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         formData.append("due_date", values.due_date || '');
         formData.append("cc",values.cc || '')
         formData.append("description",values.description || '')
+        formData.append("customer_reference_no",values.customer_reference_no || '')
         uploadedFiles.forEach((file) => formData.append("images", file)); // Append each file to formData
         console.log(formData)
         const response = await createTicket(formData);
@@ -438,9 +440,39 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 </div>
               </div>
             </div>
+
+            <div className="row mb-7">
+              <div className="col-12 col-lg-6">
+                <div className='fv-row'>
+                  <label className='fw-bold fs-6 mb-2'>Customer Reference Number</label>
+                  <input
+                  placeholder='Customer Reference Number'
+                  {...formik.getFieldProps('customer_reference_no')}
+                  type='text'
+                  name='customer_reference_no'
+                  className={clsx(
+                      'form-control form-control-solid mb-3 mb-lg-0',
+                      {'is-invalid': formik.touched.customer_reference_no && formik.errors.customer_reference_no},
+                      {
+                      'is-valid': formik.touched.customer_reference_no && !formik.errors.customer_reference_no,
+                      }
+                  )}
+                  autoComplete='off'
+                  disabled={formik.isSubmitting || isUserLoading}
+                  />
+                  {formik.touched.customer_reference_no && formik.errors.customer_reference_no && (
+                  <div className='fv-plugins-message-container'>
+                      <div className='fv-help-block'>
+                      <span role='alert'>{formik.errors.customer_reference_no}</span>
+                      </div>
+                  </div>
+                  )}
+                </div>
+              </div>
+            </div>
             
             <div className='fv-row mb-7'>
-                <label className='required fw-bold fs-6 mb-2'>Attachments</label>
+                <label className='fw-bold fs-6 mb-2'>Attachments</label>
                 <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
                   You can upload up to 10 image files
                 </div>

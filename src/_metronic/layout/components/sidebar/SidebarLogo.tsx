@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom'
-import clsx from 'clsx'
-import {KTIcon, toAbsoluteUrl} from '../../../helpers'
+// import clsx from 'clsx'
+import {toAbsoluteUrl} from '../../../helpers'
 import {useLayout} from '../../core'
 import {MutableRefObject, useEffect, useRef} from 'react'
 import {ToggleComponent} from '../../../assets/ts/components'
@@ -13,17 +13,17 @@ const SidebarLogo = (props: PropsType) => {
   const {config} = useLayout()
   const toggleRef = useRef<HTMLDivElement>(null)
 
-  const appSidebarDefaultMinimizeDesktopEnabled =
-    config?.app?.sidebar?.default?.minimize?.desktop?.enabled
-  const appSidebarDefaultCollapseDesktopEnabled =
-    config?.app?.sidebar?.default?.collapse?.desktop?.enabled
-  const toggleType = appSidebarDefaultCollapseDesktopEnabled
-    ? 'collapse'
-    : appSidebarDefaultMinimizeDesktopEnabled
-    ? 'minimize'
-    : ''
-  const toggleState = appSidebarDefaultMinimizeDesktopEnabled ? 'active' : ''
-  const appSidebarDefaultMinimizeDefault = config.app?.sidebar?.default?.minimize?.desktop?.default
+  // const appSidebarDefaultMinimizeDesktopEnabled =
+  //   config?.app?.sidebar?.default?.minimize?.desktop?.enabled
+  // const appSidebarDefaultCollapseDesktopEnabled =
+  //   config?.app?.sidebar?.default?.collapse?.desktop?.enabled
+  // const toggleType = appSidebarDefaultCollapseDesktopEnabled
+  //   ? 'collapse'
+  //   : appSidebarDefaultMinimizeDesktopEnabled
+  //   ? 'minimize'
+  //   : ''
+  // const toggleState = appSidebarDefaultMinimizeDesktopEnabled ? 'active' : ''
+  // const appSidebarDefaultMinimizeDefault = config.app?.sidebar?.default?.minimize?.desktop?.default
 
   useEffect(() => {
     setTimeout(() => {
@@ -60,8 +60,8 @@ const SidebarLogo = (props: PropsType) => {
           <>
             <img
               alt='Logo'
-              src={toAbsoluteUrl('media/logos/default.svg')}
-              className='h-25px app-sidebar-logo-default theme-light-show'
+              src={toAbsoluteUrl('media/logos/epsindo-logo2.png')}
+              className='bg-white h-75px app-sidebar-logo-default theme-light-show'
             />
             <img
               alt='Logo'

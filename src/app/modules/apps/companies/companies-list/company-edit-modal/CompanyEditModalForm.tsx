@@ -1,10 +1,9 @@
-import {FC, useState, useEffect} from 'react'
+import {FC, useState } from 'react'
 
 import clsx from 'clsx'
 import * as Yup from 'yup'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import {useFormik} from 'formik'
-import Select, {StylesConfig, ActionMeta, SingleValue} from 'react-select'
 import withReactContent from "sweetalert2-react-content";
 
 import {useListView} from '../core/ListViewProvider'
@@ -12,7 +11,7 @@ import {Company, initialCompany} from '../core/_models'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
-import {createCompany, getListAgent, updateCompany } from '../core/_request'
+import {createCompany, updateCompany } from '../core/_request'
 
 
 type Props = {
@@ -20,53 +19,7 @@ type Props = {
   company: Company
 }
 
-type Option = { value: number; label: string };
-
 const MySwal = withReactContent(Swal);
-
-const customStyles: StylesConfig<Option, false> = {
-  control: (provided, state) => ({
-    ...provided,
-    backgroundColor: '#f8f9fa',
-    border: state.isFocused ? '0px solid #DBDFE9' : '0px solid #DBDFE9',
-    boxShadow: 'none',
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '14px',
-    fontWeight: '600',
-    color:'#99a1b7',
-  }),
-  menu: (provided) => ({
-    ...provided,
-    position: 'absolute',
-    zIndex: 9999,
-    borderRadius: '4px',
-    border: '1px solid #ced4da',
-    marginTop: '0',
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '13px',
-    fontWeight: '400',
-    //color:'#99a1b7',
-  }),
-  menuPortal: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-    position: 'fixed', // Make the dropdown menu fixed
-    top: `${provided.top}px`, // Use calculated position from react-select
-    left: `${provided.left}px`, // Use calculated position from react-select
-    width: provided.width,  // Ensure the width matches the control
-    //color:'#99a1b7',
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '13px',
-    fontWeight: '400',
-    color:'#99a1b7',
-  }),
-  indicatorSeparator: () => ({
-    display: 'none'  // Remove the vertical line before the dropdown arrow
-  })
-};
 
 const editUserSchema = Yup.object().shape({
   // email: Yup.string()
@@ -78,15 +31,15 @@ const editUserSchema = Yup.object().shape({
     .required('Company Code is required'),
   company_name: Yup.string()
     .required('Company Name is required'),
-  default_agent_id: Yup.number()
-    .required('Default Agent is required')
-    .nullable(),
+  contact_number: Yup.string()
+    .matches(/^\+62/, 'Contact number must start with +62')
+    .min(11, 'Contact number must be at least 10 digit')
 })
 
 const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
-  const [agentsOptions, setAgentsOptions] = useState<Option[]>([])
+  // const [agentsOptions, setAgentsOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   
@@ -97,27 +50,8 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
     company_name: company.company_name || initialCompany.company_name,
     contact_name: company.contact_name || initialCompany.contact_name,
     contact_number: company.contact_number || initialCompany.contact_number,
-    default_agent_id: company.default_agent_id || initialCompany.default_agent_id,
     is_active: company.is_active ?? initialCompany.is_active ?? false
   })
-
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        const agents = await getListAgent()
-        const formattedOptions = agents.data?.map((agent): Option => ({ 
-          value: agent.id || 0,
-          label: agent.name || "",
-        })) || []
-        setAgentsOptions(formattedOptions)
-      } catch (error) {
-        console.error('Error fetching agents:', error)
-      }
-    }
-
-    fetchAgents()
-    console.log(company);
-  }, [])
 
   const cancel = (withRefresh?: boolean) => {
     
@@ -171,14 +105,6 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
       }
     },
   })
-
-  const handleSelectChange = (
-    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
-    actionMeta: ActionMeta<Option>
-  ) => {
-    console.log(actionMeta)
-    formik.setFieldValue('default_agent_id', selectedOption ? selectedOption.value : null);
-  };
 
   return (
     <>
@@ -311,24 +237,6 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
               <div className='fv-plugins-message-container'>
                 <div className='fv-help-block'>
                   <span role='alert'>{formik.errors.contact_number}</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className='fv-row mb-7'>
-          <label className='required form-label fw-bold'>Default Agent</label>
-            <Select 
-              styles={customStyles} 
-              name="default_agent_id" 
-              options={agentsOptions}
-              value={agentsOptions.find(option => option.value === formik.values.default_agent_id) || null}
-              onChange={handleSelectChange}
-            />
-            {formik.touched.default_agent_id && formik.errors.default_agent_id && (
-              <div className='fv-plugins-message-container'>
-                <div className='fv-help-block'>
-                  <span role='alert'>{formik.errors.default_agent_id}</span>
                 </div>
               </div>
             )}

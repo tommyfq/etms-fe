@@ -5,7 +5,6 @@ export type Company = {
   company_name?: string
   contact_name?: string
   contact_number?: string
-  default_agent_id?: number
   is_active?: boolean
 }
 
@@ -17,7 +16,6 @@ export const initialCompany: Company = {
   company_name: "",
   contact_name: "",
   contact_number: "",
-  default_agent_id: 0,
   is_active: true
 }
 

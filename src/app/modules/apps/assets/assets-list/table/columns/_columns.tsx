@@ -1,5 +1,4 @@
 import {Column} from 'react-table'
-import {AssetInfoCell} from './AssetInfoCell'
 import {AssetDataCell} from './AssetDataCell'
 import {StatusCell} from '../../../../../../components/StatusCell'
 // import {UserActionsCell} from './UserActionsCell'
@@ -8,6 +7,7 @@ import {AssetCustomHeader} from './AssetCustomHeader'
 // import {UserSelectionHeader} from './UserSelectionHeader'
 import {Asset} from '../../core/_models'
 import { AssetActionCell } from './AssetActionCell'
+import { InfoCell } from '../../../../../../components/InfoCell'
 
 const companiesColumns: ReadonlyArray<Column<Asset>> = [
 //   {
@@ -18,7 +18,7 @@ const companiesColumns: ReadonlyArray<Column<Asset>> = [
   {
     Header: (props) => <AssetCustomHeader tableProps={props} title='Serial Number' className='min-w-125px' />,
     id: 'serial_number',
-    Cell: ({...props}) => <AssetInfoCell data={props.data[props.row.index]} />,
+    Cell: ({...props}) => <InfoCell data={props.data[props.row.index].serial_number} />,
   },
   {
     Header: (props) => (

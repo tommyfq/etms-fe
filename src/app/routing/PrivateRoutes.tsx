@@ -7,8 +7,10 @@ import {MenuTestPage} from '../pages/MenuTestPage'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
+import { useAuth } from '../modules/auth'
 
 const PrivateRoutes = () => {
+  const { currentUser } = useAuth()
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const WizardsPage = lazy(() => import('../modules/wizards/WizardsPage'))
   const AccountPage = lazy(() => import('../modules/accounts/AccountPage'))
@@ -73,14 +75,34 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-        <Route
+
+        {currentUser?.role_name === 'admin' ? (
+            <Route path='apps/users/*' element={<SuspensedView><UsersPage /></SuspensedView>} />
+        ) : (
+          <Route path='apps/users/*' element={<Navigate to='/dashboard' />} />
+        )}
+
+        {currentUser?.role_name === 'admin' ? (
+            <Route path='apps/companies/*' element={<SuspensedView><CompanyPage /></SuspensedView>} />
+          
+        ) : (
+          <Route path='apps/companies/*' element={<Navigate to='/dashboard' />} />
+        )}
+
+        {currentUser?.role_name == 'admin' ? (
+          <Route path='apps/items/*' element={<SuspensedView><ItemsPage /></SuspensedView>}/>
+        ) : (
+          <Route path='apps/items/*' element={<Navigate to='/dashboard' />} />
+        )}
+
+        {/* <Route
           path='apps/users/*'
           element={
             <SuspensedView>
               <UsersPage />
             </SuspensedView>
           }
-        />
+        /> */}
         <Route
           path='apps/assets/*'
           element={
@@ -89,14 +111,7 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-        <Route
-          path='apps/companies/*'
-          element={
-            <SuspensedView>
-              <CompanyPage />
-            </SuspensedView>
-          }
-        />
+        
         <Route
           path='apps/dc/*'
           element={
@@ -129,14 +144,7 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-        <Route
-          path='apps/items/*'
-          element={
-            <SuspensedView>
-              <ItemsPage />
-            </SuspensedView>
-          }
-        />
+        
         {/* Page Not Found */}
         {/* <Route path='*' element={<Navigate to='/error/404' />} /> */}
       </Route>

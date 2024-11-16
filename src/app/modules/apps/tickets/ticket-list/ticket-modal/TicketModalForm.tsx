@@ -416,7 +416,7 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                   <div className='fv-row'>
                     <label className='fw-bold fs-6 mb-2'>CC</label>
                     <input
-                    placeholder='cc'
+                    placeholder='example@mail.com, example2@mail.com'
                     {...formik.getFieldProps('cc')}
                     type='text'
                     name='cc'

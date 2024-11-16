@@ -5,9 +5,11 @@ import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 // import {StoreUploadModal} from './StoreUploadModal'
 // import {TicketListFilter} from './TicketListFilter'
+import {useAuth} from '../../../../../auth'
 
 const TicketListToolbar = () => {
   const {setItemIdForUpdate} = useListView()
+  const {currentUser} = useAuth()
 //   const [showUploadModal, setShowUploadModal] = useState<boolean>(false)
 
   const openAddCompanyModal = () => {
@@ -38,10 +40,15 @@ const TicketListToolbar = () => {
             <KTIcon iconName='exit-up' className='fs-2'/>
             Upload
           </button> */}
-          <button type='button' className='btn btn-primary' onClick={openAddCompanyModal}>
-            <KTIcon iconName='plus' className='fs-2' />
-            Add Ticket
-          </button>
+          {
+            currentUser?.role_name != "agent" ? (
+              <button type='button' className='btn btn-primary' onClick={openAddCompanyModal}>
+                <KTIcon iconName='plus' className='fs-2' />
+                Add Ticket
+              </button>
+            ) : null
+          }
+          
         
         {/* </Link> */}
         

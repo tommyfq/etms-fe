@@ -9,10 +9,10 @@ const PriorityColumnCell: FC<Props> = ({data}) => {
     let statusClass = '';
     let statusLabel = '';
 
-    if (data === 'high') {
+    if (data === 'High') {
         statusClass = 'badge badge-light-danger fw-bolder'; // High priority (red)
         statusLabel = 'High';
-    } else if (data === 'medium') {
+    } else if (data === 'Medium') {
         statusClass = 'badge badge-light-warning fw-bolder'; // Medium priority (yellow)
         statusLabel = 'Medium';
     } else {

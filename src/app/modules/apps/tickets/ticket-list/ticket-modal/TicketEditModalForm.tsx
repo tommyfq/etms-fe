@@ -743,7 +743,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               type='submit'
               className='btn btn-primary me-3'
               data-kt-users-modal-action='submit'
-              disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || statusSelected == "" || !prioritySelected || (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset)}
+              disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || statusSelected == "" || (statusSelected != "Rejected" && !prioritySelected) || (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset)}
             >
               <span className='indicator-label'>Submit</span>
               {(formik.isSubmitting || isUserLoading) && (

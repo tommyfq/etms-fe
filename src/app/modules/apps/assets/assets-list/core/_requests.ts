@@ -11,9 +11,9 @@ const getAsset = (query: string): Promise<AssetQueryResponse> => {
     .then((d: AxiosResponse<AssetQueryResponse>) => d.data);
 };
 
-const getListDC = (): Promise<ListDCQueryResponse> => {
+const getListDC = (company_id:number): Promise<ListDCQueryResponse> => {
   return api
-    .get(`/dc/list-option`)
+    .get(`/dc/list-option/${company_id}`)
     .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
 }
 

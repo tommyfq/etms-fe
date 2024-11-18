@@ -79,7 +79,7 @@ const editUserSchema = Yup.object().shape({
     .matches(/^\S*$/, 'Serial Number cannot contain spaces'),
   dc_id: Yup.number().required('DC ID is required'),
   store_id: Yup.number().required('Store ID is required'),
-  delivery_date: Yup.string().required('Warranty Date is required'),
+  delivery_date: Yup.string().required('Delivery Date is required'),
 })
 
 const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
@@ -119,7 +119,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
   useEffect(() => {
     const fetchDC = async () => {
       try {
-        const dcs = await getListDC()
+        const dcs = await getListDC(0)
         console.log(dcs)
         const formattedDCOptions = dcs.data?.map((dc): Option => ({ 
           value: dc?.dc_id || 0,

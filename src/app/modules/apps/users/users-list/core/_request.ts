@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
-import { User, ListRoleQueryResponse, ListDCQueryResponse, UsersQueryResponse } from "./_models";
+import { User, ListRoleQueryResponse, ListDCQueryResponse, UsersQueryResponse, ListCompanyQueryResponse } from "./_models";
 import api from "../../../../../services/api"
 
 const getUser = (query: string): Promise<UsersQueryResponse> => {
@@ -15,9 +15,9 @@ const getListRole = (): Promise<ListRoleQueryResponse> => {
         .then((d: AxiosResponse<ListRoleQueryResponse>) => {return d.data});
 }
 
-const getListDC = (): Promise<ListDCQueryResponse> => {
+const getListDC = (companyId:number): Promise<ListDCQueryResponse> => {
     return api
-        .get(`/dc/list-option`)
+        .get(`/dc/list-option/${companyId}`)
         .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
 }
 
@@ -41,11 +41,18 @@ const updateUser = (user: User): Promise<any | undefined> => {
         .then((response: AxiosResponse<Response<User>>) => response.data)
 };
 
+const getListCompany = (): Promise<ListCompanyQueryResponse> => {
+    return api
+      .get(`/company/list-option`)
+      .then((d: AxiosResponse<ListCompanyQueryResponse>) => {return d.data});
+  }
+
 export {
     getUser,
     getUserById,
     createUser,
     updateUser,
     getListRole,
-    getListDC
+    getListDC,
+    getListCompany
 };

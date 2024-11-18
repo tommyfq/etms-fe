@@ -9,9 +9,9 @@ const getStore = (query: string): Promise<StoreQueryResponse> => {
     .then((d: AxiosResponse<StoreQueryResponse>) => d.data);
 };
 
-const getListDC = (): Promise<ListDCQueryResponse> => {
+const getListDC = (companyId:number): Promise<ListDCQueryResponse> => {
   return api
-    .get(`/dc/list-option`)
+    .get(`/dc/list-option/${companyId}`)
     .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
 }
 

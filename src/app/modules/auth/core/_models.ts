@@ -13,6 +13,7 @@ export interface AuthModelUser {
   email: string;
   role_id: number;
   role_name: string;
+  company_id: number;
   dcs: number[];
 }
 

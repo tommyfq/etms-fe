@@ -7,7 +7,7 @@ import {User, initialUser} from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
-import {createUser, getListRole, getListDC, updateUser } from '../core/_request'
+import {createUser, getListRole, getListDC, updateUser, getListCompany } from '../core/_request'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import Select, { StylesConfig, ActionMeta, SingleValue, MultiValue } from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
@@ -131,6 +131,7 @@ const editUserSchema = Yup.object().shape({
 const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
+  const [companyOptions, setCompanyOptions] = useState<Option[]>([])
   const [roleOptions, setRoleOptions] = useState<Option[]>([])
   const [dcOptions, setDCOptions] = useState<Option[]>([])
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
@@ -143,20 +144,59 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   const [userForEdit] = useState<User>({
     ...user,
     id: user.id || initialUser.id,
-  name: user.name || initialUser.name,
-  username: user.username || initialUser.username,
-  password: user.password || initialUser.password,
-  email: user.email || initialUser.email,
-  role_id: user.role_id || initialUser.role_id,
-  is_active: user.is_active ?? initialUser.is_active ?? false,
-  dcs: user.dcs || initialUser.dcs
+    name: user.name || initialUser.name,
+    username: user.username || initialUser.username,
+    password: user.password || initialUser.password,
+    email: user.email || initialUser.email,
+    role_id: user.role_id || initialUser.role_id,
+    is_active: user.is_active ?? initialUser.is_active ?? false,
+    dcs: user.dcs || initialUser.dcs,
+    company_id: user.company_id || initialUser.company_id
   })
 
   useEffect(() => {
+    console.log(user)
     const fetchRole = async () => {
       try {
+ 
+        const companies = await getListCompany()
+        const formattedOptions = companies.data?.map((c): Option => { 
+          return { 
+            value: c.company_id || 0,
+            label: c.company_name|| "",
+          }
+        }) || []
+        setCompanyOptions(formattedOptions) 
+
+        if(user.company_id != 0 && user.company_id !== undefined){
+          const formattedSelectedDC: Option[] = []
+          const dcList = await getListDC(user.company_id)
+          const formattedDCOptions = dcList.data?.map((d): Option => { 
+            
+            if(user?.dcs){
+              for(const udc of user.dcs){
+                if(udc == d.dc_id){
+                  formattedSelectedDC.push({
+                    value: d.dc_id || 0,
+                    label: d.dc_name || ""
+                  })
+                }
+              }
+            }
+
+            return {
+              value: d.dc_id || 0,
+              label: d.dc_name || "" 
+            }
+          }) || []
+          
+          console.log(formattedDCOptions)
+          setDCOptions(formattedDCOptions)
+          setSelectedDC(formattedSelectedDC)
+        }
+
         const roles = await getListRole()
-        const formattedOptions = roles.data?.map((r): Option => {
+        const formattedRoleOptions = roles.data?.map((r): Option => {
           
           if(user.role_id == r.role_id){
             setRole(r.role_name)
@@ -170,33 +210,8 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             label: r.role_name || "",
           }
         }) || []
-        console.log(formattedOptions)
-        setRoleOptions(formattedOptions)
-
-        const formattedSelectedDC: Option[] = []
-        const dcList = await getListDC()
-        const formattedDCOptions = dcList.data?.map((d): Option => { 
-          
-          if(user?.dcs){
-            for(const udc of user.dcs){
-              if(udc == d.dc_id){
-                formattedSelectedDC.push({
-                  value: d.dc_id || 0,
-                  label: d.dc_name || ""
-                })
-              }
-            }
-          }
-
-          return {
-            value: d.dc_id || 0,
-            label: d.dc_name || "" 
-          }
-        }) || []
-        
-        console.log(formattedDCOptions)
-        setDCOptions(formattedDCOptions)
-        setSelectedDC(formattedSelectedDC)
+        console.log(formattedRoleOptions)
+        setRoleOptions(formattedRoleOptions)
         setIsLoadingData(false)
 
       } catch (error) {
@@ -272,6 +287,8 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
       setIsMultiDC(false)
     }else if(selectedOption?.label == "agent"){
       setIsMultiDC(true)
+    }else if(selectedOption?.label == "super_client"){
+      formik.setFieldValue('dcs', []);
     }
   };
 
@@ -304,6 +321,42 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
       formik.setFieldValue('dcs', []);
     }
   };
+
+  const handleSelectCompanyChange = async (
+    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    actionMeta: ActionMeta<Option>
+  ) => {
+    console.log(actionMeta)
+    console.log(selectedOption)
+    setSelectedDC(null)
+    formik.setFieldValue('dcs', []);
+    formik.setFieldValue('company_id', selectedOption ? selectedOption.value : null);
+
+    const formattedSelectedDC: Option[] = []
+    const dcList = await getListDC(selectedOption?.value ?? 0)
+    const formattedDCOptions = dcList.data?.map((d): Option => { 
+      
+      if(user?.dcs){
+        for(const udc of user.dcs){
+          if(udc == d.dc_id){
+            formattedSelectedDC.push({
+              value: d.dc_id || 0,
+              label: d.dc_name || ""
+            })
+          }
+        }
+      }
+
+      return {
+        value: d.dc_id || 0,
+        label: d.dc_name || "" 
+      }
+    }) || []
+    
+    console.log(formattedDCOptions)
+    setDCOptions(formattedDCOptions)
+    
+  }
 
   return (
     <>
@@ -448,21 +501,45 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
                 </div>
                 )}
             </div>
-          
-          {
-            role != "admin" && 
-            <div className='fv-row mb-7'>
-                <label className='form-label fw-bold'>DC</label>
-                <Select<Option, boolean> 
-                styles={customDCStyles} 
-                name="dcs"
-                isMulti={isMultiDC}
-                options={dcOptions}
-                value={selectedDC}
-                onChange={handleSelectDCChange}
-                />
-            </div>
-          }
+            
+              {
+                role != "admin" && (
+                  <>
+                    <div className='fv-row mb-7'>
+                      <label className='required form-label fw-bold'>Company</label>
+                      <Select 
+                        styles={customStyles} 
+                        name="company_id" 
+                        options={companyOptions}
+                        onChange={handleSelectCompanyChange}
+                        value={companyOptions?.find(option => option.value === formik.values.company_id) || null}
+                      />
+                      {formik.touched.company_id && formik.errors.company_id && (
+                        <div className='fv-plugins-message-container'>
+                          <div className='fv-help-block'>
+                            <span role='alert'>{formik.errors.company_id}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {
+                      !["admin", "super_client", ""].includes(role ?? "") && (
+                        <div className='fv-row mb-7'>
+                          <label className='form-label fw-bold'>DC</label>
+                          <Select<Option, boolean> 
+                          styles={customDCStyles} 
+                          name="dcs"
+                          isMulti={isMultiDC}
+                          options={dcOptions}
+                          value={selectedDC}
+                          onChange={handleSelectDCChange}
+                          />
+                      </div>
+                      )
+                    }
+                  </>
+                )
+              }
 
           <div className="fv-row mb-7">
             
@@ -499,7 +576,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             type='submit'
             className='btn btn-primary'
             data-kt-users-modal-action='submit'
-            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || isLoadingData || !role || ((Array.isArray(selectedDC) ? selectedDC.length === 0 : !selectedDC) && role != "admin")}
+            disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || isLoadingData || !role || ((Array.isArray(selectedDC) ? selectedDC.length === 0 : !selectedDC) && !["admin", "super_client"].includes(role))}
           >
             <span className='indicator-label'>Submit</span>
             {(formik.isSubmitting || isUserLoading) && (

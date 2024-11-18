@@ -101,7 +101,8 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const dcs = await getListDC()
+        const companyId = currentUser?.company_id ?? 0
+        const dcs = await getListDC(companyId)
         const formattedOptions = dcs.data?.map((dc): Option => ({
           value: dc.dc_id || 0,
           label: dc.dc_name || "",

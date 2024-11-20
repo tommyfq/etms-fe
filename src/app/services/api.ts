@@ -1,5 +1,5 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-//import {setupAxios} from '../../app/modules/auth'
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
+// import { useNavigate } from 'react-router-dom';
 import {AuthModel} from '../modules/auth'
 
 const AUTH_LOCAL_STORAGE_KEY = 'kt-auth-react-v'
@@ -24,6 +24,18 @@ const getAuth = (): AuthModel | undefined => {
   }
 }
 
+const removeAuth = () => {
+  if (!localStorage) {
+    return
+  }
+
+  try {
+    localStorage.removeItem(AUTH_LOCAL_STORAGE_KEY)
+  } catch (error) {
+    console.error('AUTH LOCAL STORAGE REMOVE ERROR', error)
+  }
+}
+
 const api: AxiosInstance = axios.create({
   baseURL: '/proxy', // Vite will proxy this to http://127.0.0.1:5000
   // proxy: {
@@ -33,15 +45,38 @@ const api: AxiosInstance = axios.create({
 });
 
 api.defaults.headers.Accept = 'application/json';
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const auth = getAuth();
-    if (auth && auth.data.token) {
-      config.headers['Authorization'] = `Bearer ${auth.data.token}`;
+
+// export const setupApi = (logout: () => void) => {
+  // Request interceptor to attach Authorization header
+  api.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+      const auth = getAuth();
+      if (auth && auth.data.token) {
+        config.headers['Authorization'] = `Bearer ${auth.data.token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  const handleLogout = () => {
+    removeAuth();
+    localStorage.removeItem(AUTH_LOCAL_STORAGE_KEY);
+    window.location.href = '/auth/login'; // Redirect to login page
+  };
+
+  // Response interceptor to handle 401 errors
+  api.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+      if (error.response?.status === 401) {
+        handleLogout();
+        console.warn('Unauthorized request. Logging out...');
+        //logout();
+      }
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  );
+//};
 
 export default api;

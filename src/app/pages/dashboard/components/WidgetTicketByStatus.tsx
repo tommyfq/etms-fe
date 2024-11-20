@@ -50,13 +50,12 @@ const WidgetTicketByStatus: FC<Props> = ({className, color}) => {
           {/* end::Balance */}
         </div>
         {/* end::Header */}
-        {/* begin::Items */}
         <div
           className='shadow-xs card-rounded mx-9 mb-9 px-6 py-9 position-relative z-index-1 bg-body'
           style={{marginTop: '-100px'}}
         >
-          { ticketCounts.map((ticket) => (
-            <div className='d-flex align-items-center mb-6'>
+          { ticketCounts.map((ticket, index) => (
+            <div className='d-flex align-items-center mb-6' key={index}>
             {/* begin::Symbol */}
             <div className='symbol symbol-45px w-40px me-5'>
               <span className='symbol-label bg-lighten'>
@@ -90,7 +89,6 @@ const WidgetTicketByStatus: FC<Props> = ({className, color}) => {
           </div>
           ))}
         </div>
-        {/* end::Items */}
       </div>
       {/* end::Body */}
     </div>

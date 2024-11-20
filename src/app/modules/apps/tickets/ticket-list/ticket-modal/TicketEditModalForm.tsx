@@ -1,5 +1,5 @@
 
-import {FC, useState, useEffect, CSSProperties } from 'react'
+import {FC, useState, useEffect, CSSProperties, useRef } from 'react'
 import * as Yup from 'yup'
 import clsx from 'clsx'
 import {useFormik} from 'formik'
@@ -136,6 +136,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const [assetList, setAssetList] = useState<Asset[]>()
   const [selectedSwapAsset, setSelectedSwapAsset] = useState<Asset>()
   const [isSwapAsset, setIsSwapAsset] = useState<boolean>(false)
+  const [isCommentClientChange, setIsCommentClientChange] = useState<boolean>(false)
   
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
@@ -293,6 +294,22 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
       }
     },
   })
+
+  const prevValueRef = useRef(formik.values.comment_client);
+  
+  useEffect(() => {
+   const prevValue = prevValueRef.current;
+   const currentValue = formik.values.comment_client;
+
+   if (prevValue !== currentValue) {
+    setIsCommentClientChange(true)
+     console.log('Value has changed:', { prevValue, currentValue });
+     // Perform additional logic here, if needed
+   }
+
+   // Update the ref to the current value
+   prevValueRef.current = currentValue;
+ }, [formik.values.comment_client]);
 
   const handleStatusSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     console.log("change status")
@@ -664,7 +681,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               <div className="row">
                 <div className="col-12 col-lg-6">
                   <div className='row mb-3'>
-                    <label className='col-lg-3 fw-bold text-muted'>Comments {user?.role_name == "agent" && "(to Client)"} </label>
+                    <label className='col-lg-3 fw-bold text-muted'>Comments {["agent", "admin"].includes(user?.role_name ?? "")} </label>
                     <div className='col-lg-9'>
                       <textarea
                           placeholder='Comments'
@@ -674,11 +691,11 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                           'form-control form-control-solid mb-3 mb-lg-0'
                           )}
                           autoComplete='off'
-                          readOnly={user?.role_name == "client"}
+                          readOnly={["client", "super_client"].includes(user?.role_name ?? "")}
                       />
                     </div>
                   </div>
-                  { user?.role_name == "agent" && 
+                  { ["agent", "admin"].includes(user?.role_name ?? "") && 
                     <div className='row mb-3'>
                         <label className='col-lg-3 fw-bold text-muted'>Comments (to Internal)</label>
                         <div className='col-lg-9'>
@@ -743,7 +760,16 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               type='submit'
               className='btn btn-primary me-3'
               data-kt-users-modal-action='submit'
-              disabled={isUserLoading || formik.isSubmitting || !formik.isValid || !formik.touched || statusSelected == "" || (statusSelected != "Rejected" && !prioritySelected) || (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset)}
+              disabled={
+                isUserLoading || 
+                formik.isSubmitting || 
+                !formik.isValid || 
+                !formik.touched || 
+                statusSelected == "" || 
+                (statusSelected != "Rejected" && !prioritySelected) || 
+                (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) || 
+                isCommentClientChange
+              }
             >
               <span className='indicator-label'>Submit</span>
               {(formik.isSubmitting || isUserLoading) && (

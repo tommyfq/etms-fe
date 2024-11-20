@@ -45,6 +45,7 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
   };
 
   const logout = () => {
+    console.log("LOGOUT")
     saveAuth(undefined);
     setCurrentUser(undefined);
   };

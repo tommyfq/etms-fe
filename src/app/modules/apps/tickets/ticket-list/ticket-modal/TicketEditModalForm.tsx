@@ -137,6 +137,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const [selectedSwapAsset, setSelectedSwapAsset] = useState<Asset>()
   const [isSwapAsset, setIsSwapAsset] = useState<boolean>(false)
   const [isCommentClientChange, setIsCommentClientChange] = useState<boolean>(false)
+  const [isCommentInternalChange, setIsCommentInternalChange] = useState<boolean>(false)
   
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
@@ -185,6 +186,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
       setPrioritySelected(true)
     }
     console.log(ticket);
+    console.log(ticket.status);
     console.log("TICKET EDIT MODAL FORM")
     console.log(currentUser)
     setUser(currentUser)
@@ -295,21 +297,38 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     },
   })
 
-  const prevValueRef = useRef(formik.values.comment_client);
+  const prevValueClient = useRef(formik.values.comment_client);
+  const prevValueInternal = useRef(formik.values.comment_internal);
   
   useEffect(() => {
-   const prevValue = prevValueRef.current;
-   const currentValue = formik.values.comment_client;
+   const prevValueCC = ticket.comment_client
+   const currentValueCC = formik.values.comment_client;
 
-   if (prevValue !== currentValue) {
+   const prevValueCI = ticket.comment_internal
+   const currentValueCI = formik.values.comment_internal
+
+   // Perform additional logic here, if needed
+   if(currentValueCC == ""){
+    setIsCommentClientChange(false)
+   }else if (prevValueCC !== currentValueCC) {
     setIsCommentClientChange(true)
-     console.log('Value has changed:', { prevValue, currentValue });
-     // Perform additional logic here, if needed
+   }else{
+    setIsCommentClientChange(false)
+   }
+
+   // Perform additional logic here, if needed
+   if(currentValueCI == ""){
+    setIsCommentInternalChange(false)
+   }else if (prevValueCI !== currentValueCI) {
+    setIsCommentInternalChange(true)
+   }else{
+    setIsCommentInternalChange(false)
    }
 
    // Update the ref to the current value
-   prevValueRef.current = currentValue;
- }, [formik.values.comment_client]);
+   prevValueClient.current = currentValueCC;
+   prevValueInternal.current = currentValueCI
+ }, [formik.values.comment_client, formik.values.comment_internal]);
 
   const handleStatusSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     console.log("change status")
@@ -760,15 +779,15 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               type='submit'
               className='btn btn-primary me-3'
               data-kt-users-modal-action='submit'
-              disabled={
+              disabled={ (
                 isUserLoading || 
                 formik.isSubmitting || 
                 !formik.isValid || 
                 !formik.touched || 
                 statusSelected == "" || 
                 (statusSelected != "Rejected" && !prioritySelected) || 
-                (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) || 
-                isCommentClientChange
+                (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) 
+              ) && (ticket.status == "Open" || (!isCommentClientChange && !isCommentInternalChange ))
               }
             >
               <span className='indicator-label'>Submit</span>
@@ -781,7 +800,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             </button>
           }
           {
-            (user?.role_name == "client" && ticket.status == "Open") && 
+            (["client", "admin"].includes(user?.role_name ?? "") && ticket.status == "Open") && 
             <button
               type='button'
               className='btn btn-danger'

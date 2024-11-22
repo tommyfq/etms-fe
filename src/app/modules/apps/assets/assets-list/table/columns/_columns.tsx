@@ -1,5 +1,6 @@
 import {Column} from 'react-table'
 import {AssetDataCell} from './AssetDataCell'
+import { AssetWarrantyCell } from './AssetWarrantyCell'
 import {StatusCell} from '../../../../../../components/StatusCell'
 // import {UserActionsCell} from './UserActionsCell'
 // import {UserSelectionCell} from './UserSelectionCell'
@@ -57,7 +58,7 @@ const companiesColumns: ReadonlyArray<Column<Asset>> = [
       <AssetCustomHeader tableProps={props} title='Warranty Expired' className='min-w-125px' />
     ),
     id: 'warranty_expired',
-    Cell: ({...props}) => <AssetDataCell data={props.data[props.row.index].warranty_expired} />,
+    Cell: ({...props}) => <AssetWarrantyCell data={props.data[props.row.index].warranty_expired} is_active={props.data[props.row.index].warranty_status}/>,
   },
 //   {
 //     Header: (props) => (

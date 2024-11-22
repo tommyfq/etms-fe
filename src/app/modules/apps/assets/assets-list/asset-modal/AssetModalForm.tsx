@@ -501,7 +501,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
               <div className="col-12 col-lg-6">
                 <div className='fv-row'>
                   <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
-                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired}</label>
+                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired} {asset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}</label>
                 </div>
               </div>
             }

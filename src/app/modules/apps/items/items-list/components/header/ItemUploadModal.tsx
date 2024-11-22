@@ -145,7 +145,7 @@ const ItemUploadModal = ({show, handleClose}: Props) => {
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
-              Upload DC
+              Upload Item
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>

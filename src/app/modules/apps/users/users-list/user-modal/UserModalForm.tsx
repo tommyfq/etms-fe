@@ -118,13 +118,13 @@ const editUserSchema = Yup.object().shape({
   //   .max(50, 'Maximum 50 symbols')s
   //   .required('Email is required'),
   name: Yup.string().required('Name is required'),
-  username: Yup.string().required('Username is required'),
+  username: Yup.string().required('Username is required').matches(/^\S*$/, 'Username cannot contain spaces'),
   password: Yup.string().when('id', {
     is: 0, // Password required if `id` is 0
     then: (schema) => schema.required('Password is required').min(8, 'Password must be at least 8 characters'),
     otherwise: (schema) => schema.notRequired(), // Password not required if `id` is not 0
   }),
-  email: Yup.string().required('Email is required'),
+  email: Yup.string().required('Email is required').email('Invalid email format'),
   role_id: Yup.number().required('Role is required'),
 })
 
@@ -227,9 +227,10 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     
     if (withRefresh) {
       refetch()
+      setItemIdForUpdate(undefined)
+    }else{
+      setShowCreateAppModal(false)
     }
-    setShowCreateAppModal(false)
-    setItemIdForUpdate(undefined)
   }
 
 //   const blankImg = toAbsoluteUrl('media/svg/avatars/blank.svg')
@@ -430,7 +431,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
                 <input
                 placeholder='Email'
                 {...formik.getFieldProps('email')}
-                type='text'
+                type='email'
                 name='email'
                 className={clsx(
                     'form-control form-control-solid mb-3 mb-lg-0',
@@ -451,38 +452,34 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
                 )}
             </div>
 
-            <div className='fv-row mb-7'>
-                {
-                  user.id != 0 &&
-                  <label className='fw-bold fs-6 mb-2'>Password</label>
-                }
-                {
-                  user.id == 0 &&
-                  <label className='required fw-bold fs-6 mb-2'>Password</label>
-                }
-                <input
-                placeholder='Password'
-                {...formik.getFieldProps('password')}
-                type='password'
-                name='password'
-                className={clsx(
-                    'form-control form-control-solid mb-3 mb-lg-0',
-                    {'is-invalid': formik.touched.password && formik.errors.password},
-                    {
-                    'is-valid': formik.touched.password && !formik.errors.password,
-                    }
-                )}
-                autoComplete='off'
-                disabled={formik.isSubmitting || isUserLoading}
-                />
-                {formik.touched.password && formik.errors.password && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.password}</span>
-                    </div>
-                </div>
-                )}
+            {user.id == 0 && 
+              <div className='fv-row mb-7'>
+                <label className='fw-bold fs-6 mb-2'>Password</label>
+              <input
+              placeholder='Password'
+              {...formik.getFieldProps('password')}
+              type='password'
+              name='password'
+              className={clsx(
+                  'form-control form-control-solid mb-3 mb-lg-0',
+                  {'is-invalid': formik.touched.password && formik.errors.password},
+                  {
+                  'is-valid': formik.touched.password && !formik.errors.password,
+                  }
+              )}
+              autoComplete='off'
+              disabled={formik.isSubmitting || isUserLoading}
+              />
+              {formik.touched.password && formik.errors.password && (
+              <div className='fv-plugins-message-container'>
+                  <div className='fv-help-block'>
+                  <span role='alert'>{formik.errors.password}</span>
+                  </div>
+              </div>
+              )}
             </div>
+            }
+            
 
             <div className='fv-row mb-7'>
                 <label className='required form-label fw-bold'>Role</label>
@@ -564,7 +561,7 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
         <div className='text-center pt-15'>
           <button
             type='reset'
-            onClick={() => cancel()}
+            onClick={() => cancel(true)}
             className='btn btn-light me-3'
             data-kt-users-modal-action='cancel'
             disabled={formik.isSubmitting || isUserLoading}

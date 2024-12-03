@@ -3,6 +3,7 @@ import {Response} from '../../../../_metronic/helpers'
 
 export type ChartData = {
     chartData: number[];
+    chartDataSLA: number[];
     yearList: number[]
 }
 

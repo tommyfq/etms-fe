@@ -167,24 +167,6 @@ const StoreListFilter = () => {
           {/* begin::Input group */}
           <div className='mb-10'>
             <label className='form-label fs-6 fw-bold'>Company</label>
-            {/* <select
-              className='form-select form-select-solid fw-bolder'
-              data-kt-select2='true'
-              data-placeholder='Select option'
-              data-allow-clear='true'
-              data-kt-user-table-filter='role'
-              data-hide-search='true'
-              onChange={handleCompanySelected}
-              value={company}
-            >
-              <option value=''></option>
-                {companyOptions?.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select> */}
-
             <Select 
               styles={customStyles} 
               name="company_id" 

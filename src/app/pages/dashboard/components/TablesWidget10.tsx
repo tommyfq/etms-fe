@@ -17,26 +17,8 @@ const TablesWidget10: FC<Props> = ({className}) => {
       {/* begin::Header */}
       <div className='card-header border-0 pt-5'>
         <h3 className='card-title align-items-start flex-column'>
-          <span className='card-label fw-bold fs-3 mb-1'>Members Statistics</span>
-          <span className='text-muted mt-1 fw-semibold fs-7'>Over 500 members</span>
+          <span className='card-label fw-bold fs-3 mb-1'>Asset Overview for Each Store</span>
         </h3>
-        <div
-          className='card-toolbar'
-          data-bs-toggle='tooltip'
-          data-bs-placement='top'
-          data-bs-trigger='hover'
-          title='Click to add a user'
-        >
-          <a
-            href='#'
-            className='btn btn-sm btn-light-primary'
-            // data-bs-toggle='modal'
-            // data-bs-target='#kt_modal_invite_friends'
-          >
-            <KTIcon iconName='plus' className='fs-3' />
-            New Member
-          </a>
-        </div>
       </div>
       {/* end::Header */}
       {/* begin::Body */}
@@ -48,21 +30,10 @@ const TablesWidget10: FC<Props> = ({className}) => {
             {/* begin::Table head */}
             <thead>
               <tr className='fw-bold text-muted'>
-                <th className='w-25px'>
-                  <div className='form-check form-check-sm form-check-custom form-check-solid'>
-                    <input
-                      className='form-check-input'
-                      type='checkbox'
-                      value='1'
-                      data-kt-check='true'
-                      data-kt-check-target='.widget-9-check'
-                    />
-                  </div>
-                </th>
-                <th className='min-w-150px'>Authors</th>
-                <th className='min-w-140px'>Company</th>
-                <th className='min-w-120px'>Progress</th>
-                <th className='min-w-100px text-end'>Actions</th>
+                <th className='min-w-100px'>Stores</th>
+                <th className='min-w-150px'>Active Assets</th>
+                <th className='min-w-140px'>Assets Under Repair</th>
+                <th className='min-w-120px'>Percentage</th>
               </tr>
             </thead>
             {/* end::Table head */}
@@ -70,19 +41,14 @@ const TablesWidget10: FC<Props> = ({className}) => {
             <tbody>
               <tr>
                 <td>
-                  <div className='form-check form-check-sm form-check-custom form-check-solid'>
-                    <input className='form-check-input widget-9-check' type='checkbox' value='1' />
-                  </div>
-                </td>
-                <td>
                   <div className='d-flex align-items-center'>
                     <div className='symbol symbol-45px me-5'>
                       <img src={toAbsoluteUrl('media/avatars/300-14.jpg')} alt='' />
                     </div>
                     <div className='d-flex justify-content-start flex-column'>
-                      <a href='#' className='text-gray-900 fw-bold text-hover-primary fs-6'>
+                      <div className='text-gray-900 fw-bold text-hover-primary fs-6'>
                         Ana Simmons
-                      </a>
+                      </div>
                       <span className='text-muted fw-semibold text-muted d-block fs-7'>
                         HTML, JS, ReactJS
                       </span>
@@ -90,9 +56,9 @@ const TablesWidget10: FC<Props> = ({className}) => {
                   </div>
                 </td>
                 <td>
-                  <a href='#' className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
+                  <div className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
                     Intertico
-                  </a>
+                  </div>
                   <span className='text-muted fw-semibold text-muted d-block fs-7'>
                     Web, UI/UX Design
                   </span>
@@ -136,19 +102,14 @@ const TablesWidget10: FC<Props> = ({className}) => {
               </tr>
               <tr>
                 <td>
-                  <div className='form-check form-check-sm form-check-custom form-check-solid'>
-                    <input className='form-check-input widget-9-check' type='checkbox' value='1' />
-                  </div>
-                </td>
-                <td>
                   <div className='d-flex align-items-center'>
                     <div className='symbol symbol-45px me-5'>
                       <img src={toAbsoluteUrl('media/avatars/300-2.jpg')} alt='' />
                     </div>
                     <div className='d-flex justify-content-start flex-column'>
-                      <a href='#' className='text-gray-900 fw-bold text-hover-primary fs-6'>
+                      <div className='text-gray-900 fw-bold text-hover-primary fs-6'>
                         Jessie Clarcson
-                      </a>
+                      </div>
                       <span className='text-muted fw-semibold text-muted d-block fs-7'>
                         C#, ASP.NET, MS SQL
                       </span>
@@ -156,9 +117,9 @@ const TablesWidget10: FC<Props> = ({className}) => {
                   </div>
                 </td>
                 <td>
-                  <a href='#' className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
+                  <div className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
                     Agoda
-                  </a>
+                  </div>
                   <span className='text-muted fw-semibold text-muted d-block fs-7'>
                     Houses &amp; Hotels
                   </span>
@@ -202,19 +163,14 @@ const TablesWidget10: FC<Props> = ({className}) => {
               </tr>
               <tr>
                 <td>
-                  <div className='form-check form-check-sm form-check-custom form-check-solid'>
-                    <input className='form-check-input widget-9-check' type='checkbox' value='1' />
-                  </div>
-                </td>
-                <td>
                   <div className='d-flex align-items-center'>
                     <div className='symbol symbol-45px me-5'>
                       <img src={toAbsoluteUrl('media/avatars/300-5.jpg')} alt='' />
                     </div>
                     <div className='d-flex justify-content-start flex-column'>
-                      <a href='#' className='text-gray-900 fw-bold text-hover-primary fs-6'>
+                      <div className='text-gray-900 fw-bold text-hover-primary fs-6'>
                         Lebron Wayde
-                      </a>
+                      </div>
                       <span className='text-muted fw-semibold text-muted d-block fs-7'>
                         PHP, Laravel, VueJS
                       </span>
@@ -222,9 +178,9 @@ const TablesWidget10: FC<Props> = ({className}) => {
                   </div>
                 </td>
                 <td>
-                  <a href='#' className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
+                  <div className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
                     RoadGee
-                  </a>
+                  </div>
                   <span className='text-muted fw-semibold text-muted d-block fs-7'>
                     Transportation
                   </span>
@@ -268,19 +224,14 @@ const TablesWidget10: FC<Props> = ({className}) => {
               </tr>
               <tr>
                 <td>
-                  <div className='form-check form-check-sm form-check-custom form-check-solid'>
-                    <input className='form-check-input widget-9-check' type='checkbox' value='1' />
-                  </div>
-                </td>
-                <td>
                   <div className='d-flex align-items-center'>
                     <div className='symbol symbol-45px me-5'>
                       <img src={toAbsoluteUrl('media/avatars/300-20.jpg')} alt='' />
                     </div>
                     <div className='d-flex justify-content-start flex-column'>
-                      <a href='#' className='text-gray-900 fw-bold text-hover-primary fs-6'>
+                      <div className='text-gray-900 fw-bold text-hover-primary fs-6'>
                         Natali Goodwin
-                      </a>
+                      </div>
                       <span className='text-muted fw-semibold text-muted d-block fs-7'>
                         Python, PostgreSQL, ReactJS
                       </span>
@@ -309,12 +260,11 @@ const TablesWidget10: FC<Props> = ({className}) => {
                 </td>
                 <td>
                   <div className='d-flex justify-content-end flex-shrink-0'>
-                    <a
-                      href='#'
+                    <div
                       className='btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1'
                     >
                       <KTIcon iconName='switch' className='fs-3' />
-                    </a>
+                    </div>
                     <a
                       href='#'
                       className='btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1'
@@ -332,19 +282,14 @@ const TablesWidget10: FC<Props> = ({className}) => {
               </tr>
               <tr>
                 <td>
-                  <div className='form-check form-check-sm form-check-custom form-check-solid'>
-                    <input className='form-check-input widget-9-check' type='checkbox' value='1' />
-                  </div>
-                </td>
-                <td>
                   <div className='d-flex align-items-center'>
                     <div className='symbol symbol-45px me-5'>
                       <img src={toAbsoluteUrl('media/avatars/300-23.jpg')} alt='' />
                     </div>
                     <div className='d-flex justify-content-start flex-column'>
-                      <a href='#' className='text-gray-900 fw-bold text-hover-primary fs-6'>
+                      <div className='text-gray-900 fw-bold text-hover-primary fs-6'>
                         Kevin Leonard
-                      </a>
+                      </div>
                       <span className='text-muted fw-semibold text-muted d-block fs-7'>
                         HTML, JS, ReactJS
                       </span>
@@ -352,9 +297,9 @@ const TablesWidget10: FC<Props> = ({className}) => {
                   </div>
                 </td>
                 <td>
-                  <a href='#' className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
+                  <div className='text-gray-900 fw-bold text-hover-primary d-block fs-6'>
                     RoadGee
-                  </a>
+                  </div>
                   <span className='text-muted fw-semibold text-muted d-block fs-7'>
                     Art Director
                   </span>

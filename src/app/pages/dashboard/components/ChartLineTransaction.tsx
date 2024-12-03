@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
 import moment from 'moment';
 import { getTicketChartByYear } from '../core/_requests'
-import {getCSSVariableValue} from '../../../../_metronic/assets/ts/_utils'
 
 
 const ChartLineTransaction: React.FC = () => {
   const [chartData, setChartData] = useState<number[]>([]);
+  const [chartDataSLA, setChartDataSLA] = useState<number[]>([]);
   const [currentYear, setCurrentYear] = useState(moment().year());
   const [yearList, setYearList] = useState<number[]>([])
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -18,7 +18,9 @@ const ChartLineTransaction: React.FC = () => {
         const response = await getTicketChartByYear(currentYear)
         const data = response.data?.chartData ?? []
         const yearData = response.data?.yearList ?? []
+        const dataSLA = response.data?.chartDataSLA ?? []
         setChartData(data)
+        setChartDataSLA(dataSLA)
         setYearList(yearData)
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -29,121 +31,79 @@ const ChartLineTransaction: React.FC = () => {
   }, [currentYear]);
 
   useEffect(() => {
-    const lineTransactionColor = getCSSVariableValue('--bs-primary')
-    const lightColor = getCSSVariableValue('--bs-info-light')
-    const borderColor = getCSSVariableValue('--bs-gray-200')
-    const labelColor = getCSSVariableValue('--bs-gray-500')
-    const baseColor = getCSSVariableValue('--bs-info')
-    
 
     if (chartData.length > 0 && chartRef.current) {
       const options: ApexCharts.ApexOptions = {
         chart: {
           fontFamily: 'inherit',
-          type: 'area',
+          type: 'bar',
           height: 500,
           toolbar: {
             show: false,
           },
         },
-        legend: {
-          show: false,
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '50%',
+            dataLabels: {
+              position: 'top',
+            },
+          },
         },
         dataLabels: {
-          enabled: false,
-        },
-        fill: {
-          type: 'solid',
-          opacity: 1,
+          enabled: true,
+          style: {
+            fontSize: '12px',
+            colors: ['#000'],
+          },
         },
         stroke: {
-          curve: 'smooth',
           show: true,
-          width: 3,
-          colors: [lineTransactionColor, baseColor],
+          width: 2,
+          colors: ['transparent'],
         },
         series: [
           {
-            name: 'Data',
-            data: chartData,
+            name: 'SLA',
+            data: chartDataSLA, // Total values for each month
+          },
+          {
+            name: 'Total',
+            data: chartData, // Expected target for each month
           },
         ],
         xaxis: {
-          categories: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-          axisTicks: {
-            show: false,
-          },
+          categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
           labels: {
             style: {
-              colors: labelColor,
               fontSize: '12px',
-            },
-          },
-          crosshairs: {
-            position: 'front',
-            stroke: {
-              color: baseColor,
-              width: 1,
-              dashArray: 3,
-            },
-          },
-          tooltip: {
-            enabled: true,
-            formatter: undefined,
-            offsetY: 0,
-            style: {
-              fontSize: '12px',
+              colors: '#666',
             },
           },
         },
         yaxis: {
+          title: {
+            text: 'Value',
+          },
           labels: {
             style: {
-              colors: labelColor,
               fontSize: '12px',
+              colors: '#666',
             },
           },
         },
-        states: {
-          normal: {
-            filter: {
-              type: 'none',
-              value: 0,
-            },
-          },
-          hover: {
-            filter: {
-              type: 'none',
-              value: 0,
-            },
-          },
-          active: {
-            allowMultipleDataPointsSelection: false,
-            filter: {
-              type: 'none',
-              value: 0,
-            },
-          },
-        },
+        colors: ['#008FFB', '#FEB019'], // Blue for Total, Yellow for Expected
         tooltip: {
-          style: {
-            fontSize: '12px',
-          },
           y: {
             formatter: function (val) {
-              return val + ' tickets'
+              return `${val} tickets`;
             },
           },
         },
-        colors: [lineTransactionColor, lightColor],
         grid: {
-          borderColor: borderColor,
+          borderColor: '#f1f1f1',
           strokeDashArray: 4,
-          yaxis: {
-            lines: {
-              show: true,
-            },
-          },
         },
       };
 

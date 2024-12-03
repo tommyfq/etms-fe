@@ -3,15 +3,20 @@ import {useIntl} from 'react-intl'
 import {PageTitle} from '../../../_metronic/layout/core'
 
 import { WidgetTicketByStatus } from './components/WidgetTicketByStatus'
-// import { TablesWidget10 } from './components/TablesWidget10'
+//import { TablesWidget10 } from './components/TablesWidget10'
 import { CardsWidget17 } from './components/CardsWidget17'
 import ChartLineTransaction from './components/ChartLineTransaction'
+import { useAuth } from '../../modules/auth'
 
 
 import { ToolbarWrapper } from '../../../_metronic/layout/components/toolbar'
 import { Content } from '../../../_metronic/layout/components/content'
+import { AssetListWrapper } from './asset-list/AssetList'
 
-const DashboardPage: FC = () => (
+const DashboardPage: FC = () => {
+  const {currentUser} = useAuth()
+
+  return (
   <>
     <ToolbarWrapper />
     <Content>
@@ -57,16 +62,19 @@ const DashboardPage: FC = () => (
     </div>
     {/* end::Row */}
 
-    {/* begin::Row */}
-    {/* <div className='row gy-5 gx-xl-8'>
+  {/* begin::Row */}
+  {currentUser?.role_name != "agent" && 
+    <div className='row gy-5 gx-xl-8'>
       <div className='col-xl-12'>
-        <TablesWidget10 className='card-xxl-stretch mb-5 mb-xl-8' />
+        <AssetListWrapper />
       </div>
-    </div> */}
-    {/* end::Row */}
+    </div>
+  }
+  {/* end::Row */}
     </Content>
   </>
 )
+}
 
 const DashboardWrapper: FC = () => {
   const intl = useIntl()

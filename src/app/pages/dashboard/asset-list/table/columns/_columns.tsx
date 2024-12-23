@@ -28,7 +28,7 @@ const companiesColumns: ReadonlyArray<Column<AssetStore>> = [
   },
   {
     Header: (props) => (
-      <AssetCustomHeader tableProps={props} title='Active Assets' className='min-w-125px' />
+      <AssetCustomHeader tableProps={props} title='Repaired Assets' className='min-w-125px' />
     ),
     id: 'repaired_asset_count',
     Cell: ({...props}) => <AssetNumberCell data={props.data[props.row.index].repaired_asset_count} />,

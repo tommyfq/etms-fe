@@ -15,6 +15,12 @@ const getListDC = (companyId:number): Promise<ListDCQueryResponse> => {
     .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
 }
 
+const getListAllDC = (comp:number[]): Promise<ListDCQueryResponse> => {
+  return api
+    .post(`/dc/list-option`,{filter_comp:comp})
+    .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
+}
+
 const getListCompany = (): Promise<ListCompanyQueryResponse> => {
   return api
     .get(`/company/list-option`)
@@ -90,6 +96,7 @@ export {
   getStoreById,
   createStore,
   updateStore,
+  getListAllDC,
   getListDC,
   getListCompany,
   downloadExcelFile

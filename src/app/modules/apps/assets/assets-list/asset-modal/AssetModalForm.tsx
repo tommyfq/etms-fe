@@ -274,6 +274,10 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     setSelectedBrand(selectedOption?.label)
     console.log("selected_brand: "+selectedBrand)
 
+    // Reset 'item_id' and 'modelOptions'
+    formik.setFieldValue("item_id", null); // Reset item_id in Formik
+    setModelOptions([]); // Clear model options
+
     const fetchModel = async () => {
         try {
           const models = await getListModel(selectedOption?.label || "")
@@ -299,7 +303,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change dc")
+    console.log("change store")
     formik.setFieldValue('store_id', selectedOption ? selectedOption.value : null);
 
   };
@@ -501,7 +505,10 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
               <div className="col-12 col-lg-6">
                 <div className='fv-row'>
                   <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
-                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired} {asset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}</label>
+                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired} 
+                    {asset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}
+                    {!asset.warranty_status && <div className='badge badge-light-danger fw-bolder'>Non Active</div>}
+                  </label>
                 </div>
               </div>
             }

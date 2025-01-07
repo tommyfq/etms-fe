@@ -4,7 +4,7 @@ import {useState, useEffect} from 'react'
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import {StoreUploadModal} from './StoreUploadModal'
-// import {StoreListFilter} from './StoreListFilter'
+import { StoreListFilter } from './StoreListFilter.tsx'
 // import {TooltipMenu} from './TooltipMenu'
 import {downloadExcelFile} from '../../core/_requests.ts'
 import { useAuth } from '../../../../../auth'
@@ -42,7 +42,7 @@ const StoreListToolbar = () => {
   return (
     <>
       <div className='d-flex justify-content-end' data-kt-user-table-toolbar='base'>
-        {/* <StoreListFilter /> */}
+        <StoreListFilter />
         {/* begin::Export */}
         <button type='button' className='btn btn-light-primary me-3' onClick={handleDownload}>
           <KTIcon iconName='exit-down' className='fs-2' />

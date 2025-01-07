@@ -5,6 +5,7 @@ import {DCUploadModal} from './DCUploadModal'
 import {downloadExcelFile} from '../../core/_request.ts'
 // import {CompaniesListFilter} from './CompaniesListFilter'
 import { useAuth } from '../../../../../auth'
+import DCListFilter from './DCListFilter.tsx'
 
 const DCListToolbar = () => {
   const {setItemIdForUpdate} = useListView()
@@ -35,7 +36,7 @@ const DCListToolbar = () => {
   return (
     <>
       <div className='d-flex justify-content-end' data-kt-user-table-toolbar='base'>
-        {/* <CompaniesListFilter /> */}
+        <DCListFilter />
 
         {/* begin::Export */}
         {/* <button type='button' className='btn btn-light-primary me-3'>

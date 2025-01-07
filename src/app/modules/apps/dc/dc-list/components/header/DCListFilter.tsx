@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect} from 'react';
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {getListAllDC, getListCompany} from '../../core/_requests'
+import {getListCompany} from '../../core/_request'
 import Select, { StylesConfig, ActionMeta, SingleValue, MultiValue } from 'react-select'
 
 type Option = { value: number; label: string };
@@ -52,13 +52,10 @@ const customStyles: StylesConfig<Option, true> = {
   })
 };
 
-const StoreListFilter = () => {
+const DCListFilter = () => {
     const [openMenu, setOpenMenu] = useState(false);
-    const [dcOptions, setDCOptions] = useState<Option[]>([])
-    const [compOptions, setCompOptions] = useState<Option[]>([])
-    const [selectedDC, setSelectedDC] = useState<number[] | null>(null);
-    const [selectedComp, setSelectedComp] = useState<number[] | null>(null);
-    const [isDisableDC, setIsDisableDC] = useState<boolean>(false)
+    const [roleOptions, setRoleOptions] = useState<Option[]>([])
+    const [selectedCompanies, setSelectedCompanies] = useState<number[] | null>(null);
 
     const toggleMenu = () => setOpenMenu(!openMenu);
     // const toggleSubMenu = () => setOpenSubMenu(!openSubMenu);
@@ -81,26 +78,16 @@ const StoreListFilter = () => {
 
         const fetchRole = async () => {
           try {
-            const companies = await getListCompany();
-
-            const formattedCompOptions = companies.data?.map((r): Option => {
+            const roles = await getListCompany()
+            const formattedOptions = roles.data?.map((r): Option => {
+              
               return {
                 value: r.company_id || 0,
                 label: r.company_name || "",
               }
             }) || []
-            console.log(formattedCompOptions)
-            setCompOptions(formattedCompOptions)
-
-            const dcs = await getListAllDC([])
-            const formattedOptions = dcs.data?.map((r): Option => {
-              return {
-                value: r.dc_id || 0,
-                label: r.dc_name || "",
-              }
-            }) || []
             console.log(formattedOptions)
-            setDCOptions(formattedOptions)
+            setRoleOptions(formattedOptions)
     
           } catch (error) {
             console.error('Error fetching agents:', error)
@@ -117,17 +104,16 @@ const StoreListFilter = () => {
     }, []);
 
     const resetData = () => {
-        setSelectedComp(null)
-        setSelectedDC(null)
+        setSelectedCompanies(null)
         setIsActive(true)
         updateState({filter: undefined, ...initialQueryState})
       }
     
       const filterData = () => {
-        console.log(selectedDC)
+        console.log(selectedCompanies)
         //const is_active = isActive
         updateState({
-          filter: {is_active : isActive, dcs: selectedDC, comp: selectedComp},
+          filter: {is_active : isActive, companies: selectedCompanies},
           ...initialQueryState,
         })
       }
@@ -151,72 +137,15 @@ const StoreListFilter = () => {
 
       if (Array.isArray(selectedOption)) {
         // Multiple values for agents
-        setSelectedDC(selectedOption.map((option)=>option.value))
+        setSelectedCompanies(selectedOption.map((option)=>option.value))
       } else if (selectedOption){
 
-        setSelectedDC( [(selectedOption as Option).value])
+        setSelectedCompanies( [(selectedOption as Option).value])
       } else {
-        setSelectedDC([])
+        setSelectedCompanies([])
         // No selection
       }
     };
-
-  //   const handleSelectCompChange = async (
-  //     selectedOption: SingleValue<Option> | MultiValue<Option>,
-  //     actionMeta: ActionMeta<Option>
-  //   ) => {
-  //   setIsDisableDC(true)
-  //   console.log(actionMeta)
-  //   console.log("change company")
-
-  //   let arrComp: number[]
-
-  //   if (Array.isArray(selectedOption)) {
-  //     // Multiple values for agents
-  //     setSelectedComp(selectedOption.map((option)=>option.value))
-  //     arrComp = selectedOption.map((option) => option.value)
-  //   } else if (selectedOption){
-  //     arrComp = [(selectedOption as Option).value];
-  //     setSelectedComp( [(selectedOption as Option).value])
-  //   } else {
-  //     arrComp = [];
-  //     setSelectedComp([])
-  //     // No selection
-  //   }
-
-  //   const dcs = await getListAllDC(arrComp)
-  //   const formattedOptions = dcs.data?.map((r): Option => {
-  //     return {
-  //       value: r.dc_id || 0,
-  //       label: r.dc_name || "",
-  //     }
-  //   }) || []
-  //   console.log(formattedOptions)
-  //   setDCOptions(formattedOptions)
-  //   setIsDisableDC(false)
-  // };
-
-  const handleSelectCompChange = async (
-    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
-    actionMeta: ActionMeta<Option>
-  ) => {
-    const arrComp: number[] = [(selectedOption as Option).value];
-
-    console.log(actionMeta)
-    console.log("change role")
-    setSelectedComp([(selectedOption as Option).value])
-
-    const dcs = await getListAllDC(arrComp)
-    const formattedOptions = dcs.data?.map((r): Option => {
-      return {
-        value: r.dc_id || 0,
-        label: r.dc_name || "",
-      }
-    }) || []
-    console.log(formattedOptions)
-    setDCOptions(formattedOptions)
-    setIsDisableDC(false)
-  };
     
     return (
         <div className="mt-dropdown me-3" ref={dropdownRef}>
@@ -258,23 +187,11 @@ const StoreListFilter = () => {
             <label className='form-label fw-bold'>Company :</label>
             <Select 
                 styles={customStyles} 
-                name="comp" 
-                options={compOptions}
-                value={compOptions.filter((option) => selectedComp?.includes(option.value))} // Ensure selected options are displayed
-                onChange={handleSelectCompChange}
-                />
-          </div>
-
-          <div className='mb-10'>
-            <label className='form-label fw-bold'>DC :</label>
-            <Select 
-                styles={customStyles} 
-                name="dc" 
-                options={dcOptions}
-                value={dcOptions.filter((option) => selectedDC?.includes(option.value))} // Ensure selected options are displayed
+                name="company" 
+                options={roleOptions}
+                value={roleOptions.filter((option) => selectedCompanies?.includes(option.value))} // Ensure selected options are displayed
                 onChange={handleSelectChange}
                 isMulti={true}
-                isDisabled={isDisableDC}
                 />
           </div>
 
@@ -309,4 +226,4 @@ const StoreListFilter = () => {
     );
 };
 
-export {StoreListFilter};
+export default DCListFilter;

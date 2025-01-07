@@ -197,7 +197,7 @@ const StoreListFilter = () => {
   // };
 
   const handleSelectCompChange = async (
-    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+    selectedOption: SingleValue<Option> | MultiValue<Option>, // Use SingleValue to allow for null
     actionMeta: ActionMeta<Option>
   ) => {
     const arrComp: number[] = [(selectedOption as Option).value];

@@ -5,6 +5,14 @@ export type TicketList = {
   ticket_no?: string
   title?: string
   status?: string
+  part_name?: string
+  serial_number?: string
+  brand?: string
+  model?: string
+  dc_code?: string
+  dc_name?: string
+  store_code?: string
+  store_name?: string
   priority?: string
   createdAt?: string
   on_hold?: boolean
@@ -43,6 +51,9 @@ export type TicketDetail = {
     createdAt?: string
     on_hold?: boolean
     asset_id?: number
+    part_id?: number
+    part_name?: string
+    diagnostic_id?:number
     brand?: string
     model?: string
     store_name?: string
@@ -75,6 +86,9 @@ export const initialTicket: TicketDetail = {
     createdAt: "",
     on_hold: false,
     asset_id: 0,
+    part_id:0,
+    part_name: "",
+    diagnostic_id: 0,
     brand: "",
     model: "",
     store_name: "",
@@ -106,6 +120,22 @@ export type Asset = {
 }
 
 export type AssetQueryResponse = Response<Array<Asset>>
+
+export type Part = {
+    part_id?: number,
+    part_name?: string
+}
+
+export type PartQueryResponse = Response<Array<Part>>
+
+export type Diagnostic = {
+    diagnostic_id?: number,
+    diagnostic_name?: string
+}
+
+export type DiagnosticQueryResponse = Response<Array<Diagnostic>>
+
+export type StatusQueryResponse = Response<Array<string>>
 
 export type OverviewTicket = {
     count?: number,

@@ -4,7 +4,7 @@
 import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 // import {StoreUploadModal} from './StoreUploadModal'
-// import {TicketListFilter} from './TicketListFilter'
+import {TicketListFilter} from './TicketListFilter'
 import {useAuth} from '../../../../../auth'
 
 const TicketListToolbar = () => {
@@ -24,7 +24,7 @@ const TicketListToolbar = () => {
   return (
     <>
       <div className='d-flex justify-content-end' style={{ width: '100%' }} data-kt-user-table-toolbar='base'>
-        {/* <TicketListFilter /> */}
+        <TicketListFilter />
 
         {/* begin::Export */}
         <button type='button' className='btn btn-light-primary me-3'>

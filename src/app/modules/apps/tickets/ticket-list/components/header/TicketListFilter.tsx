@@ -1,135 +1,236 @@
-import {useEffect, useState} from 'react'
-import {MenuComponent} from '../../../../../../../_metronic/assets/ts/components'
+import React, { useState, useRef, useEffect} from 'react';
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-//import {getListDC} from '../../core/_request'
-// import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
+import {getListStatus} from '../../core/_request'
+import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
+import { hashStringToNumber } from '../../../../../../helpers/helper'
+import clsx from 'clsx'
 
-//type Option = { value: number; label: string };
+type Option = { value: number; label: string };
 
-/*
-const customStyles: StylesConfig<Option, false> = {
-    control: (provided, state) => ({
-      ...provided,
-      backgroundColor: '#f8f9fa',
-      border: state.isFocused ? '0px solid #DBDFE9' : '0px solid #DBDFE9',
-      boxShadow: 'none',
-      fontFamily: 'Inter, Helvetica, sans-serif',
-      fontSize: '14px',
-      fontWeight: '600',
-      color:'#99a1b7',
-    }),
-    menu: (provided) => ({
-      ...provided,
-      position: 'absolute',
-      zIndex: 9999,
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      marginTop: '0',
-      fontFamily: 'Inter, Helvetica, sans-serif',
-      fontSize: '13px',
-      fontWeight: '400',
-      //color:'#99a1b7',
-    }),
-    menuPortal: (provided) => ({
-      ...provided,
-      zIndex: 9999,
-      position: 'fixed', // Make the dropdown menu fixed
-      top: `${provided.top}px`, // Use calculated position from react-select
-      left: `${provided.left}px`, // Use calculated position from react-select
-      width: provided.width,  // Ensure the width matches the control
-      //color:'#99a1b7',
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      fontFamily: 'Inter, Helvetica, sans-serif',
-      fontSize: '13px',
-      fontWeight: '400',
-      color:'#99a1b7',
-    }),
-    indicatorSeparator: () => ({
-      display: 'none'  // Remove the vertical line before the dropdown arrow
-    })
-  };
-*/
 
-const StoreListFilter = () => {
-  const {updateState} = useQueryRequest()
-  const {isLoading} = useQueryResponse()
-  //const [dcSelected, setDCSelected] = useState<Option[]>()
-  //const [dcOptions, setDCOptions] = useState<Option[]>()
-  const [lastLogin, setLastLogin] = useState<string | undefined>()
+const customSingleStyles: StylesConfig<Option, false> = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: '#f8f9fa',
+    border: state.isFocused ? '0px solid #DBDFE9' : '0px solid #DBDFE9',
+    boxShadow: 'none',
+    fontFamily: 'Inter, Helvetica, sans-serif',
+    fontSize: '14px',
+    fontWeight: '600',
+    color:'#99a1b7',
+    width: '200px',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    position: 'absolute',
+    zIndex: 9999,
+    borderRadius: '4px',
+    border: '1px solid #ced4da',
+    marginTop: '0',
+    fontFamily: 'Inter, Helvetica, sans-serif',
+    fontSize: '13px',
+    fontWeight: '400',
+    //color:'#99a1b7',
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+    position: 'fixed', // Make the dropdown menu fixed
+    top: `${provided.top}px`, // Use calculated position from react-select
+    left: `${provided.left}px`, // Use calculated position from react-select
+    width: provided.width,  // Ensure the width matches the control
+    //color:'#99a1b7',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    fontFamily: 'Inter, Helvetica, sans-serif',
+    fontSize: '13px',
+    fontWeight: '400',
+    color:'#99a1b7',
+  }),
+  indicatorSeparator: () => ({
+    display: 'none'  // Remove the vertical line before the dropdown arrow
+  })
+};
 
-  useEffect(() => {
-    /*
-    const fetchDC = async () => {
-        try {
-            const dcs = await getListDC()
-            const formattedOptions = [
-                { value: 0, label: "" }, // Add the null value and empty label option first
-                ...dcs.data?.map((dc:any) => ({ 
-                    value: dc.dc_id || 0,
-                    label: dc.dc_name || "",
-                })) || []
-            ];
+const TicketListFilter = () => {
+    const [openMenu, setOpenMenu] = useState(false);
+    //const [dcOptions, setDCOptions] = useState<Option[]>([])
+    const [statusOptions, setStatusOptions] = useState<Option[]>([])
+    //const [selectedDC, setSelectedDC] = useState<number[] | null>(null);
+    const [selectedPart, setSelectedPart] = useState<number[] | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState<string>()
+    //const [isDisableDC, setIsDisableDC] = useState<boolean>(false)
 
-            console.log(formattedOptions)
-            //setDCOptions(formattedOptions)
+    const toggleMenu = () => setOpenMenu(!openMenu);
+    // const toggleSubMenu = () => setOpenSubMenu(!openSubMenu);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-        } catch (error) {
-            console.error('Error fetching agents:', error)
-        }
-    }
-
-    fetchDC()
-    */
-
-    MenuComponent.reinitialization()
-  }, [])
-
-  const resetData = () => {
-    updateState({filter: undefined, ...initialQueryState})
-  }
-
-  /*
-  const filterData = () => {
-    const dc = dcSelected?.map(selected=>(selected.value))
-
-    updateState({
-      filter: {dc, last_login: lastLogin},
-      ...initialQueryState,
-    })
-  }
-
+    const {updateState} = useQueryRequest()
+    const {isLoading} = useQueryResponse()
+    // const [companyOptions, setCompanyOptions] = useState<any[]>()
+    // const [company, setCompany] = useState();
   
-  const handleChange = (
+    const [fromDate, setFromDate] = useState<string>('')
+    const [toDate, setToDate] = useState<string>('')
+
+    useEffect(() => {
+        // const handleClickOutside = (event:any) => {
+        //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        //         setOpenMenu(false); // Close menu
+        //         //setOpenSubMenu(false); // Also close sub-menu
+        //     }
+        // };
+
+        const fetchRole = async () => {
+          try {
+
+            const status = await getListStatus();
+
+            const formattedStatusOptions = status.data?.map((r): Option => {
+              return {
+                value: hashStringToNumber(r) || 0,
+                label: r || "",
+              }
+            }) || []
+            console.log(formattedStatusOptions)
+            setStatusOptions(formattedStatusOptions)
+
+            // const dcs = await getListAllDC([])
+            // const formattedOptions = dcs.data?.map((r): Option => {
+            //   return {
+            //     value: r.dc_id || 0,
+            //     label: r.dc_name || "",
+            //   }
+            // }) || []
+            // console.log(formattedOptions)
+            // setDCOptions(formattedOptions)
+    
+          } catch (error) {
+            console.error('Error fetching agents:', error)
+          }
+        }
+    
+        fetchRole()
+
+        // document.addEventListener('mousedown', handleClickOutside);
+        // return () => {
+        //     document.removeEventListener('mousedown', handleClickOutside);
+        // };
+        
+    }, []);
+
+    const resetData = () => {
+        setSelectedPart(null)
+        setSelectedStatus("")
+        setFromDate("")
+        setToDate("")
+        updateState({filter: undefined, ...initialQueryState})
+      }
+    
+      const filterData = () => {
+        console.log(selectedStatus)
+        //const is_active = isActive
+        
+        updateState({
+          filter: {status: selectedStatus, part: selectedPart, from_date:fromDate, to_date:toDate},
+          ...initialQueryState,
+        })
+      }
+
+       const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newFromDate = e.target.value;
+        if (toDate && new Date(newFromDate) > new Date(toDate)) {
+          //setWarning("From date cannot be greater than To date.");
+          setFromDate(""); // Reset the field
+        } else {
+          //setWarning(""); // Clear warning
+          setFromDate(newFromDate);
+        }
+      };
+
+      const handleToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newToDate = e.target.value;
+        if (fromDate && new Date(newToDate) < new Date(fromDate)) {
+          //setWarning("To date cannot be earlier than From date.");
+          setToDate(""); // Reset the field
+        } else {
+          //setWarning(""); // Clear warning
+          setToDate(newToDate);
+        }
+      };
+    
+      // const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+      //   setIsActive(event.target.checked); // Update state based on checkbox status
+      //   // You can perform additional actions here if needed
+      //   console.log("Checkbox is now:", event.target.checked);
+      // };
+    
+    //   const handleCompanySelected = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    //     setCompany(event.target.value); // Update the selected role
+    // };
+
+    // const handleSelectChange = (
+    //     selectedOption: SingleValue<Option> | MultiValue<Option>,
+    //     actionMeta: ActionMeta<Option>
+    //   ) => {
+    //   console.log(actionMeta)
+    //   console.log("change dc")
+
+    //   if (Array.isArray(selectedOption)) {
+    //     // Multiple values for agents
+    //     setSelectedDC(selectedOption.map((option)=>option.value))
+    //   } else if (selectedOption){
+
+    //     setSelectedDC( [(selectedOption as Option).value])
+    //   } else {
+    //     setSelectedDC([])
+    //     // No selection
+    //   }
+    // };
+
+  const handleSelectStatusChange = (
     selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    setDCSelected(selectedOption); // Set the selected option directly
+    console.log("change status")
+    setSelectedStatus(selectedOption?.label)
   };
-  */
 
-  return (
-    <>
-      {/* begin::Filter Button */}
-      <button
-        disabled={isLoading}
-        type='button'
-        className='btn btn-light-primary me-3'
-        data-kt-menu-trigger='click'
-        data-kt-menu-placement='bottom-end'
-      >
-        <KTIcon iconName='filter' className='fs-2' />
-        Filter
-      </button>
-      {/* end::Filter Button */}
-      {/* begin::SubMenu */}
-      <div className='menu menu-sub menu-sub-dropdown w-300px w-md-325px' data-kt-menu='true'>
-        {/* begin::Header */}
-        <div className='px-7 py-5'>
+  // const handleSelectCompChange = async (
+  //   selectedOption: SingleValue<Option> | MultiValue<Option>, // Use SingleValue to allow for null
+  //   actionMeta: ActionMeta<Option>
+  // ) => {
+  //   const arrComp: number[] = [(selectedOption as Option).value];
+
+  //   console.log(actionMeta)
+  //   console.log("change role")
+  //   setSelectedComp([(selectedOption as Option).value])
+
+  //   const dcs = await getListAllDC(arrComp)
+  //   const formattedOptions = dcs.data?.map((r): Option => {
+  //     return {
+  //       value: r.dc_id || 0,
+  //       label: r.dc_name || "",
+  //     }
+  //   }) || []
+  //   console.log(formattedOptions)
+  //   setDCOptions(formattedOptions)
+  //   setIsDisableDC(false)
+  // };
+    
+    return (
+        <div className="mt-dropdown me-3" ref={dropdownRef}>
+            <button className='btn btn-light-primary me-3' style={{height:'50px'}} onClick={toggleMenu}>
+                <KTIcon iconName='filter' className='fs-2' />
+                Filter
+            </button>
+            {openMenu && (
+                <div className="mt-dropdown-menu">
+                    <div className='px-7 py-5'>
           <div className='fs-5 text-gray-900 fw-bolder'>Filter Options</div>
         </div>
         {/* end::Header */}
@@ -139,71 +240,54 @@ const StoreListFilter = () => {
         {/* end::Separator */}
 
         {/* begin::Content */}
-        <div className='px-7 py-5' data-kt-user-table-filter='form'>
-          {/* begin::Input group */}
-          <div className='mb-10'>
-            <label className='form-label fs-6 fw-bold'>DC Name</label>
-            {/* <Select 
-                styles={customStyles} 
-                name="dc_id" 
-                options={dcOptions}
-                value={dcSelected}
-                onChange={handleChange}
-                isMulti
-                closeMenuOnSelect={false}
-            /> */}
-
-            {/* <select
-              className='form-select form-select-solid fw-bolder'
-              data-kt-select2='true'
-              data-placeholder='Select option'
-              data-allow-clear='true'
-              data-kt-user-table-filter='role'
-              data-hide-search='true'
-              onChange={(e) => setDC(e.target.value)}
-              value={dc}
-            >
-                {dcOptions?.map((option)=>(
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-            </select> */}
-          </div>
-          {/* end::Input group */}
-          <div className='mb-10'>
-            <label className='form-label fw-bold'>Status:</label>
-
-            <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
-                <input
-                className='form-check-input'
-                type='checkbox'
-                value=''
-                name='is_active'
-                defaultChecked={true}
+        <div className='px-7 py-5'>
+        <div className='mb-5'>
+            <label className='form-label fw-bold'>Status :</label>
+            <Select 
+                styles={customSingleStyles} 
+                name="status" 
+                options={statusOptions}
+                value={statusOptions.find((option) => option.label === selectedStatus) || null} // Ensure selected options are displayed
+                onChange={handleSelectStatusChange}
                 />
-                <label className='form-check-label'>Active</label>
-            </div>
           </div>
-          {/* begin::Input group */}
-          <div className='mb-10'>
-            <label className='form-label fs-6 fw-bold'>Last login:</label>
-            <select
-              className='form-select form-select-solid fw-bolder'
-              data-kt-select2='true'
-              data-placeholder='Select option'
-              data-allow-clear='true'
-              data-kt-user-table-filter='two-step'
-              data-hide-search='true'
-              onChange={(e) => setLastLogin(e.target.value)}
-              value={lastLogin}
-            >
-              <option value=''></option>
-              <option value='Yesterday'>Yesterday</option>
-              <option value='20 mins ago'>20 mins ago</option>
-              <option value='5 hours ago'>5 hours ago</option>
-              <option value='2 days ago'>2 days ago</option>
-            </select>
+
+          <div className="mb-5">
+              <label className='fw-bold fs-6 mb-2'>From</label>
+              <input
+                placeholder='Delivery Date'
+                type='date'
+                name='from_date'
+                className={clsx('form-control form-control-solid mb-3 mb-lg-0')}
+                autoComplete='off'
+                onChange={handleFromDateChange}
+                value={fromDate}
+              />
           </div>
-          {/* end::Input group */}
+          <div className="mb-5">
+              <label className='fw-bold fs-6 mb-2'>To</label>
+              <input
+                placeholder='Delivery Date'
+                type='date'
+                name='to_date'
+                className={clsx('form-control form-control-solid mb-3 mb-lg-0')}
+                autoComplete='off'
+                onChange={handleToDateChange}
+                value={toDate}
+              />
+          </div>
+          {/* <div className='mb-10'>
+            <label className='form-label fw-bold'>DC :</label>
+            <Select 
+                styles={customStyles} 
+                name="dc" 
+                options={dcOptions}
+                value={dcOptions.filter((option) => selectedDC?.includes(option.value))} // Ensure selected options are displayed
+                onChange={handleSelectChange}
+                isMulti={true}
+                isDisabled={isDisableDC}
+                />
+          </div> */}
 
           {/* begin::Actions */}
           <div className='d-flex justify-content-end'>
@@ -220,7 +304,7 @@ const StoreListFilter = () => {
             <button
               disabled={isLoading}
               type='button'
-              //udahonClick={filterData}
+              onClick={filterData}
               className='btn btn-primary fw-bold px-6'
               data-kt-menu-dismiss='true'
               data-kt-user-table-filter='filter'
@@ -230,11 +314,10 @@ const StoreListFilter = () => {
           </div>
           {/* end::Actions */}
         </div>
-        {/* end::Content */}
-      </div>
-      {/* end::SubMenu */}
-    </>
-  )
-}
+                </div>
+            )}
+        </div>
+    );
+};
 
-export {StoreListFilter}
+export {TicketListFilter};

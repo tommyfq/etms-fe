@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
-import { TicketQueryResponse, Ticket, TicketDetail, AssetQueryResponse, OverviewTicketQueryResponse } from "./_models";
+import { TicketQueryResponse, Ticket, TicketDetail, AssetQueryResponse, OverviewTicketQueryResponse, PartQueryResponse, StatusQueryResponse, DiagnosticQueryResponse } from "./_models";
 import api from "../../../../../services/api"
 
 const getTicket = (query: string): Promise<TicketQueryResponse> => {
@@ -39,6 +39,33 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     });
   }
 
+  const getListPart = (): Promise<PartQueryResponse> => {
+    return api
+      .get(`/ticket/list-parts`)
+      .then((d: AxiosResponse<PartQueryResponse>) => {
+        console.log(d.data);
+        return d.data
+    });
+  }
+
+  const getListDiagnostics = (): Promise<DiagnosticQueryResponse> => {
+    return api
+      .get(`/ticket/list-diagnostics`)
+      .then((d: AxiosResponse<DiagnosticQueryResponse>) => {
+        console.log(d.data);
+        return d.data
+    });
+  }
+
+  const getListStatus = (): Promise<StatusQueryResponse> => {
+    return api
+      .get(`/ticket/list-status`)
+      .then((d: AxiosResponse<StatusQueryResponse>) => {
+        console.log(d.data);
+        return d.data
+    });
+  }
+
   const getOverview = (): Promise<OverviewTicketQueryResponse> => {
     return api
       .get(`/ticket/overview`)
@@ -69,5 +96,8 @@ export {
     createTicket,
     updateTicket,
     getListAsset,
+    getListPart,
+    getListDiagnostics,
+    getListStatus,
     getOverview
 };

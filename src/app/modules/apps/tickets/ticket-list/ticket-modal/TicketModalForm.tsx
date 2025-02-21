@@ -263,7 +263,9 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
           data-kt-scroll-wrappers='#kt_modal_add_user_scroll'
           data-kt-scroll-offset='300px'
         >
-            <div className='fv-row mb-7'>
+        <div className="row mb-7">
+          <div className="col-12">
+            <div className='fv-row'>
                 <label className='required fw-bold fs-6 mb-2'>Title</label>
                 <input
                 placeholder='Title'
@@ -288,6 +290,9 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 </div>
                 )}
             </div>
+          </div>
+        </div>
+            
             
             <div className='row mb-7'>
                 <div className="col-12 col-md-6">

@@ -7,8 +7,9 @@ import {useFormik} from 'formik'
 import {TicketDetail, initialTicket, Asset} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import { updateTicket, getListAsset } from '../core/_request'
+import { updateTicket, getListAsset, getListPart, getListDiagnostics } from '../core/_request'
 import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
+import Creatable from 'react-select/creatable';
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import ImageModal from '../../../../../components/ImageModal'
@@ -89,7 +90,7 @@ const customStyles: StylesConfig<Option, false> = {
   menu: (provided) => ({
     ...provided,
     position: 'absolute',
-    zIndex: 9999,
+    zIndex: 999,
     borderRadius: '4px',
     border: '1px solid #ced4da',
     marginTop: '0',
@@ -100,7 +101,7 @@ const customStyles: StylesConfig<Option, false> = {
   }),
   menuPortal: (provided) => ({
     ...provided,
-    zIndex: 9999,
+    zIndex: 999,
     position: 'fixed', // Make the dropdown menu fixed
     top: `${provided.top}px`, // Use calculated position from react-select
     left: `${provided.left}px`, // Use calculated position from react-select
@@ -132,6 +133,10 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const [statusSelected, setStatusSelected] = useState<string>("")
   const [prioritySelected, setPrioritySelected] = useState<boolean>(false)
   const [assetOptions, setAssetOptions] = useState<Option[]>([])
+  const [partOptions, setPartOptions] = useState<Option[]>([])
+  const [diagnosticOptions, setDiagnosticOptions] = useState<Option[]>([])
+  const [isPartSelected, setIsPartSelected] = useState<boolean>(false)
+  const [isDiagnosticSelected, setIsDiagnosticSelected] = useState<boolean>(false)
   const [selectedOptionAsset, setSelectedOptionAsset] = useState<Option | null>()
   const [assetList, setAssetList] = useState<Asset[]>()
   const [selectedSwapAsset, setSelectedSwapAsset] = useState<Asset>()
@@ -153,20 +158,20 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   };
 
   const openOptionStatus = [
-    "In Progress",
-    "Rejected",
+    "in progress",
+    "rejected",
   ]
 
   const inProgressOptionStatus = [
-    "On Hold",
-    "Rejected",
-    "Closed"
+    "on hold",
+    "rejected",
+    "closed"
   ]
 
   const onHoldOptionStatus = [
-    "In Progress",
-    "Rejected",
-    "Closed"
+    "in progress",
+    "rejected",
+    "closed"
   ]
   
   const [userForEdit] = useState<TicketDetail>({
@@ -174,6 +179,8 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     id: ticket.id || initialTicket.id,
     title: ticket.title || initialTicket.title,
     asset_id: ticket.asset_id || initialTicket.asset_id,
+    part_id: ticket.part_id || initialTicket.part_id,
+    diagnostic_id: ticket.diagnostic_id || ticket.diagnostic_id,
     status: ticket.status || initialTicket.status,
     description: ticket.description || initialTicket.description,
     cc: ticket.cc || initialTicket.cc,
@@ -185,6 +192,25 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     if(ticket.priority){
       setPrioritySelected(true)
     }
+
+    const fetchInitialData = async() => {
+      const parts = await getListPart()
+      const formattedPartOptions = parts.data?.map((part): Option => ({ 
+        value: part.part_id || 0,
+        label: part.part_name || "",
+      })) || []
+      setPartOptions(formattedPartOptions)
+
+      const diagnostics = await getListDiagnostics()
+      const formattedDiagnosticOptions = diagnostics.data?.map((part): Option => ({ 
+        value: part.diagnostic_id || 0,
+        label: part.diagnostic_name || "",
+      })) || []
+      setDiagnosticOptions(formattedDiagnosticOptions)
+    }
+    
+    fetchInitialData();
+
     console.log(ticket);
     console.log(ticket.status);
     console.log("TICKET EDIT MODAL FORM")
@@ -198,6 +224,26 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   //     setUser(currentUser);
   //   }
   // }, [currentUser]);
+
+    const handleSelectPartChange = (
+      selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+      actionMeta: ActionMeta<Option>
+    ) => {
+      console.log(actionMeta)
+      setIsPartSelected(true)
+      formik.setFieldValue('part_id', selectedOption ? selectedOption.value : null);
+      formik.setFieldValue('part_name', selectedOption ? selectedOption.label : null);
+    };
+
+    const handleSelectDiagnostic = (
+      selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
+      actionMeta: ActionMeta<Option>
+    ) => {
+      console.log(actionMeta)
+      setIsDiagnosticSelected(true)
+      formik.setFieldValue('diagnostic_id', selectedOption ? selectedOption.value : null);
+      formik.setFieldValue('diagnostic_name', selectedOption ? selectedOption.label : null);
+    };
 
   const handleAlert = (response:{is_ok:boolean, message:string}) => {
     let title = "Error!";
@@ -232,7 +278,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
       cancelButtonText: "Close",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        ticket.status = "Cancel"
+        ticket.status = "cancel"
         const response = await updateTicket(ticket)
         handleAlert(response)
       }else if (
@@ -365,6 +411,16 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     setSelectedOptionAsset(selectedOption)
   };
 
+  const handleCreatePart = (inputValue: string) => {
+    const newOption: Option = { value: 0, label: inputValue };
+    setPartOptions((prevOptions) => [...prevOptions, newOption]); // Add new option
+  };
+
+  const handleCreateDiagnostic = (inputValue: string) => {
+    const newOption: Option = { value: 0, label: inputValue };
+    setDiagnosticOptions((prevOptions) => [...prevOptions, newOption]); // Add new option
+  };
+
   return (
     <>
       <form id='kt_modal_add_user_form' className='form' onSubmit={formik.handleSubmit} noValidate>
@@ -436,21 +492,21 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             value={formik.values.status}
                         >
                           <option value={ticket.status} disabled={true}>{ticket.status}</option>
-                          {ticket.status === "Open" && 
+                          {ticket.status === "open" && 
                               openOptionStatus.map((o, index) => (
                                 <option key={index} value={o}>
                                   {o}
                                 </option>
                               ))
                           }
-                          {ticket.status === "In Progress" && 
+                          {ticket.status === "in progress" && 
                               inProgressOptionStatus.map((o, index) => (
                                 <option key={index} value={o}>
                                   {o}
                                 </option>
                               ))
                           }
-                          {ticket.status === "On Hold" && 
+                          {ticket.status === "on hold" && 
                               onHoldOptionStatus.map((o, index) => (
                                 <option key={index} value={o}>
                                   {o}
@@ -465,7 +521,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                         </select>
                         :
                         <div className='card-toolbar'>
-                            <span className={`badge badge-light-${ticket.status === 'Open' ? 'info' : ticket.status === 'In Progress' ? 'warning' : ticket.status === 'Closed' ? 'success' : 'danger'} fw-bolder me-auto px-4 py-3`}>
+                            <span className={`badge badge-light-${ticket.status === 'open' ? 'info' : ticket.status === 'in progress' ? 'warning' : ticket.status === 'closed' ? 'success' : 'danger'} fw-bolder me-auto px-4 py-3`}>
                                 {ticket.status}
                             </span>
                             {user?.role_name == "client" && ticket.on_hold && 
@@ -495,7 +551,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                     </div>
                   </div>
                 </div>
-                <div className="col-12 col-lg-8">
+                <div className="col-12 col-lg-4">
                   <div className="fv-row">
                     <label className='form-label fw-bold'>List Swap Asset</label>
                     <Select 
@@ -574,20 +630,44 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 </div>
               </div>
               <div className="col-12 col-lg-6">
+              {ticket.part_id == null && 
+                <div className="fv-row">
+                <label className='required form-label fw-bold'>Part</label>
+                <Creatable
+                  styles={customStyles}
+                  name="part_id"
+                  options={partOptions}
+                  //value={partOptions.find(option => option.value === formik.values.part_id) || null}
+                  onChange={handleSelectPartChange}
+                  onCreateOption={handleCreatePart} // Handle new option creation
+                  isClearable
+                />
+                {formik.touched.part_id && formik.errors.part_id && (
+                  <div className='fv-plugins-message-container'>
+                    <div className='fv-help-block'>
+                      <span role='alert'>{formik.errors.part_id}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              }
+              {ticket.part_id != null && 
                 <div className='fv-row'>
-                    <label className='fw-bold fs-6 mb-2'>Customer Reference Number</label>
-                    <input
-                    {...formik.getFieldProps('customer_reference_no')}
-                    type='text'
-                    name='customer_reference_no'
-                    className={clsx(
-                        'form-control form-control-solid mb-3 mb-lg-0',
-                    )}
-                    autoComplete='off'
-                    readOnly={true}
-                    //style={styles.formControlDisabled}
-                    />
-                </div>
+                  <label className='required fw-bold fs-6 mb-2'>Part</label>
+                  <input
+                  placeholder='Part'
+                  {...formik.getFieldProps('part_name')}
+                  type='text'
+                  name='part_name'
+                  className={clsx(
+                      'form-control form-control-solid mb-3 mb-lg-0',
+                  )}
+                  autoComplete='off'
+                  readOnly={true}
+                  //style={styles.formControlDisabled}
+                  />
+              </div>
+              }
               </div>
             </div>
             
@@ -652,24 +732,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             
             <div className="row mb-7">
               <div className="col-12 col-md-6">
-                <div className='fv-row mb-7'>
-                  <label className='fw-bold fs-6 mb-2'>CC</label>
-                  <input
-                  placeholder='cc'
-                  {...formik.getFieldProps('cc')}
-                  type='text'
-                  name='cc'
-                  className={clsx(
-                      'form-control form-control-solid mb-3 mb-lg-0',
-                  )}
-                  autoComplete='off'
-                  readOnly={true}
-                  />
-                </div>
-
-              </div>
-              <div className="col-12 col-md-6">
-                <div className='fv-row mb-7'>
+                <div className='fv-row'>
                   <label className='required fw-bold fs-6 mb-2'>Due Date</label>
                   <input
                   placeholder='Due Date'
@@ -684,6 +747,81 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                   />
                 </div>
               </div>
+              <div className="col-12 col-md-6">
+                {ticket.part_id == null && 
+                  <div className="fv-row">
+                    <label className='required form-label fw-bold'>Diagnostic Problem</label>
+                    <Creatable 
+                    styles={customStyles} 
+                    name="diagnostic_id" 
+                    options={diagnosticOptions}
+                    //value={partOptions.find(option => option.value === formik.values.diagnostic_id) || null}
+                    onChange={handleSelectDiagnostic}
+                    onCreateOption={handleCreateDiagnostic} // Handle new option creation
+                    isClearable
+                    />
+                    {formik.touched.diagnostic_id && formik.errors.diagnostic_id && (
+                    <div className='fv-plugins-message-container'>
+                        <div className='fv-help-block'>
+                        <span role='alert'>{formik.errors.diagnostic_id}</span>
+                        </div>
+                    </div>
+                    )}
+                  </div>
+                }
+                {ticket.diagnostic_id != null && 
+                  <div className='fv-row'>
+                    <label className='required fw-bold fs-6 mb-2'>Diagnostic Problem</label>
+                    <input
+                    placeholder='Diagnostic'
+                    {...formik.getFieldProps('diagnostic_name')}
+                    type='text'
+                    name='diagnostic_name'
+                    className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                    )}
+                    autoComplete='off'
+                    readOnly={true}
+                    //style={styles.formControlDisabled}
+                    />
+                </div>
+                }
+              </div>
+            </div>
+            <div className="row mb-7">
+              <div className="col-12 col-md-6">
+                <div className="fv-row">
+                  <label className='fw-bold fs-6 mb-2'>CC</label>
+                    <input
+                    placeholder='cc'
+                    {...formik.getFieldProps('cc')}
+                    type='text'
+                    name='cc'
+                    className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                    )}
+                    autoComplete='off'
+                    readOnly={true}
+                    />
+                </div>
+              </div>
+              <div className="col-12 col-md-6">
+                  <div className='fv-row'>
+                    <label className='fw-bold fs-6 mb-2'>Customer Reference Number</label>
+                    <input
+                    {...formik.getFieldProps('customer_reference_no')}
+                    type='text'
+                    name='customer_reference_no'
+                    className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                    )}
+                    autoComplete='off'
+                    readOnly={true}
+                    //style={styles.formControlDisabled}
+                    />
+                </div>
+              </div>
+                
             </div>
             <div className='fv-row mb-7'>
                 <label className='fw-bold fs-6 mb-2'>Attachments</label>
@@ -787,7 +925,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 statusSelected == "" || 
                 (statusSelected != "Rejected" && !prioritySelected) || 
                 (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) 
-              ) && (ticket.status == "Open" || (!isCommentClientChange && !isCommentInternalChange ))
+              ) && (ticket.status == "Open" || (!isCommentClientChange && !isCommentInternalChange || !isPartSelected || !isDiagnosticSelected)) 
               }
             >
               <span className='indicator-label'>Submit</span>

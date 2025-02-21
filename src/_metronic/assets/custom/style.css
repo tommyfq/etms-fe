@@ -97,3 +97,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.tbl-responsive {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tbl {
+  min-width: 1000px; /* Adjust based on the required minimum width */
+}

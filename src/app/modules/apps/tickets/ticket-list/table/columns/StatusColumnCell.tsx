@@ -10,27 +10,27 @@ const StatusColumnCell: FC<Props> = ({data}) => {
     let statusLabel = '';
 
     switch (data) {
-        case 'Cancel':
+        case 'cancel':
           statusClass = 'badge badge-light-danger fw-bolder'; // Purple for approved
           statusLabel = 'Cancel';
           break;
-        case 'In Progress':
+        case 'in progress':
           statusClass = 'badge badge-light-warning fw-bolder'; // Yellow for in progress
           statusLabel = 'In Progress';
           break;
-        case 'Closed':
+        case 'closed':
           statusClass = 'badge badge-light-success fw-bolder'; // Green for complete
           statusLabel = 'Closed';
           break;
-        case 'Rejected':
+        case 'rejected':
           statusClass = 'badge badge-light-danger fw-bolder'; // Red for rejected
           statusLabel = 'Rejected';
           break;
-        case 'Open':
+        case 'open':
           statusClass = 'badge badge-light-primary fw-bolder'; // Blue for open
           statusLabel = 'Open';
           break;
-        case 'On Hold':
+        case 'on hold':
           statusClass = 'badge badge-light-danger fw-bolder'; // Red for on hold
           statusLabel = 'On Hold';
           break;

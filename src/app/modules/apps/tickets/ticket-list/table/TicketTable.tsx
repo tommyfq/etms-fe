@@ -21,10 +21,11 @@ const TicketTable = () => {
 
   return (
     <KTCardBody className='py-4'>
-      <div className='table-responsive'>
+      <div className='table-responsive' style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
         <table
           id='kt_table_companies'
           className='table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer'
+          style={{ minWidth: '1000px' }}
           {...getTableProps()}
         >
           <thead>

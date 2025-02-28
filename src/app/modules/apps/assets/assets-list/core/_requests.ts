@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
-import { Asset, AssetQueryResponse, ListDCQueryResponse, ListStoreQueryResponse, ListBrandQueryResponse, ListModelQueryResponse } from "./_models";
+import { Asset, AssetQueryResponse, ListDCQueryResponse, ListStoreQueryResponse, ListBrandQueryResponse, ListModelQueryResponse, AssetLogQueryResponse } from "./_models";
 import api from "../../../../../services/api"
 
 const ASSET_URL = `/asset`;
@@ -40,6 +40,12 @@ const getAssetById = (id: ID): Promise<Asset | undefined> => {
     .get(`${ASSET_URL}/detail/${id}`)
     .then((response: AxiosResponse<Response<Asset>>) => response.data)
     .then((response: Response<Asset>) => response.data);
+};
+
+const getAssetLogById = (id: ID): Promise<AssetLogQueryResponse> => {
+  return api
+    .get(`${ASSET_URL}/detail-log/${id}`)
+    .then((response: AxiosResponse<AssetLogQueryResponse>) => response.data)
 };
 
 const createAsset = (Company: Asset): Promise<any> => {
@@ -94,6 +100,7 @@ const downloadExcelFile = async (): Promise<void> => {
 export {
   getAsset,
   getAssetById,
+  getAssetLogById,
   createAsset,
   updateAsset,
   getListDC,

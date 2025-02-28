@@ -31,6 +31,16 @@ export const initialAsset: Asset = {
   item_id: 0
 }
 
+export type AssetLog = {
+  complain_at?: string
+  diagnostic_name?: string
+  part_name?: string
+  serial_number?: string
+  status?: string
+}
+
+export type AssetLogQueryResponse = Response<Array<AssetLog>>
+
 export type ListDC = {
   dc_id?: number,
   dc_name?: string
@@ -42,8 +52,6 @@ export type ListStore = {
     store_id?: number,
     store_name?: string
   }
-
-
   
 export type ListStoreQueryResponse = Response<Array<ListStore>>
 

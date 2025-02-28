@@ -27,7 +27,7 @@ const TicketListToolbar = () => {
         <TicketListFilter />
 
         {/* begin::Export */}
-        <button type='button' className='btn btn-light-primary me-3'>
+        <button className='btn btn-light-primary me-3' style={{height: '50px'}}>
           <KTIcon iconName='exit-down' className='fs-2' />
           Export
         </button>
@@ -42,7 +42,7 @@ const TicketListToolbar = () => {
           </button> */}
           {
             currentUser?.role_name != "agent" ? (
-              <button type='button' className='btn btn-primary' onClick={openAddCompanyModal}>
+              <button className='btn btn-primary me-3' onClick={openAddCompanyModal} style={{height: '50px'}}>
                 <KTIcon iconName='plus' className='fs-2' />
                 Add Ticket
               </button>

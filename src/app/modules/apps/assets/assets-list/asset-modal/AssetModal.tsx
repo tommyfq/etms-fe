@@ -20,12 +20,12 @@ const AssetModal = () => {
         aria-modal='true'
       >
         {/* begin::Modal dialog */}
-        <div className='modal-dialog modal-dialog-centered mw-650px'>
+        <div className='modal-dialog modal-dialog-centered mw-75'>
           {/* begin::Modal content */}
           <div className='modal-content'>
             <AssetModalHeader />
             {/* begin::Modal body */}
-            <div className='modal-body scroll-y mx-5 mx-xl-15 my-7'>
+            <div className='modal-body scroll-y mx-5 mx-xl-15 my-7' style={{paddingTop:'0px'}}>
               <AssetModalFormWrapper />
             </div>
             {/* end::Modal body */}

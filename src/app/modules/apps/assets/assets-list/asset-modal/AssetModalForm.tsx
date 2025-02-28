@@ -3,11 +3,11 @@ import {FC, useState, useEffect} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
 // import {isNotEmpty} from '../../../../../../_metronic/helpers'
-import {Asset, initialAsset} from '../core/_models'
+import {Asset, initialAsset, AssetLog} from '../core/_models'
 import clsx from 'clsx'
 import {useListView} from '../core/ListViewProvider'
 import {TableListLoading} from '../../../../../components/TableListLoading'
-import {createAsset, getListDC, updateAsset, getListStore, getListBrand, getListModel } from '../core/_requests'
+import {createAsset, getListDC, updateAsset, getListStore, getListBrand, getListModel, getAssetLogById } from '../core/_requests'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
@@ -83,12 +83,14 @@ const editUserSchema = Yup.object().shape({
 })
 
 const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
+  const [tab, setTab] = useState('Sidebar')
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   const [dcOptions, setDCOptions] = useState<Option[]>()
   const [storeOptions, setStoreOptions] = useState<Option[]>([])
   const [brandOptions, setBrandOptions] = useState<Option[]>([])
   const [modelOptions, setModelOptions] = useState<Option[]>([])
+  const [assetLog, setAssetLog] = useState<AssetLog[]>([])
   const [selectedBrand, setSelectedBrand] = useState<string>()
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [selectedDCId, setSelectedDCId] = useState<number>()
@@ -129,6 +131,19 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
         setDCOptions(formattedDCOptions)
 
         if(asset?.dc_id != 0){
+
+            
+            const logs = await getAssetLogById(asset.id)
+            const formattedLogs = logs.data?.map((log:AssetLog) => ({
+              complain_at: log.complain_at,
+              diagnostic_name: log.diagnostic_name,
+              part_name: log.part_name,
+              serial_number: log.serial_number,
+              status: log.status
+            })) || []
+
+            setAssetLog(formattedLogs)
+
             const fetchStore = async () => {
                 try {
                   const stores = await getListStore(asset.dc_id ?? 0)
@@ -333,191 +348,326 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
           data-kt-scroll-wrappers='#kt_modal_add_user_scroll'
           data-kt-scroll-offset='300px'
         >
-            <div className='fv-row mb-7'>
-                <label className='required form-label fw-bold'>DC</label>
-                <Select 
-                styles={customStyles} 
-                name="dc_id" 
-                options={dcOptions}
-                value={dcOptions?.find(option => option.value === formik.values.dc_id) || null}
-                onChange={handleSelectDCChange}
-                isDisabled={readOnly}
-                />
-                {formik.touched.dc_id && formik.errors.dc_id && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.dc_id}</span>
-                    </div>
-                </div>
-                )}
-            </div>
-
-            <div className='fv-row mb-7'>
-              <label className='required form-label fw-bold'>Store</label>
-                <Select 
-                  styles={customStyles} 
-                  name="store_id" 
-                  options={storeOptions}
-                  value={storeOptions?.find(option => option.value === formik.values.store_id) || null}
-                  onChange={handleSelectChange}
-                  isDisabled={readOnly}
-                />
-                {formik.touched.store_id && formik.errors.store_id && (
-                  <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                      <span role='alert'>{formik.errors.store_id}</span>
-                    </div>
-                  </div>
-                )}
-            </div>
-
-          <div className='fv-row mb-7'>
-                <label className='required form-label fw-bold'>Brand</label>
-                <Select 
-                styles={customStyles} 
-                name="brand" 
-                options={brandOptions}
-                value={brandOptions?.find(option => option.label === formik.values.brand) || null}
-                onChange={handleSelectBrandChange}
-                isDisabled={readOnly}
-                />
-                {formik.touched.dc_id && formik.errors.dc_id && (
-                <div className='fv-plugins-message-container'>
-                    <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.dc_id}</span>
-                    </div>
-                </div>
-                )}
-            </div>
-
-          <div className='fv-row mb-7'>
-            <label className='required form-label fw-bold'>Model</label>
-              <Select 
-                styles={customStyles} 
-                name="item_id" 
-                options={modelOptions}
-                value={modelOptions?.find(option => option.value === formik.values.item_id) || null}
-                onChange={handleSelectItemChange}
-                isDisabled={readOnly}
-              />
-              {formik.touched.item_id && formik.errors.item_id && (
-                <div className='fv-plugins-message-container'>
-                  <div className='fv-help-block'>
-                    <span role='alert'>{formik.errors.item_id}</span>
-                  </div>
-                </div>
-              )}
-          </div>
-
-          <div className='fv-row mb-7'>
-            <label className='required fw-bold fs-6 mb-2'>Serial Number</label>
-            <input
-              placeholder='Serial Number'
-              {...formik.getFieldProps('serial_number')}
-              type='text'
-              name='serial_number'
-              className={clsx(
-                'form-control form-control-solid mb-3 mb-lg-0',
-                {'is-invalid': formik.touched.serial_number && formik.errors.serial_number},
+          <div className='card' style={{border:'none',boxShadow:'none'}}>
+            <div className='card-header card-header-stretch overflow-auto' style={{padding:'0px'}}>
+              <ul
+                className='nav nav-stretch nav-line-tabs
+                fw-bold
+                border-transparent
+                flex-nowrap
+              '
+                role='tablist'
+              >
+                <li className='nav-item'>
+                  <a
+                    className={clsx(`nav-link cursor-pointer`, {active: tab === 'Sidebar'})}
+                    onClick={() => setTab('Sidebar')}
+                    role='tab'
+                  >
+                    Detail
+                  </a>
+                </li>
                 {
-                  'is-valid': formik.touched.serial_number && !formik.errors.serial_number,
+                  asset.id != 0 &&
+                  <li className='nav-item'>
+                    <a
+                      className={clsx(`nav-link cursor-pointer`, {active: tab === 'Header'})}
+                      onClick={() => setTab('Header')}
+                      role='tab'
+                    >
+                      Logs
+                    </a>
+                  </li>
                 }
-              )}
-              autoComplete='off'
-              disabled={formik.isSubmitting || isUserLoading}
-              readOnly={readOnly}
-            />
-            {formik.touched.serial_number && formik.errors.serial_number && (
-              <div className='fv-plugins-message-container'>
-                <div className='fv-help-block'>
-                  <span role='alert'>{formik.errors.serial_number}</span>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="fv-row mb-7">
-            
-            <label className='required fw-bold fs-6 mb-2'>Status</label>
-
-            <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
-              <input
-                className='form-check-input'
-                type='checkbox'
-                name='is_active'
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                checked={formik.values.is_active}
-                disabled={readOnly}
-              />
-              <label className='form-check-label'>Active</label>
+                
+              </ul>
             </div>
-            
-          </div>
+  
 
-          <div className='fv-row mb-7'>
-            <label className='required fw-bold fs-6 mb-2'>Delivery Date</label>
-            <input
-              placeholder='Delivery Date'
-              {...formik.getFieldProps('delivery_date')}
-              type='date'
-              name='delivery_date'
-              className={clsx(
-                'form-control form-control-solid mb-3 mb-lg-0',
-                {'is-invalid': formik.touched.delivery_date && formik.errors.delivery_date},
-                {
-                  'is-valid': formik.touched.delivery_date && !formik.errors.delivery_date,
-                }
-              )}
-              autoComplete='off'
-              disabled={formik.isSubmitting || isUserLoading}
-              readOnly={readOnly}
-            />
-            {formik.touched.delivery_date && formik.errors.delivery_date && (
-              <div className='fv-plugins-message-container'>
-                <div className='fv-help-block'>
-                  <span role='alert'>{formik.errors.delivery_date}</span>
+            <div className='card-body p-0'>
+              <div className='tab-content pt-3'>
+                <div className={clsx('tab-pane', {active: tab === 'Sidebar'})}>
+                  <div className='form-group'>
+
+                      <div className='fv-row mb-7'>
+                        <label className='required form-label fw-bold'>DC</label>
+                        <Select 
+                        styles={customStyles} 
+                        name="dc_id" 
+                        options={dcOptions}
+                        value={dcOptions?.find(option => option.value === formik.values.dc_id) || null}
+                        onChange={handleSelectDCChange}
+                        isDisabled={readOnly}
+                        />
+                        {formik.touched.dc_id && formik.errors.dc_id && (
+                        <div className='fv-plugins-message-container'>
+                            <div className='fv-help-block'>
+                            <span role='alert'>{formik.errors.dc_id}</span>
+                            </div>
+                        </div>
+                        )}
+                      </div>
+
+                      <div className='fv-row mb-7'>
+                        <label className='required form-label fw-bold'>Store</label>
+                          <Select 
+                            styles={customStyles} 
+                            name="store_id" 
+                            options={storeOptions}
+                            value={storeOptions?.find(option => option.value === formik.values.store_id) || null}
+                            onChange={handleSelectChange}
+                            isDisabled={readOnly}
+                          />
+                          {formik.touched.store_id && formik.errors.store_id && (
+                            <div className='fv-plugins-message-container'>
+                              <div className='fv-help-block'>
+                                <span role='alert'>{formik.errors.store_id}</span>
+                              </div>
+                            </div>
+                          )}
+                      </div>
+
+                    <div className='fv-row mb-7'>
+                          <label className='required form-label fw-bold'>Brand</label>
+                          <Select 
+                          styles={customStyles} 
+                          name="brand" 
+                          options={brandOptions}
+                          value={brandOptions?.find(option => option.label === formik.values.brand) || null}
+                          onChange={handleSelectBrandChange}
+                          isDisabled={readOnly}
+                          />
+                          {formik.touched.dc_id && formik.errors.dc_id && (
+                          <div className='fv-plugins-message-container'>
+                              <div className='fv-help-block'>
+                              <span role='alert'>{formik.errors.dc_id}</span>
+                              </div>
+                          </div>
+                          )}
+                      </div>
+
+                    <div className='fv-row mb-7'>
+                      <label className='required form-label fw-bold'>Model</label>
+                        <Select 
+                          styles={customStyles} 
+                          name="item_id" 
+                          options={modelOptions}
+                          value={modelOptions?.find(option => option.value === formik.values.item_id) || null}
+                          onChange={handleSelectItemChange}
+                          isDisabled={readOnly}
+                        />
+                        {formik.touched.item_id && formik.errors.item_id && (
+                          <div className='fv-plugins-message-container'>
+                            <div className='fv-help-block'>
+                              <span role='alert'>{formik.errors.item_id}</span>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+
+                    <div className='fv-row mb-7'>
+                      <label className='required fw-bold fs-6 mb-2'>Serial Number</label>
+                      <input
+                        placeholder='Serial Number'
+                        {...formik.getFieldProps('serial_number')}
+                        type='text'
+                        name='serial_number'
+                        className={clsx(
+                          'form-control form-control-solid mb-3 mb-lg-0',
+                          {'is-invalid': formik.touched.serial_number && formik.errors.serial_number},
+                          {
+                            'is-valid': formik.touched.serial_number && !formik.errors.serial_number,
+                          }
+                        )}
+                        autoComplete='off'
+                        disabled={formik.isSubmitting || isUserLoading}
+                        readOnly={readOnly}
+                      />
+                      {formik.touched.serial_number && formik.errors.serial_number && (
+                        <div className='fv-plugins-message-container'>
+                          <div className='fv-help-block'>
+                            <span role='alert'>{formik.errors.serial_number}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="fv-row mb-7">
+                      
+                      <label className='required fw-bold fs-6 mb-2'>Status</label>
+
+                      <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
+                        <input
+                          className='form-check-input'
+                          type='checkbox'
+                          name='is_active'
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          checked={formik.values.is_active}
+                          disabled={readOnly}
+                        />
+                        <label className='form-check-label'>Active</label>
+                      </div>
+                      
+                    </div>
+
+                    <div className='fv-row mb-7'>
+                      <label className='required fw-bold fs-6 mb-2'>Delivery Date</label>
+                      <input
+                        placeholder='Delivery Date'
+                        {...formik.getFieldProps('delivery_date')}
+                        type='date'
+                        name='delivery_date'
+                        className={clsx(
+                          'form-control form-control-solid mb-3 mb-lg-0',
+                          {'is-invalid': formik.touched.delivery_date && formik.errors.delivery_date},
+                          {
+                            'is-valid': formik.touched.delivery_date && !formik.errors.delivery_date,
+                          }
+                        )}
+                        autoComplete='off'
+                        disabled={formik.isSubmitting || isUserLoading}
+                        readOnly={readOnly}
+                      />
+                      {formik.touched.delivery_date && formik.errors.delivery_date && (
+                        <div className='fv-plugins-message-container'>
+                          <div className='fv-help-block'>
+                            <span role='alert'>{formik.errors.delivery_date}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="row mb-7">
+                      {/* <div className="col-12 col-lg-6">
+                        <div className="fv-row">
+                          <label className='required fw-bold fs-6 mb-2'>Warranty Status</label>
+                          <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
+                            <input
+                              className='form-check-input'
+                              type='checkbox'
+                              name='waranty_status'
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              checked={formik.values.waranty_status}
+                              disabled={readOnly}
+                            />
+                            <label className='form-check-label'>Active</label>
+                          </div>
+                        </div>
+                      </div> */}
+                      {
+                        asset.id != 0 && 
+                        <div className="col-12 col-lg-6">
+                          <div className='fv-row'>
+                            <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
+                            <label className='col-12 fw-bold text-muted'>{asset.warranty_expired} 
+                              {asset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}
+                              {!asset.warranty_status && <div className='badge badge-light-danger fw-bolder'>Non Active</div>}
+                            </label>
+                          </div>
+                        </div>
+                      }
+                      
+                    </div> 
+                  </div>
+                </div>
+
+                <div className={clsx('tab-pane', {active: tab === 'Header'})}>
+                  <div className='form-group'>
+                  <div className='card-body py-3' style={{paddingRight:'0px',paddingLeft:'0px'}}>
+                  {/* begin::Table container */}
+                  <div className='table-responsive'>
+                    {/* begin::Table */}
+                    <table className='table align-middle gs-0 gy-4'>
+                      {/* begin::Table head */}
+                      <thead>
+                        <tr className='fw-bold text-muted bg-light'>
+                          <th className='min-w-125px'>Complain At</th>
+                          <th className='min-w-125px'>Case Category</th>
+                          <th className='min-w-200px'>Part</th>
+                          <th className='min-w-200px'>Status</th>
+                          <th className='min-w-150px'>Replace s/n</th>
+                        </tr>
+                      </thead>
+                      {/* end::Table head */}
+                      {/* begin::Table body */}
+                      <tbody>
+                        {assetLog.map((log, index) => {
+                          let statusClass = 'badge badge-light-secondary fw-bolder'; // Default case
+                          let statusLabel = 'Unknown';
+                          console.log(log.status)
+                          switch (log.status?.toLowerCase()) {
+                            case 'cancel':
+                              statusClass = 'badge badge-light-danger fw-bolder';
+                              statusLabel = 'Cancel';
+                              break;
+                            case 'in progress':
+                              statusClass = 'badge badge-light-warning fw-bolder';
+                              statusLabel = 'In Progress';
+                              break;
+                            case 'closed':
+                              statusClass = 'badge badge-light-success fw-bolder';
+                              statusLabel = 'Closed';
+                              break;
+                            case 'rejected':
+                              statusClass = 'badge badge-light-danger fw-bolder';
+                              statusLabel = 'Rejected';
+                              break;
+                            case 'open':
+                              statusClass = 'badge badge-light-primary fw-bolder';
+                              statusLabel = 'Open';
+                              break;
+                            case 'on hold':
+                              statusClass = 'badge badge-light-danger fw-bolder';
+                              statusLabel = 'On Hold';
+                              break;
+                          }
+
+                          return (
+                            <tr key={index}>
+                              <td>
+                                <div className="text-gray-900 fw-bold d-block mb-1 fs-6">
+                                  {log.complain_at || '-'}
+                                </div>
+                              </td>
+                              <td>
+                                <div className="text-gray-900 fw-bold d-block mb-1 fs-6">
+                                  {log.diagnostic_name || '-'}
+                                </div>
+                              </td>
+                              <td>
+                                <div className="text-gray-900 fw-bold d-block mb-1 fs-6">
+                                  {log.part_name || '-'}
+                                </div>
+                              </td>
+                              <td>
+                                <span className={statusClass}>{statusLabel}</span>
+                              </td>
+                              <td>
+                                <span className="badge badge-light-primary fs-7 fw-semibold">
+                                  {log.serial_number || '-'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                      {/* end::Table body */}
+                    </table>
+                    {/* end::Table */}
+                  </div>
+                  {/* end::Table container */}
+                </div>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
 
-          <div className="row mb-7">
-            {/* <div className="col-12 col-lg-6">
-              <div className="fv-row">
-                <label className='required fw-bold fs-6 mb-2'>Warranty Status</label>
-                <div className='form-check form-switch form-switch-sm form-check-custom form-check-solid'>
-                  <input
-                    className='form-check-input'
-                    type='checkbox'
-                    name='waranty_status'
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    checked={formik.values.waranty_status}
-                    disabled={readOnly}
-                  />
-                  <label className='form-check-label'>Active</label>
-                </div>
-              </div>
-            </div> */}
-            {
-              asset.id != 0 && 
-              <div className="col-12 col-lg-6">
-                <div className='fv-row'>
-                  <label className='col-12 fw-bold fs-6 mb-2'>Warranty Expired</label>
-                  <label className='col-12 fw-bold text-muted'>{asset.warranty_expired} 
-                    {asset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}
-                    {!asset.warranty_status && <div className='badge badge-light-danger fw-bolder'>Non Active</div>}
-                  </label>
-                </div>
-              </div>
-            }
-            
-          </div>  
-
+            </div>
 
 
           
+          </div>
         </div>
         {/* end::Scroll */}
 

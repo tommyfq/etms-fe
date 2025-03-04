@@ -155,7 +155,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   })
 
   useEffect(() => {
-    console.log(user)
     const fetchRole = async () => {
       try {
  
@@ -190,7 +189,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             }
           }) || []
           
-          console.log(formattedDCOptions)
           setDCOptions(formattedDCOptions)
           setSelectedDC(formattedSelectedDC)
         }
@@ -210,7 +208,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
             label: r.role_name || "",
           }
         }) || []
-        console.log(formattedRoleOptions)
         setRoleOptions(formattedRoleOptions)
         setIsLoadingData(false)
 
@@ -220,7 +217,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     }
 
     fetchRole()
-    console.log(user);
   }, [])
 
   const cancel = (withRefresh?: boolean) => {
@@ -240,8 +236,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     initialValues: userForEdit,
     validationSchema: (values: User) => editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
-      console.log("VALUES")
-      console.log(values);
       setSubmitting(true)
       try {
         const response = values.id !== 0 ? await updateUser(values) : await createUser(values);
@@ -280,7 +274,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
     ) => {
     console.log(actionMeta)
-    console.log("change role")
     formik.setFieldValue('role_id', selectedOption ? selectedOption.value : null);
     setRole(selectedOption?.label || "")
     setSelectedDC(null)
@@ -299,8 +292,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
   ) => {
     console.log(actionMeta);
     setSelectedDC(selectedOption);
-    console.log(selectedOption);
-    console.log("change dc");
     
     
     if (Array.isArray(selectedOption)) {
@@ -310,8 +301,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
         selectedOption.map((option) => option.value)
       );
     } else if (selectedOption){
-      console.log(selectedOption)
-      console.log((selectedOption as Option).value)
       // Single value for clients
       formik.setFieldValue(
         'dcs',
@@ -328,7 +317,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log(selectedOption)
     setSelectedDC(null)
     formik.setFieldValue('dcs', []);
     formik.setFieldValue('company_id', selectedOption ? selectedOption.value : null);
@@ -354,7 +342,6 @@ const UserModalForm: FC<Props> = ({user, isUserLoading}) => {
       }
     }) || []
     
-    console.log(formattedDCOptions)
     setDCOptions(formattedDCOptions)
     
   }

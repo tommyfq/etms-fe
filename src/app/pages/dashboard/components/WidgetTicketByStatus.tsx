@@ -3,6 +3,7 @@ import { FC, useEffect, useState } from 'react'
 import {KTIcon} from '../../../../_metronic/helpers'
 import { getTicketCountByStatus } from '../core/_requests'
 import { TicketCounts } from '../core/_models'
+import { toCamelCase } from '../../../helpers/helper'
 
 type Props = {
   className: string
@@ -60,11 +61,11 @@ const WidgetTicketByStatus: FC<Props> = ({className, color}) => {
             <div className='symbol symbol-45px w-40px me-5'>
               <span className='symbol-label bg-lighten'>
                 <KTIcon iconName={
-                  ticket.status == "Open" ? `dots-circle`: 
-                  ticket.status == "In Progress" ? `arrows-loop` :
-                  ticket.status == "On Hold" ? `loading` : 
-                  ticket.status == "Cancel" ? `tablet-delete` :
-                  ticket.status == "Closed" ? `tablet-ok` :
+                  ticket.status == "open" ? `dots-circle`: 
+                  ticket.status == "in progress" ? `arrows-loop` :
+                  ticket.status == "on hold" ? `loading` : 
+                  ticket.status == "cancel" ? `tablet-delete` :
+                  ticket.status == "closed" ? `tablet-ok` :
                   `cross-circle`} className='fs-1' />
               </span>
             </div>
@@ -74,7 +75,7 @@ const WidgetTicketByStatus: FC<Props> = ({className, color}) => {
               {/* begin::Title */}
               <div className='mb-1 pe-3 flex-grow-1'>
                 <div className='fs-5 text-gray-800 fw-bold'>
-                  {ticket.status}
+                  {toCamelCase(ticket.status)}
                 </div>
               </div>
               {/* end::Title */}

@@ -22,7 +22,6 @@ const TicketActionCell: FC<Props> = ({id}) => {
   }, [])
 
   const openEditModal = () => {
-    console.log(id)
     setItemIdForUpdate(id)
   }
 

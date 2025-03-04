@@ -107,7 +107,6 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
           value: dc.dc_id || 0,
           label: dc.dc_name || "",
         })) || []
-        console.log(formattedOptions)
         setDCOptions(formattedOptions)
 
       } catch (error) {
@@ -119,7 +118,6 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
     if(currentUser?.role_name == "admin"){
       setReadOnly(false)
     }
-    console.log(store);
   }, [])
 
   const cancel = (withRefresh?: boolean) => {

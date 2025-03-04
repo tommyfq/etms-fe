@@ -92,14 +92,11 @@ const CompanyEditModalForm: FC<Props> = ({company, isUserLoading}) => {
     initialValues: userForEdit,
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
-      console.log("VALUES")
-      console.log(values);
       setSubmitting(true)
       try {
         const response = values.id !== 0 ? await updateCompany(values) : await createCompany(values);
         setResultResponse(response);
         handleAlert(response)
-        console.log(response)
       } catch (ex) {
         console.error(ex)
         setSubmitting(false);

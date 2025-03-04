@@ -4,7 +4,6 @@ import {UserModalWrapper} from './UserModalWrapper'
 
 const UserModal = () => {
   useEffect(() => {
-    console.log("MASUK USER MODAL");
     document.body.classList.add('modal-open')
     return () => {
       document.body.classList.remove('modal-open')

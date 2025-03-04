@@ -95,7 +95,6 @@ const TicketListFilter = () => {
                 label: r || "",
               }
             }) || []
-            console.log(formattedStatusOptions)
             setStatusOptions(formattedStatusOptions)
 
             // const dcs = await getListAllDC([])
@@ -196,7 +195,6 @@ const TicketListFilter = () => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change status")
     setSelectedStatus(selectedOption?.label)
   };
 

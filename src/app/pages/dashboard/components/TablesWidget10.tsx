@@ -1,5 +1,5 @@
 
-import { FC, useEffect } from 'react'
+import { FC } from 'react'
 import {KTIcon, toAbsoluteUrl} from '../../../../_metronic/helpers'
 
 type Props = {
@@ -8,9 +8,6 @@ type Props = {
 
 const TablesWidget10: FC<Props> = ({className}) => {
 
-  useEffect(()=>{
-    console.log("Use effect")
-  },[])
 
   return (
     <div className={`card ${className}`}>

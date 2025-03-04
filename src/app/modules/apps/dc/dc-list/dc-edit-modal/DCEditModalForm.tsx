@@ -173,14 +173,11 @@ const DCEditModalForm: FC<Props> = ({dc, isUserLoading}) => {
     initialValues: userForEdit,
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
-      console.log("VALUES")
-      console.log(values);
       setSubmitting(true)
       try {
         const response = values.id !== 0 ? await updateDC(values) : await createDC(values);
         setResultResponse(response);
         handleAlert(response)
-        console.log(response)
       } catch (ex) {
         console.error(ex)
       }

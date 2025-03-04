@@ -1,4 +1,3 @@
-import {useEffect} from 'react'
 // import {ListViewProvider} from './core/ListViewProvider'
 import {ListViewProvider, useListView} from './core/ListViewProvider'
 import {QueryRequestProvider} from './core/QueryRequestProvider'
@@ -11,10 +10,6 @@ import { ToolbarWrapper } from '../../../../../_metronic/layout/components/toolb
 import { Content } from '../../../../../_metronic/layout/components/content'
 
 const UsersList = () => {
-
-    useEffect( () => {
-        console.log("MASUK")
-      })
     
   const {itemIdForUpdate} = useListView()
   return (

@@ -13,7 +13,6 @@ const AssetListToolbar = () => {
   const [readOnly, setReadOnly] = useState<boolean>(true) 
 
   const openAssetModal = () => {
-    console.log("OPEN");
     setItemIdForUpdate(null)
   }
 

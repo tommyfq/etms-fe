@@ -149,6 +149,12 @@ const SidebarMenuMain = () => {
         title='Store'
         fontIcon='bi-truck'
       />
+      <SidebarMenuItem
+        to='/apps/report/list'
+        icon='graph-2'
+        title='Reporting'
+        fontIcon='bi-truck'
+      />
       {
         user?.role_name == "admin" && 
       <>

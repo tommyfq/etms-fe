@@ -24,6 +24,7 @@ const PrivateRoutes = () => {
   const TicketPage = lazy(() => import('../modules/apps/tickets/TicketPage'))
   const RolePage = lazy(() => import('../modules/apps/roles/RolePage'))
   const ItemsPage = lazy(() => import('../modules/apps/items/ItemsPage'))
+  const ReportPage = lazy(() => import('../modules/apps/reporting/ReportingPage'))
 
   return (
     <Routes>
@@ -141,6 +142,14 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <RolePage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path='apps/report/*'
+          element={
+            <SuspensedView>
+              <ReportPage />
             </SuspensedView>
           }
         />

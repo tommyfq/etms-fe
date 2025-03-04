@@ -146,7 +146,6 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
           value: asset.asset_id || 0,
           label: asset.brand + " " + asset.model + " | "+asset.serial_number,
         })) || []
-        console.log(formattedOptions)
         setAssetOptions(formattedOptions)
         setAssetList(assets.data)
 
@@ -156,7 +155,6 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     }
 
     fetchAsset()
-    console.log(ticket);
   }, [])
 
   const cancel = (withRefresh?: boolean) => {
@@ -203,7 +201,6 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         formData.append("description",values.description || '')
         formData.append("customer_reference_no",values.customer_reference_no || '')
         uploadedFiles.forEach((file) => formData.append("images", file)); // Append each file to formData
-        console.log(formData)
         const response = await createTicket(formData);
         setResultResponse(response);
         handleAlert(response)
@@ -218,7 +215,6 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change asset")
     formik.setFieldValue('asset_id', selectedOption ? selectedOption.value : null);
     const selected = assetList?.find((a) => {
       return a.asset_id == selectedOption?.value

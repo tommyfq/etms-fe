@@ -211,10 +211,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     
     fetchInitialData();
 
-    console.log(ticket);
-    console.log(ticket.status);
-    console.log("TICKET EDIT MODAL FORM")
-    console.log(currentUser)
     setUser(currentUser)
     //setUser(currentUser.data)
   }, [])
@@ -300,7 +296,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         value: asset.asset_id || 0,
         label: asset.brand + " " + asset.model + " | "+asset.serial_number,
       })) || []
-      console.log(formattedOptions)
       setAssetOptions(formattedOptions)
       setAssetList(assets.data)
       setIsSwapAsset(true)
@@ -329,11 +324,9 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       try {
-        console.log("===VALUES===")
         if(isSwapAsset){
           values.swap_asset_id = selectedSwapAsset?.asset_id
         }
-        console.log(values);
         const response = await updateTicket(values);
         setResultResponse(response);
         handleAlert(response)
@@ -377,12 +370,8 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
  }, [formik.values.comment_client, formik.values.comment_internal]);
 
   const handleStatusSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("change status")
-    console.log(event.target.value)
     setStatusSelected(event.target.value)
     formik.setFieldValue('status', event.target.value || null);
-    console.log(statusSelected,!selectedSwapAsset,!isSwapAsset)
-    console.log(statusSelected == "Closed" && !selectedSwapAsset && !isSwapAsset)
     if(event.target.value != "Closed"){
       setSelectedOptionAsset(null)
       setIsSwapAsset(false)
@@ -391,8 +380,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   };
 
   const handlePriorityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("change priority")
-    console.log(event.target.value)
     setPrioritySelected(true)
     formik.setFieldValue('priority', event.target.value || null);
   };
@@ -402,7 +389,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change asset")
     //formik.setFieldValue('asset_id', selectedOption ? selectedOption.value : null);
     const selected = assetList?.find((a) => {
       return a.asset_id == selectedOption?.value
@@ -481,7 +467,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 <div className="col-12 col-md-6">
                     <div className='fv-row mb-7'>
                         <label className='required fw-bold fs-6 mb-2'>Status</label>
-                        {user?.role_name != "client" && !["Rejected", "Closed", "Cancel"].includes(ticket.status ?? "") ? 
+                        {user?.role_name != "client" && !["rejected", "closed", "cancel"].includes(ticket.status ?? "") ? 
                         <select
                             name='status'
                             data-control='select2'
@@ -750,7 +736,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               <div className="col-12 col-md-6">
                 {ticket.part_id == null && 
                   <div className="fv-row">
-                    <label className='required form-label fw-bold'>Diagnostic Problem</label>
+                    <label className='required form-label fw-bold'>Case Category</label>
                     <Creatable 
                     styles={customStyles} 
                     name="diagnostic_id" 
@@ -771,9 +757,9 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 }
                 {ticket.diagnostic_id != null && 
                   <div className='fv-row'>
-                    <label className='required fw-bold fs-6 mb-2'>Diagnostic Problem</label>
+                    <label className='required fw-bold fs-6 mb-2'>Case Category</label>
                     <input
-                    placeholder='Diagnostic'
+                    placeholder='Case Category'
                     {...formik.getFieldProps('diagnostic_name')}
                     type='text'
                     name='diagnostic_name'

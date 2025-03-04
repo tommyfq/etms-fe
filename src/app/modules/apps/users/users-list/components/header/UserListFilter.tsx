@@ -86,7 +86,6 @@ const UserListFilter = () => {
                 label: r.role_name || "",
               }
             }) || []
-            console.log(formattedOptions)
             setRoleOptions(formattedOptions)
     
           } catch (error) {
@@ -120,7 +119,6 @@ const UserListFilter = () => {
       const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setIsActive(event.target.checked); // Update state based on checkbox status
         // You can perform additional actions here if needed
-        console.log("Checkbox is now:", event.target.checked);
       };
     
     //   const handleCompanySelected = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -132,7 +130,6 @@ const UserListFilter = () => {
       actionMeta: ActionMeta<Option>
     ) => {
       console.log(actionMeta)
-      console.log("change role")
       setSelectedRole(selectedOption)
     };
     

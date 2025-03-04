@@ -126,7 +126,6 @@ const DCUploadModal = ({show, handleClose}: Props) => {
       
           try {
             const response = await uploadFile(formData)
-            console.log('File uploaded successfully:', response.data);
             handleAlert(response)
             // Clear the selected file after upload if desired
             //setSelectedFile(null);

@@ -5,8 +5,6 @@ import {useQueryResponse} from '../../core/QueryResponseProvder'
 import {getListYear, getListMonth, downloadExcelFile} from '../../core/_requests'
 // import { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 // import { hashStringToNumber } from '../../../../../../helpers/helper'
-import clsx from 'clsx'
-import moment from 'moment';
 
 type OptionSelect = { value: number; label: string };
 

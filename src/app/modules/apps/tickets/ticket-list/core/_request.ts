@@ -17,7 +17,6 @@ const getTicketById = (id: ID): Promise<TicketDetail | undefined> => {
 };
 
 const createTicket = (ticket: FormData): Promise<any> => {
-  console.log(ticket)
   return api
     .post(`/ticket/create`, ticket)
     .then((response: AxiosResponse<Response<Ticket>>) => {return response.data})
@@ -34,7 +33,6 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     return api
       .get(`/asset/list-option`)
       .then((d: AxiosResponse<AssetQueryResponse>) => {
-        console.log(d.data);
         return d.data
     });
   }
@@ -43,7 +41,6 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     return api
       .get(`/ticket/list-parts`)
       .then((d: AxiosResponse<PartQueryResponse>) => {
-        console.log(d.data);
         return d.data
     });
   }
@@ -52,7 +49,6 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     return api
       .get(`/ticket/list-diagnostics`)
       .then((d: AxiosResponse<DiagnosticQueryResponse>) => {
-        console.log(d.data);
         return d.data
     });
   }
@@ -61,7 +57,6 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     return api
       .get(`/ticket/list-status`)
       .then((d: AxiosResponse<StatusQueryResponse>) => {
-        console.log(d.data);
         return d.data
     });
   }
@@ -70,7 +65,6 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     return api
       .get(`/ticket/overview`)
       .then((d: AxiosResponse<OverviewTicketQueryResponse>) => {
-        console.log(d.data);
         return d.data
     });
   }

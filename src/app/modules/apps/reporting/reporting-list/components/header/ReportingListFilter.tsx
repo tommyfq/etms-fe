@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect} from 'react';
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvder'
-import {getListYear} from '../../core/_requests'
+import {getListYear, getListMonth, downloadExcelFile} from '../../core/_requests'
 // import { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 // import { hashStringToNumber } from '../../../../../../helpers/helper'
 import clsx from 'clsx'
 import moment from 'moment';
 
-// type Option = { value: number; label: string };
+type OptionSelect = { value: number; label: string };
 
 
 // const customSingleStyles: StylesConfig<Option, false> = {
@@ -58,12 +58,6 @@ import moment from 'moment';
 
 const ReportingListFilter = () => {
     const [openMenu, setOpenMenu] = useState(false);
-    //const [dcOptions, setDCOptions] = useState<Option[]>([])
-    // const [statusOptions, setStatusOptions] = useState<Option[]>([])
-    //const [selectedDC, setSelectedDC] = useState<number[] | null>(null);
-    const [selectedPart, setSelectedPart] = useState<number[] | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState<string>()
-    //const [isDisableDC, setIsDisableDC] = useState<boolean>(false)
 
     const toggleMenu = () => setOpenMenu(!openMenu);
     // const toggleSubMenu = () => setOpenSubMenu(!openSubMenu);
@@ -74,23 +68,18 @@ const ReportingListFilter = () => {
     // const [companyOptions, setCompanyOptions] = useState<any[]>()
     // const [company, setCompany] = useState();
   
-    const [fromDate, setFromDate] = useState<string>('')
-    const [toDate, setToDate] = useState<string>('')
-
-    const [currentYear, setCurrentYear] = useState(moment().year());
-    const [currentMonth, setCurrentMonth] = useState(moment().month());
-    const [yearList, setYearList] = useState<number[]>([])
-    const [monthList, setMonthList] = useState<number[]>([])
+    const [yearList, setYearList] = useState<string[]>([])
+    const [monthList, setMonthList] = useState<OptionSelect[]>([])
+    const [selectedYear, setSelectedYear] = useState<string>("")
+    const [selectedMonth, setSelectedMonth] = useState<string>("")
 
     useEffect(() => {
         // Fetch data from API
         const fetchData = async () => {
           try {
             const response = await getListYear()
-            const yearData = response.data?.year ?? []
-            const monthData = response.data?.month ?? []
+            const yearData = response.data ?? []
             setYearList(yearData)
-            setMonthList(monthData)
 
           } catch (error) {
             console.error('Error fetching data:', error);
@@ -98,42 +87,52 @@ const ReportingListFilter = () => {
         };
     
         fetchData();
-      }, [currentYear]);
+      }, []);
 
     const resetData = () => {
-        setSelectedPart(null)
-        setSelectedStatus("")
-        setFromDate("")
-        setToDate("")
+        setSelectedMonth("")
+        setSelectedYear("")
         updateState({filter: undefined, ...initialQueryState})
       }
     
       const filterData = () => {
-        console.log(selectedStatus)
         //const is_active = isActive
         
         updateState({
-          filter: {status: selectedStatus, part: selectedPart, from_date:fromDate, to_date:toDate},
+          filter: {year: selectedYear, month: selectedMonth},
           ...initialQueryState,
         })
       }
 
-      const handleToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newToDate = e.target.value;
-        if (fromDate && new Date(newToDate) < new Date(fromDate)) {
-          //setWarning("To date cannot be earlier than From date.");
-          setToDate(""); // Reset the field
-        } else {
-          //setWarning(""); // Clear warning
-          setToDate(newToDate);
-        }
+      const exportData = async () => {
+
+        await downloadExcelFile(selectedYear, selectedMonth)
+       
       };
     
-      // const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-      //   setIsActive(event.target.checked); // Update state based on checkbox status
-      //   // You can perform additional actions here if needed
-      //   console.log("Checkbox is now:", event.target.checked);
-      // };
+      const handleSelectYear = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+        const year = event.target.value;
+        if(year != ""){
+          const fetchData = async () => {
+            try {
+              const response = await getListMonth(year)
+              const formattedOptions = response.data?.map((r): OptionSelect => {
+                return {
+                  value: r.value || 0,
+                  label: r.label || "",
+                }
+              }) || []
+              
+              setMonthList(formattedOptions)
+            } catch (error) {
+              console.error('Error fetching data:', error);
+            }
+          };
+      
+          fetchData();
+          setSelectedYear(event.target.value)
+        }
+      };
     
     //   const handleCompanySelected = (event: React.ChangeEvent<HTMLSelectElement>) => {
     //     setCompany(event.target.value); // Update the selected role
@@ -168,7 +167,7 @@ const ReportingListFilter = () => {
 //   };
     
     return (
-        <div className="mt-dropdown me-3" ref={dropdownRef}>
+        <div className="mt-dropdown me-3" ref={dropdownRef} style={{right:'0%'}}>
             <button className='btn btn-light-primary me-3' style={{height:'50px'}} onClick={toggleMenu}>
                 <KTIcon iconName='filter' className='fs-2' />
                 Filter
@@ -200,14 +199,12 @@ const ReportingListFilter = () => {
           <div className="mb-5">
               <label className='fw-bold fs-6 mb-2'>Year:</label>
               <div className='card-toolbar' data-kt-buttons='true'>
-                <label htmlFor="year-select" style={{ marginRight: '10px' }}>Select Year:</label>
                 <select
                     id="year-select"
-                    className="className='form-select form-select-sm w-md-125px form-select-solid'"
-                    onChange={(e) => setCurrentYear(Number(e.target.value))}
+                    className='form-select form-select-sm form-select-solid'
+                    value={selectedYear}
+                    onChange={handleSelectYear}
                 >
-                    <option>2025</option>
-                    <option>2024</option>
                     {yearList.map((year) => (
                     <option key={year} value={year}>
                         {year}
@@ -220,18 +217,16 @@ const ReportingListFilter = () => {
               <label className='fw-bold fs-6 mb-2'>Month:</label>
               <select
                     id="month-select"
-                    className="className='form-select form-select-sm w-md-125px form-select-solid'"
-                    value={currentMonth}
-                    onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                    className='form-select form-select-sm form-select-solid'
+                    disabled={selectedYear == ""}
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
                 >
                     {monthList.map((m) => (
-                    <option key={m} value={m}>
-                        {m}
+                    <option value={m.value}>
+                        {m.label}
                     </option>
                     ))}
-                    <option></option>
-                    <option>1</option>
-                    <option>2</option>
                 </select>
               </div>
           {/* <div className='mb-10'>
@@ -263,12 +258,17 @@ const ReportingListFilter = () => {
               disabled={isLoading}
               type='button'
               onClick={filterData}
-              className='btn btn-primary fw-bold px-6'
+              className='btn btn-primary fw-bold px-6 me-2'
               data-kt-menu-dismiss='true'
               data-kt-user-table-filter='filter'
             >
               Apply
             </button>
+            {/* begin::Export */}
+            <button type='button' className='btn btn-light-primary me-3' onClick={exportData}>
+              Export
+            </button>
+            {/* end::Export */}
           </div>
           {/* end::Actions */}
         </div>

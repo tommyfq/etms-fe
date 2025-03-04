@@ -5,7 +5,6 @@ import {useListView} from '../../core/ListViewProvider'
 const CompanyListToolbar = () => {
   const {setItemIdForUpdate} = useListView()
   const openAddCompanyrModal = () => {
-    console.log("OPEN");
     setItemIdForUpdate(null)
   }
 

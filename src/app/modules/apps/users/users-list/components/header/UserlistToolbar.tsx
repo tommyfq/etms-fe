@@ -5,7 +5,6 @@ import UserListFilter from './UserListFilter'
 const UserlistToolbar = () => {
   const {setItemIdForUpdate} = useListView()
   const openAddCompanyrModal = () => {
-    console.log("OPEN");
     setItemIdForUpdate(null)
   }
 

@@ -120,7 +120,6 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
 
 
   const cancel = (withRefresh?: boolean) => {
-    console.log("WITH REFRESH : "+withRefresh)
     if (withRefresh) {
       refetch()
       setItemIdForUpdate(undefined)
@@ -136,8 +135,6 @@ const ItemModalForm: FC<Props> = ({item, isUserLoading}) => {
     initialValues: userForEdit,
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
-      console.log("VALUES")
-      console.log(values);
       setSubmitting(true)
       try {
         const response = values.id !== 0 ? await updateItem(values) : await createItem(values);

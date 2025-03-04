@@ -14,12 +14,10 @@ const DCListToolbar = () => {
   const [readOnly, setReadOnly] = useState<boolean>(true) 
 
   const openAddCompanyrModal = () => {
-    console.log("OPEN");
     setItemIdForUpdate(null)
   }
 
   const openUploadModal = () => {
-    console.log("Open Up Modal")
     setShowUploadModal(true)
   }
 

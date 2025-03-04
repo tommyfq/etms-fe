@@ -32,7 +32,6 @@ const CardsWidgetTicket: FC<Props> = ({
     const fetchAsset = async () => {
       try {
         const overview = await getOverview()
-        console.log(overview.data)
         setOverview(overview.data)
       } catch (error) {
         console.error('Error fetching agents:', error)

@@ -22,12 +22,14 @@ export type Reporting = {
 
 export type ReportingQueryResponse = Response<Array<Reporting>>
 
-export type ListReportFilter = {
-  year: number[]
-  month: number[]
+export type ListYearQueryResponse = Response<Array<string>>
+
+export type ListMonth = {
+  value: number
+  label: string
 }
 
-export type ListYearQueryResponse = Response<ListReportFilter>
+export type ListMonthQueryResponse = Response<Array<ListMonth>>
 
 export const initialReporting: Reporting = {
     dc_name: "",

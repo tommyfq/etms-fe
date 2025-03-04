@@ -89,7 +89,6 @@ const StoreListFilter = () => {
                 label: r.company_name || "",
               }
             }) || []
-            console.log(formattedCompOptions)
             setCompOptions(formattedCompOptions)
 
             const dcs = await getListAllDC([])
@@ -99,7 +98,6 @@ const StoreListFilter = () => {
                 label: r.dc_name || "",
               }
             }) || []
-            console.log(formattedOptions)
             setDCOptions(formattedOptions)
     
           } catch (error) {
@@ -124,7 +122,6 @@ const StoreListFilter = () => {
       }
     
       const filterData = () => {
-        console.log(selectedDC)
         //const is_active = isActive
         updateState({
           filter: {is_active : isActive, dcs: selectedDC, comp: selectedComp},
@@ -135,7 +132,6 @@ const StoreListFilter = () => {
       const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setIsActive(event.target.checked); // Update state based on checkbox status
         // You can perform additional actions here if needed
-        console.log("Checkbox is now:", event.target.checked);
       };
     
     //   const handleCompanySelected = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -147,7 +143,6 @@ const StoreListFilter = () => {
         actionMeta: ActionMeta<Option>
       ) => {
       console.log(actionMeta)
-      console.log("change dc")
 
       if (Array.isArray(selectedOption)) {
         // Multiple values for agents
@@ -203,7 +198,6 @@ const StoreListFilter = () => {
     const arrComp: number[] = [(selectedOption as Option).value];
 
     console.log(actionMeta)
-    console.log("change role")
     setSelectedComp([(selectedOption as Option).value])
 
     const dcs = await getListAllDC(arrComp)
@@ -213,7 +207,6 @@ const StoreListFilter = () => {
         label: r.dc_name || "",
       }
     }) || []
-    console.log(formattedOptions)
     setDCOptions(formattedOptions)
     setIsDisableDC(false)
   };

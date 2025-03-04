@@ -4,7 +4,6 @@ import {TicketModalWrapper} from './TicketModalWrapper'
 
 const TicketModal = () => {
   useEffect(() => {
-    console.log("MASUK USER MODAL");
     document.body.classList.add('modal-open')
     return () => {
       document.body.classList.remove('modal-open')

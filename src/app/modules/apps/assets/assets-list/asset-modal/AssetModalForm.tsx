@@ -120,19 +120,16 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     const fetchDC = async () => {
       try {
         const dcs = await getListDC(0)
-        console.log(dcs)
         const formattedDCOptions = dcs.data?.map((dc): Option => ({ 
           value: dc?.dc_id || 0,
           label: dc?.dc_name || "",
         }));
-        console.log(formattedDCOptions)
         setDCOptions(formattedDCOptions)
 
         if(asset?.dc_id != 0){
             const fetchStore = async () => {
                 try {
                   const stores = await getListStore(asset.dc_id ?? 0)
-                  console.log(stores);
                   const formattedStoreOptions = stores.data?.map((store): Option => ({ 
                     value: store.store_id || 0,
                     label: store.store_name || "",
@@ -147,21 +144,17 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
         }
 
         const brands = await getListBrand()
-        console.log(brands)
         const formattedBrandOptions = brands.data?.map((brand): Option => ({ 
           value: hashStringToNumber(brand),
           label: brand
         })) || []
-        console.log(formattedBrandOptions)
         setBrandOptions(formattedBrandOptions)
 
-        console.log("===ASSET===")
-        console.log(asset);
         if(asset?.item_id != 0){
           const fetchModel = async () => {
               try {
                 const models = await getListModel(asset.brand ?? "")
-                console.log(models);
+
                 const formattedModeloptions = models.data?.map((model): Option => ({ 
                   value: model.item_id || 0,
                   label: model.model || "",
@@ -185,7 +178,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     if(currentUser?.role_name == "admin"){
       setReadOnly(false)
     }
-    console.log(asset);
+  
   }, [])
 
   const handleAlert = (response:{is_ok:boolean, message:string}) => {
@@ -223,8 +216,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     initialValues: userForEdit,
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
-      console.log("VALUES")
-      console.log(values);
+
       setSubmitting(true)
       try {
         const response = values.id !== 0 ? await updateAsset(values) : await createAsset(values);
@@ -241,14 +233,11 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change dc")
     formik.setFieldValue('dc_id', selectedOption ? selectedOption.value : null);
     setSelectedDCId(selectedOption?.value)
-    console.log("selected_dc_id: "+selectedDCId)
     const fetchStore = async () => {
         try {
           const stores = await getListStore(selectedOption?.value ?? 0)
-          console.log(stores);
           const formattedOptions = stores.data?.map((store): Option => ({ 
             value: store.store_id || 0,
             label: store.store_name || "",
@@ -267,12 +256,9 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change brand")
+
     formik.setFieldValue('brand', selectedOption ? selectedOption.label : null);
-    console.log(selectedOption);
-    console.log(selectedOption?.label)
     setSelectedBrand(selectedOption?.label)
-    console.log("selected_brand: "+selectedBrand)
 
     // Reset 'item_id' and 'modelOptions'
     formik.setFieldValue("item_id", null); // Reset item_id in Formik
@@ -281,13 +267,13 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     const fetchModel = async () => {
         try {
           const models = await getListModel(selectedOption?.label || "")
-          console.log(models);
+
           const formattedModelOptions = models.data?.map((model): Option => ({
             value: model.item_id || 0,
             label: model.model || "",
           })) || []
           setModelOptions(formattedModelOptions)
-          console.log(formattedModelOptions)
+
         } catch (error) {
           console.error('Error fetching agents:', error)
         }
@@ -303,7 +289,6 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change store")
     formik.setFieldValue('store_id', selectedOption ? selectedOption.value : null);
 
   };
@@ -313,7 +298,6 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
     actionMeta: ActionMeta<Option>
   ) => {
     console.log(actionMeta)
-    console.log("change item")
     formik.setFieldValue('item_id', selectedOption ? selectedOption.value : null);
   };
 

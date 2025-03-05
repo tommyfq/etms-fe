@@ -165,13 +165,13 @@ const ReportingListFilter = () => {
 //   };
     
     return (
-        <div className="mt-dropdown me-3" ref={dropdownRef} style={{right:'0%'}}>
+        <div className="mt-dropdown me-3" ref={dropdownRef}>
             <button className='btn btn-light-primary me-3' style={{height:'50px'}} onClick={toggleMenu}>
                 <KTIcon iconName='filter' className='fs-2' />
                 Filter
             </button>
             {openMenu && (
-                <div className="mt-dropdown-menu">
+                <div className="mt-dropdown-menu filter-report">
                     <div className='px-7 py-5'>
           <div className='fs-5 text-gray-900 fw-bolder'>Filter Options</div>
         </div>

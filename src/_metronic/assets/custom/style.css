@@ -106,3 +106,9 @@
 .tbl {
   min-width: 1000px; /* Adjust based on the required minimum width */
 }
+
+.filter-report {
+  right: 0 !important;
+  min-width: 300px !important;
+  left: unset !important;
+}

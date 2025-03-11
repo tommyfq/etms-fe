@@ -26,7 +26,7 @@ const UsersPage = () => {
           path='list'
           element={
             <>
-              <PageTitle breadcrumbs={usersBreadcrumbs}>Case Category list</PageTitle>
+              <PageTitle breadcrumbs={usersBreadcrumbs}>Part list</PageTitle>
               <PartListWrapper />
             </>
           }

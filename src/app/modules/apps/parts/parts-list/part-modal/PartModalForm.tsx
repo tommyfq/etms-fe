@@ -73,7 +73,7 @@ const editUserSchema = Yup.object().shape({
   part_name: Yup.string().required('Part Name is required')
 })
 
-const CaseCategoryModalForm: FC<Props> = ({item, isUserLoading}) => {
+const PartModalForm: FC<Props> = ({item, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
   const {refetch} = useQueryResponse()
   // const [roleOptions, setRoleOptions] = useState<any[]>([])
@@ -249,4 +249,4 @@ const CaseCategoryModalForm: FC<Props> = ({item, isUserLoading}) => {
   )
 }
 
-export {CaseCategoryModalForm}
+export {PartModalForm}

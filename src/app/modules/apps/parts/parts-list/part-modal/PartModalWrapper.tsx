@@ -1,5 +1,5 @@
 import {useQuery} from 'react-query'
-import {CaseCategoryModalForm} from './PartModalForm'
+import {PartModalForm} from './PartModalForm'
 import {isNotEmpty, QUERIES} from '../../../../../../_metronic/helpers'
 import {useListView} from '../core/ListViewProvider'
 import { getPartById } from '../core/_requests'
@@ -29,11 +29,11 @@ const PartModalWrapper = () => {
 
 
   if (!itemIdForUpdate) {
-    return <CaseCategoryModalForm isUserLoading={isLoading} item={{id: 0}} />
+    return <PartModalForm isUserLoading={isLoading} item={{id: 0}} />
   }
 
   if (!isLoading && !error && data) {
-    return <CaseCategoryModalForm isUserLoading={isLoading} item={data} />
+    return <PartModalForm isUserLoading={isLoading} item={data} />
   }
 
   return null

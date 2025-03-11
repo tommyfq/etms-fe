@@ -144,7 +144,7 @@ const PartUploadModal = ({show, handleClose}: Props) => {
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
-              Upload CaseCategory
+              Upload Part
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>

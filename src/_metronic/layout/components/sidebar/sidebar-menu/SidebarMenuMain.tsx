@@ -181,6 +181,18 @@ const SidebarMenuMain = () => {
             title='Items'
             fontIcon='bi-card-list'
           />
+          <SidebarMenuItem
+            to='/apps/case-category/list'
+            icon='wrench'
+            title='Case Category'
+            fontIcon='bi-card-list'
+          />
+          <SidebarMenuItem
+            to='/apps/parts/list'
+            icon='gear'
+            title='Parts'
+            fontIcon='bi-card-list'
+          />
       </>
       }
       

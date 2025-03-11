@@ -25,6 +25,8 @@ const PrivateRoutes = () => {
   const RolePage = lazy(() => import('../modules/apps/roles/RolePage'))
   const ItemsPage = lazy(() => import('../modules/apps/items/ItemsPage'))
   const ReportPage = lazy(() => import('../modules/apps/reporting/ReportingPage'))
+  const CaseCategoryPage = lazy(() => import('../modules/apps/case-category/CaseCategoryPage'))
+  const PartsPage = lazy(() => import('../modules/apps/parts/PartsPage'))
 
   return (
     <Routes>
@@ -94,6 +96,18 @@ const PrivateRoutes = () => {
           <Route path='apps/items/*' element={<SuspensedView><ItemsPage /></SuspensedView>}/>
         ) : (
           <Route path='apps/items/*' element={<Navigate to='/dashboard' />} />
+        )}
+
+        {currentUser?.role_name == 'admin' ? (
+          <Route path='apps/case-category/*' element={<SuspensedView><CaseCategoryPage /></SuspensedView>}/>
+        ) : (
+          <Route path='apps/case-category/*' element={<Navigate to='/dashboard' />} />
+        )}
+
+        {currentUser?.role_name == 'admin' ? (
+          <Route path='apps/parts/*' element={<SuspensedView><PartsPage /></SuspensedView>}/>
+        ) : (
+          <Route path='apps/parts/*' element={<Navigate to='/dashboard' />} />
         )}
 
         {/* <Route

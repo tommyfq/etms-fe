@@ -3,16 +3,14 @@ import {FC, PropsWithChildren, useMemo} from 'react'
 import {HeaderProps} from 'react-table'
 import {initialQueryState} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
-import {TicketList} from '../../core/_models'
+import {Part} from '../../core/_models'
 
 type Props = {
   className?: string
   title?: string
-  tableProps: PropsWithChildren<HeaderProps<TicketList>>
+  tableProps: PropsWithChildren<HeaderProps<Part>>
 }
-const unsortColumn = ["Category","Asset","Store","Actions"];
-
-const TicketCustomHeader: FC<Props> = ({className, title, tableProps}) => {
+const PartCustomHeader: FC<Props> = ({className, title, tableProps}) => {
   const id = tableProps.column.id
   const {state, updateState} = useQueryRequest()
 
@@ -45,21 +43,19 @@ const TicketCustomHeader: FC<Props> = ({className, title, tableProps}) => {
     }
   }
 
-  const isSortable = !unsortColumn.includes(title || '')
-
   return (
-        <th
-          {...tableProps.column.getHeaderProps()}
-          className={clsx(
-            className,
-            isSelectedForSorting && order !== undefined && `table-sort-${order}`
-          )}
-          style={{ cursor: isSortable ? 'pointer' : 'default' }}
-          onClick={isSortable ? sortColumn : undefined}
-        >
-          {title}
-        </th>
+    <th
+      {...tableProps.column.getHeaderProps()}
+      className={clsx(
+        className,
+        isSelectedForSorting && order !== undefined && `table-sort-${order}`
+      )}
+      style={{cursor: 'pointer'}}
+      onClick={sortColumn}
+    >
+      {title}
+    </th>
   )
 }
 
-export {TicketCustomHeader}
+export {PartCustomHeader}

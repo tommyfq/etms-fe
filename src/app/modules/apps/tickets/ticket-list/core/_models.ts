@@ -16,6 +16,7 @@ export type TicketList = {
   priority?: string
   createdAt?: string
   on_hold?: boolean
+  case_category?: string
 }
 
 export type Ticket = {

@@ -324,12 +324,17 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       try {
+        console.log("===PART===");
+        console.log(isPartSelected);
+        console.log("===CASE_CATEGORY===");
+        console.log(isDiagnosticSelected);
+        console.log(values);
         if(isSwapAsset){
           values.swap_asset_id = selectedSwapAsset?.asset_id
         }
-        const response = await updateTicket(values);
-        setResultResponse(response);
-        handleAlert(response)
+        //const response = await updateTicket(values);
+        //setResultResponse(response);
+        //handleAlert(response)
       } catch (ex) {
         setSubmitting(false);
       }
@@ -619,7 +624,13 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               {ticket.part_id == null && 
                 <div className="fv-row">
                 <label className='required form-label fw-bold'>Part</label>
-                <Creatable
+                <Select 
+                    styles={customStyles} 
+                    name="part_id" 
+                    options={partOptions}
+                    onChange={handleSelectPartChange}
+                  />
+                {/* <Creatable
                   styles={customStyles}
                   name="part_id"
                   options={partOptions}
@@ -627,7 +638,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                   onChange={handleSelectPartChange}
                   onCreateOption={handleCreatePart} // Handle new option creation
                   isClearable
-                />
+                /> */}
                 {formik.touched.part_id && formik.errors.part_id && (
                   <div className='fv-plugins-message-container'>
                     <div className='fv-help-block'>
@@ -737,7 +748,13 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 {ticket.part_id == null && 
                   <div className="fv-row">
                     <label className='required form-label fw-bold'>Case Category</label>
-                    <Creatable 
+                    <Select 
+                      styles={customStyles} 
+                      name="diagnostic_id" 
+                      options={diagnosticOptions}
+                      onChange={handleSelectDiagnostic}
+                    />
+                    {/* <Creatable 
                     styles={customStyles} 
                     name="diagnostic_id" 
                     options={diagnosticOptions}
@@ -745,7 +762,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                     onChange={handleSelectDiagnostic}
                     onCreateOption={handleCreateDiagnostic} // Handle new option creation
                     isClearable
-                    />
+                    /> */}
                     {formik.touched.diagnostic_id && formik.errors.diagnostic_id && (
                     <div className='fv-plugins-message-container'>
                         <div className='fv-help-block'>
@@ -910,8 +927,9 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 !formik.touched || 
                 statusSelected == "" || 
                 (statusSelected != "Rejected" && !prioritySelected) || 
-                (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) 
-              ) && (ticket.status == "Open" || (!isCommentClientChange && !isCommentInternalChange || !isPartSelected || !isDiagnosticSelected)) 
+                (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) || 
+                (ticket.status === "Open" && (!isPartSelected || !isDiagnosticSelected))
+              ) 
               }
             >
               <span className='indicator-label'>Submit</span>

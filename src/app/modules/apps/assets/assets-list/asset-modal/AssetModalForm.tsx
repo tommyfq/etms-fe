@@ -2,6 +2,7 @@
 import {FC, useState, useEffect} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
+import {Link} from 'react-router-dom'
 // import {isNotEmpty} from '../../../../../../_metronic/helpers'
 import {Asset, initialAsset, AssetLog} from '../core/_models'
 import clsx from 'clsx'
@@ -129,15 +130,16 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
         setDCOptions(formattedDCOptions)
 
         if(asset?.dc_id != 0){
-
             
             const logs = await getAssetLogById(asset.id)
             const formattedLogs = logs.data?.map((log:AssetLog) => ({
+              ticket_id: log.ticket_id,
+              ticket_no: log.ticket_no,
               complain_at: log.complain_at,
               diagnostic_name: log.diagnostic_name,
               part_name: log.part_name,
               serial_number: log.serial_number,
-              status: log.status
+              status: log.status,
             })) || []
 
             setAssetLog(formattedLogs)
@@ -567,6 +569,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                       {/* begin::Table head */}
                       <thead>
                         <tr className='fw-bold text-muted bg-light'>
+                          <th className='min-w-125px'>Ticket No</th>
                           <th className='min-w-125px'>Complain At</th>
                           <th className='min-w-125px'>Case Category</th>
                           <th className='min-w-200px'>Part</th>
@@ -610,6 +613,13 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
 
                           return (
                             <tr key={index}>
+                              <td>
+                                <div className="text-gray-900 fw-bold d-block mb-1 fs-6">
+                                  <Link to={`/apps/tickets/list?id=${log.ticket_id}`} className='btn btn-sm btn-primary fw-bold'>
+                                    {log.ticket_no}
+                                  </Link>
+                                </div>
+                              </td>
                               <td>
                                 <div className="text-gray-900 fw-bold d-block mb-1 fs-6">
                                   {log.complain_at || '-'}

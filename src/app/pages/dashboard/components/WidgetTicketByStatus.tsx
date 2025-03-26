@@ -75,7 +75,9 @@ const WidgetTicketByStatus: FC<Props> = ({className, color}) => {
               {/* begin::Title */}
               <div className='mb-1 pe-3 flex-grow-1'>
                 <div className='fs-5 text-gray-800 fw-bold'>
-                  {toCamelCase(ticket.status)}
+                  {/* <Link to={`/apps/ticket/list?status=`+ticket.status} > */}
+                    {toCamelCase(ticket.status)}
+                  {/* </Link> */}
                 </div>
               </div>
               {/* end::Title */}

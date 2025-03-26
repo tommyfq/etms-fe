@@ -17,6 +17,7 @@ const ListViewContext = createContext<ListViewContextProps>(initialListView)
 const ListViewProvider: FC<WithChildren> = ({children}) => {
   const [selected, setSelected] = useState<Array<ID>>(initialListView.selected)
   const [itemIdForUpdate, setItemIdForUpdate] = useState<ID>(initialListView.itemIdForUpdate)
+  const [assetId, setAssetId] = useState<ID>(initialListView.assetId)
   const [ticketNo, setTicketNo] = useState<string>(''); // Initialize ticketNo appropriately
   const { isLoading } = useQueryResponse(); // Assume this hook fetches loading state
   const data = useQueryResponseData(); // Assume this hook fetches data
@@ -29,6 +30,8 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
       selected,
       itemIdForUpdate,
       setItemIdForUpdate,
+      assetId,
+      setAssetId,
       disabled,
       isAllSelected,
       ticketNo,

@@ -12,7 +12,7 @@ import { TicketActionCell } from './TicketActionCell'
 import { StatusColumnCell } from './StatusColumnCell'
 import { TicketAssetColumn } from './TicketAssetColumn'
 import { TicketStoreColumn } from './TicketStoreColumn'
-import { TicketCategoryColumn } from './TicketCategoryColumnCell'
+import { TicketNoColumnCell } from './TicketNoColumnCell'
 
 const ticketsColumns: ReadonlyArray<Column<TicketList>> = [
 //   {
@@ -23,7 +23,7 @@ const ticketsColumns: ReadonlyArray<Column<TicketList>> = [
   {
     Header: (props) => <TicketCustomHeader tableProps={props} title='Ticket No' className='min-w-125px' />,
     id: 'ticket_no',
-    Cell: ({...props}) => <InfoCell data={props.data[props.row.index].ticket_no} />,
+    Cell: ({...props}) => <TicketNoColumnCell data={props.data[props.row.index].ticket_no} id={props.data[props.row.index].id}/>,
   },
   {
     Header: (props) => (
@@ -54,14 +54,6 @@ const ticketsColumns: ReadonlyArray<Column<TicketList>> = [
     ),
     id: 'created_at',
     Cell: ({...props}) => <InfoCell data={props.data[props.row.index].createdAt} />,
-  },
-  {
-    Header: (props) => <TicketCustomHeader tableProps={props} title='Category' className='min-w-125px' />,
-    id: 'category',
-    Cell: ({...props}) => <TicketCategoryColumn 
-      case_category={props.data[props.row.index].case_category} 
-      part={props.data[props.row.index].part_name}
-    />,
   },
   {
     Header: (props) => <TicketCustomHeader tableProps={props} title='Asset' className='min-w-125px' />,

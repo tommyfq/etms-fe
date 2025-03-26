@@ -8,12 +8,26 @@ import {KTCard} from '../../../../../_metronic/helpers'
 import { ToolbarWrapper } from '../../../../../_metronic/layout/components/toolbar'
 import { Content } from '../../../../../_metronic/layout/components/content'
 import { TicketModal } from './ticket-modal/TicketModal'
+import { TicketAssetLogForm } from './ticket-modal/TicketAssetLogForm'
 // import {CardsWidgetTicket} from './components/CardsWidgetTicket.tsx'
 // import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 
 const TicketList = () => {
-  const {itemIdForUpdate} = useListView()
+  const {itemIdForUpdate, setItemIdForUpdate, assetId } = useListView()
+  const [searchParams] = useSearchParams()
+
+  const ticketId = searchParams.get('id')
+  let parsedTicketId: number
+
+  if (ticketId) {
+    parsedTicketId = isNaN(Number(ticketId)) ? 0 : Number(ticketId)
+    if (itemIdForUpdate !== parsedTicketId) {
+      setItemIdForUpdate(parsedTicketId)
+    }
+  }
+
   return (
     <>
       <KTCard>
@@ -21,6 +35,7 @@ const TicketList = () => {
         <TicketTable />
       </KTCard>
       {itemIdForUpdate !== undefined && <TicketModal />}
+      {assetId !== undefined && <TicketAssetLogForm /> }
     </>
   )
 }

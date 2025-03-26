@@ -32,6 +32,8 @@ export const initialAsset: Asset = {
 }
 
 export type AssetLog = {
+  ticket_id?: ID,
+  ticket_no?: string,
   complain_at?: string
   diagnostic_name?: string
   part_name?: string

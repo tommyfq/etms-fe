@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import {KTIcon} from '../../../../../../_metronic/helpers'
 import {useListView} from '../core/ListViewProvider'
 
 const TicketModalHeader = () => {
+  const navigate = useNavigate()
   const {setItemIdForUpdate, ticketNo} = useListView()
 
   return (
@@ -14,7 +16,10 @@ const TicketModalHeader = () => {
       <div
         className='btn btn-icon btn-sm btn-active-icon-primary'
         data-kt-users-modal-action='close'
-        onClick={() => setItemIdForUpdate(undefined)}
+        onClick={() => {
+          setItemIdForUpdate(undefined)
+          navigate('/apps/tickets/list')
+        }}
         style={{cursor: 'pointer'}}
       >
         <KTIcon iconName='cross' className='fs-1' />

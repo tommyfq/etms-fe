@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
-import { TicketQueryResponse, Ticket, TicketDetail, AssetQueryResponse, OverviewTicketQueryResponse, PartQueryResponse, StatusQueryResponse, DiagnosticQueryResponse } from "./_models";
+import { TicketQueryResponse, Ticket, TicketDetail, AssetQueryResponse, OverviewTicketQueryResponse, PartQueryResponse, StatusQueryResponse, DiagnosticQueryResponse, AssetLogQueryResponse } from "./_models";
 import api from "../../../../../services/api"
 
 const getTicket = (query: string): Promise<TicketQueryResponse> => {
@@ -69,6 +69,12 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
     });
   }
 
+  const getAssetLogById = (id: ID): Promise<AssetLogQueryResponse> => {
+    return api
+      .get(`/asset/detail-log/${id}`)
+      .then((response: AxiosResponse<AssetLogQueryResponse>) => response.data)
+  };
+
 // const uploadFile = (formData: any): Promise<any | undefined> => {
 //   return api
 //     .patch(`/api/store/upload`, formData)
@@ -85,6 +91,7 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
 // };
 
 export {
+    getAssetLogById,
     getTicket,
     getTicketById,
     createTicket,

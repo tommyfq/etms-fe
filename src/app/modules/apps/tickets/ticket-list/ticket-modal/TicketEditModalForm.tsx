@@ -9,13 +9,13 @@ import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
 import { updateTicket, getListAsset, getListPart, getListDiagnostics } from '../core/_request'
 import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
-import Creatable from 'react-select/creatable';
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import ImageModal from '../../../../../components/ImageModal'
 import { useAuth, AuthModelUser } from '../../../../auth'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   isUserLoading: boolean
@@ -127,7 +127,7 @@ const editUserSchema = Yup.object().shape({
 })
 
 const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
-  const {setItemIdForUpdate, setTicketNo} = useListView()
+  const {setItemIdForUpdate, setTicketNo, setAssetId} = useListView()
   const {refetch} = useQueryResponse()
   const {currentUser} = useAuth()
   const [statusSelected, setStatusSelected] = useState<string>("")
@@ -148,6 +148,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   const [selectedImage, setSelectedImage] = useState<string>();
   const [user, setUser] = useState<AuthModelUser>();
+  const navigate = useNavigate();
 
   const handleImageClick = (url:string) => {
     setSelectedImage(url); // Set the selected image URL
@@ -241,6 +242,10 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
       formik.setFieldValue('diagnostic_name', selectedOption ? selectedOption.label : null);
     };
 
+    const handleOpenModal = (id: number) => {
+      setAssetId(id)
+    }
+
   const handleAlert = (response:{is_ok:boolean, message:string}) => {
     let title = "Error!";
     let icon:SweetAlertIcon= "error";
@@ -324,17 +329,12 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
       try {
-        console.log("===PART===");
-        console.log(isPartSelected);
-        console.log("===CASE_CATEGORY===");
-        console.log(isDiagnosticSelected);
-        console.log(values);
         if(isSwapAsset){
           values.swap_asset_id = selectedSwapAsset?.asset_id
         }
-        //const response = await updateTicket(values);
-        //setResultResponse(response);
-        //handleAlert(response)
+        const response = await updateTicket(values);
+        setResultResponse(response);
+        handleAlert(response)
       } catch (ex) {
         setSubmitting(false);
       }
@@ -375,6 +375,8 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
  }, [formik.values.comment_client, formik.values.comment_internal]);
 
   const handleStatusSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log("STATUS SELECTED")
+    console.log(event.target.value)
     setStatusSelected(event.target.value)
     formik.setFieldValue('status', event.target.value || null);
     if(event.target.value != "Closed"){
@@ -400,16 +402,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     })
     setSelectedSwapAsset(selected)
     setSelectedOptionAsset(selectedOption)
-  };
-
-  const handleCreatePart = (inputValue: string) => {
-    const newOption: Option = { value: 0, label: inputValue };
-    setPartOptions((prevOptions) => [...prevOptions, newOption]); // Add new option
-  };
-
-  const handleCreateDiagnostic = (inputValue: string) => {
-    const newOption: Option = { value: 0, label: inputValue };
-    setDiagnosticOptions((prevOptions) => [...prevOptions, newOption]); // Add new option
   };
 
   return (
@@ -525,7 +517,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                     </div>
                 </div>
             </div>
-            { statusSelected == "Closed" && 
+            { statusSelected == "closed" && 
               <div className="row mb-7">
                 <div className="col-12 col-lg-4">
                   <div className="fv-row">
@@ -542,7 +534,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                     </div>
                   </div>
                 </div>
-                <div className="col-12 col-lg-4">
+                <div className="col-12 col-lg-8">
                   <div className="fv-row">
                     <label className='form-label fw-bold'>List Swap Asset</label>
                     <Select 
@@ -620,10 +612,66 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                     />
                 </div>
               </div>
+              <div className="col-12 col-md-6">
+                {ticket.diagnostic_id == null && 
+                  <div className="fv-row">
+                    <label className={`${statusSelected === 'closed' ? 'required' : ''} form-label fw-bold`}>Case Category</label>
+                    <Select 
+                      styles={customStyles} 
+                      name="diagnostic_id" 
+                      options={diagnosticOptions}
+                      onChange={handleSelectDiagnostic}
+                    />
+                    {formik.touched.diagnostic_id && formik.errors.diagnostic_id && (
+                    <div className='fv-plugins-message-container'>
+                        <div className='fv-help-block'>
+                        <span role='alert'>{formik.errors.diagnostic_id}</span>
+                        </div>
+                    </div>
+                    )}
+                  </div>
+                }
+                {ticket.diagnostic_id != null && 
+                  <div className='fv-row'>
+                    <label className='required fw-bold fs-6 mb-2'>Case Category</label>
+                    <input
+                    placeholder='Case Category'
+                    {...formik.getFieldProps('diagnostic_name')}
+                    type='text'
+                    name='diagnostic_name'
+                    className={clsx(
+                        'form-control form-control-solid mb-3 mb-lg-0',
+                    )}
+                    autoComplete='off'
+                    readOnly={true}
+                    //style={styles.formControlDisabled}
+                    />
+                </div>
+                }
+              </div>
+            </div>
+            
+            <div className="row mb-7">
+              <div className="col-12 col-md-6">
+                <div className='fv-row'>
+                  <label className='required fw-bold fs-6 mb-2'>Due Date</label>
+                  <input
+                  placeholder='Due Date'
+                  {...formik.getFieldProps('due_date')}
+                  type='date'
+                  name='due_date'
+                  className={clsx(
+                      'form-control form-control-solid mb-3 mb-lg-0',
+                  )}
+                  autoComplete='off'
+                  readOnly={true}
+                  />
+                </div>
+              </div>
               <div className="col-12 col-lg-6">
               {ticket.part_id == null && 
                 <div className="fv-row">
-                <label className='required form-label fw-bold'>Part</label>
+                <label className={`${statusSelected === 'closed' ? 'required' : ''} form-label fw-bold`}>Part</label>
                 <Select 
                     styles={customStyles} 
                     name="part_id" 
@@ -650,7 +698,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
               }
               {ticket.part_id != null && 
                 <div className='fv-row'>
-                  <label className='required fw-bold fs-6 mb-2'>Part</label>
+                  <label className={`required fw-bold fs-6 mb-2`}>Part</label>
                   <input
                   placeholder='Part'
                   {...formik.getFieldProps('part_name')}
@@ -701,10 +749,28 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             </div>
                         </div>
 
-                        <div className='row'>
+                        <div className='row mb-3'>
                             <label className='col-lg-4 fw-bold text-muted'>Store</label>
                             <div className='col-lg-8'>
                                 <span className='fw-bolder fs-6 text-gray-900'>{ticket.store_name}</span>
+                            </div>
+                        </div>
+                        <div className='row'>
+                            <label className='col-lg-4 fw-bold text-muted'>History Asset Log</label>
+                            <div className='col-lg-8'>
+                                <button className='btn btn-sm btn-primary'
+                                type="button" 
+                                style={{padding:0,width:'50px'}} 
+                                onClick={() => {
+                                  if (ticket?.asset_id !== undefined) {
+                                    handleOpenModal(ticket.asset_id);
+                                  } else {
+                                    console.log("asset_id is undefined");
+                                  }
+                                }}
+                                >
+                                  Show
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -724,71 +790,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                         readOnly={true}
                     />
                 </div>
-              </div>
-            </div>
-            
-            <div className="row mb-7">
-              <div className="col-12 col-md-6">
-                <div className='fv-row'>
-                  <label className='required fw-bold fs-6 mb-2'>Due Date</label>
-                  <input
-                  placeholder='Due Date'
-                  {...formik.getFieldProps('due_date')}
-                  type='date'
-                  name='due_date'
-                  className={clsx(
-                      'form-control form-control-solid mb-3 mb-lg-0',
-                  )}
-                  autoComplete='off'
-                  readOnly={true}
-                  />
-                </div>
-              </div>
-              <div className="col-12 col-md-6">
-                {ticket.part_id == null && 
-                  <div className="fv-row">
-                    <label className='required form-label fw-bold'>Case Category</label>
-                    <Select 
-                      styles={customStyles} 
-                      name="diagnostic_id" 
-                      options={diagnosticOptions}
-                      onChange={handleSelectDiagnostic}
-                    />
-                    {/* <Creatable 
-                    styles={customStyles} 
-                    name="diagnostic_id" 
-                    options={diagnosticOptions}
-                    //value={partOptions.find(option => option.value === formik.values.diagnostic_id) || null}
-                    onChange={handleSelectDiagnostic}
-                    onCreateOption={handleCreateDiagnostic} // Handle new option creation
-                    isClearable
-                    /> */}
-                    {formik.touched.diagnostic_id && formik.errors.diagnostic_id && (
-                    <div className='fv-plugins-message-container'>
-                        <div className='fv-help-block'>
-                        <span role='alert'>{formik.errors.diagnostic_id}</span>
-                        </div>
-                    </div>
-                    )}
-                  </div>
-                }
-                {ticket.diagnostic_id != null && 
-                  <div className='fv-row'>
-                    <label className='required fw-bold fs-6 mb-2'>Case Category</label>
-                    <input
-                    placeholder='Case Category'
-                    {...formik.getFieldProps('diagnostic_name')}
-                    type='text'
-                    name='diagnostic_name'
-                    className={clsx(
-                        'form-control form-control-solid mb-3 mb-lg-0',
-                    )}
-                    autoComplete='off'
-                    readOnly={true}
-                    //style={styles.formControlDisabled}
-                    />
-                </div>
-                }
               </div>
             </div>
             <div className="row mb-7">
@@ -906,7 +907,11 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
         <div className='text-center pt-15'>
           <button
             type='reset'
-            onClick={() => cancel(true)}
+            onClick={() => {
+              setItemIdForUpdate(undefined)
+              navigate('/apps/tickets/list')
+              cancel(true)
+            }}
             className='btn btn-light me-3'
             data-kt-users-modal-action='cancel'
             disabled={formik.isSubmitting || isUserLoading}
@@ -915,7 +920,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
           </button>
 
           {
-            (!["Rejected", "Closed", "Cancel"].includes(ticket.status ?? "") && user?.role_name != "client") && 
+            (!["rejected", "closed", "cancel"].includes(ticket.status ?? "") && user?.role_name != "client") && 
             <button
               type='submit'
               className='btn btn-primary me-3'
@@ -926,9 +931,9 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 !formik.isValid || 
                 !formik.touched || 
                 statusSelected == "" || 
-                (statusSelected != "Rejected" && !prioritySelected) || 
-                (statusSelected == "Closed" && !selectedSwapAsset && isSwapAsset) || 
-                (ticket.status === "Open" && (!isPartSelected || !isDiagnosticSelected))
+                (statusSelected != "rejected" && !prioritySelected) || 
+                (statusSelected == "closed" && !selectedSwapAsset && isSwapAsset) || 
+                (statusSelected === "closed" && (!isPartSelected || !isDiagnosticSelected))
               ) 
               }
             >

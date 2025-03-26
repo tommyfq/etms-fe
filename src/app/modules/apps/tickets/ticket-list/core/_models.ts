@@ -144,3 +144,15 @@ export type OverviewTicket = {
 }
 
 export type OverviewTicketQueryResponse = Response<Array<OverviewTicket>>
+
+export type AssetLog = {
+    ticket_id?: ID,
+    ticket_no?: string,
+    complain_at?: string
+    diagnostic_name?: string
+    part_name?: string
+    serial_number?: string
+    status?: string
+  }
+  
+  export type AssetLogQueryResponse = Response<Array<AssetLog>>

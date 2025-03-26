@@ -18,9 +18,9 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
   const [selected, setSelected] = useState<Array<ID>>(initialListView.selected)
   const [itemIdForUpdate, setItemIdForUpdate] = useState<ID>(initialListView.itemIdForUpdate)
   const [assetId, setAssetId] = useState<ID>(initialListView.assetId)
-  const [ticketNo, setTicketNo] = useState<string>(''); // Initialize ticketNo appropriately
-  const { isLoading } = useQueryResponse(); // Assume this hook fetches loading state
-  const data = useQueryResponseData(); // Assume this hook fetches data
+  const [ticketNo, setTicketNo] = useState<string>('');
+  const {isLoading} = useQueryResponse()
+  const data = useQueryResponseData()
   const disabled = useMemo(() => calculatedGroupingIsDisabled(isLoading, data), [isLoading, data])
   const isAllSelected = useMemo(() => calculateIsAllDataSelected(data, selected), [data, selected])
 
@@ -32,8 +32,8 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
       setItemIdForUpdate,
       assetId,
       setAssetId,
-      disabled,
       isAllSelected,
+      disabled,
       ticketNo,
       setTicketNo,
       onSelect: (id: ID) => {

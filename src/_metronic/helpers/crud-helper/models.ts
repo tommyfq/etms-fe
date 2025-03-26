@@ -68,8 +68,8 @@ export type ListViewContextProps = {
   // UNDEFINED => MODAL IS CLOSED
   itemIdForUpdate?: ID
   setItemIdForUpdate: Dispatch<SetStateAction<ID>>
-  assetId?:ID,
-  setAssetId:Dispatch<SetStateAction<ID>>
+  assetId?:ID
+  setAssetId: Dispatch<SetStateAction<ID>>
   isAllSelected: boolean
   disabled: boolean
   ticketNo: string
@@ -81,7 +81,9 @@ export const initialListView: ListViewContextProps = {
   onSelect: () => {},
   onSelectAll: () => {},
   clearSelected: () => {},
+  itemIdForUpdate: undefined,
   setItemIdForUpdate: () => {},
+  assetId: undefined,
   setAssetId: () => {},
   isAllSelected: false,
   disabled: false,

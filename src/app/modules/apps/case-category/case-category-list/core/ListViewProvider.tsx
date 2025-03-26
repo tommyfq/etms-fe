@@ -32,8 +32,8 @@ const ListViewProvider: FC<WithChildren> = ({children}) => {
       setItemIdForUpdate,
       assetId,
       setAssetId,
-      disabled,
       isAllSelected,
+      disabled,
       ticketNo,
       setTicketNo,
       onSelect: (id: ID) => {

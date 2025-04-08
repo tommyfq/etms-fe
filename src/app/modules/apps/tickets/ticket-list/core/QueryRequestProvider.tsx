@@ -6,11 +6,23 @@ import {
   initialQueryRequest,
   WithChildren,
 } from '../../../../../../_metronic/helpers'
+import { useSearchParams } from 'react-router-dom'
 
 const QueryRequestContext = createContext<QueryRequestContextProps>(initialQueryRequest)
 
 const QueryRequestProvider: FC<WithChildren> = ({children}) => {
-  const [state, setState] = useState<QueryState>(initialQueryRequest.state)
+  //const [state, setState] = useState<QueryState>(initialQueryRequest.state)
+
+  const [searchParams] = useSearchParams()
+
+  const initialStatus = searchParams.get('status') || undefined
+
+  const [state, setState] = useState<QueryState>({
+    ...initialQueryRequest.state,
+    filter: {
+      status: initialStatus,
+    },
+  })
 
   const updateState = (updates: Partial<QueryState>) => {
     const updatedState = {...state, ...updates} as QueryState

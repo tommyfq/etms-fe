@@ -4,6 +4,7 @@ import {KTIcon} from '../../../../_metronic/helpers'
 import { getTicketCountByStatus } from '../core/_requests'
 import { TicketCounts } from '../core/_models'
 import { toCamelCase } from '../../../helpers/helper'
+import {Link} from 'react-router-dom'
 
 type Props = {
   className: string
@@ -73,13 +74,17 @@ const WidgetTicketByStatus: FC<Props> = ({className, color}) => {
             {/* begin::Description */}
             <div className='d-flex align-items-center flex-wrap w-100'>
               {/* begin::Title */}
+              
               <div className='mb-1 pe-3 flex-grow-1'>
                 <div className='fs-5 text-gray-800 fw-bold'>
+                <Link to={`/apps/tickets/list?status=${ticket.status}`} className="text-black text-hover-primary">
                   {/* <Link to={`/apps/ticket/list?status=`+ticket.status} > */}
                     {toCamelCase(ticket.status)}
+                </Link>
                   {/* </Link> */}
                 </div>
               </div>
+              
               {/* end::Title */}
               {/* begin::Label */}
               <div className='d-flex align-items-center'>

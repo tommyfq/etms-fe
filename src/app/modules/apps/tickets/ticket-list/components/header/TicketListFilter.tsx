@@ -6,6 +6,7 @@ import {getListStatus} from '../../core/_request'
 import Select, { StylesConfig, ActionMeta, SingleValue } from 'react-select'
 import { hashStringToNumber } from '../../../../../../helpers/helper'
 import clsx from 'clsx'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 
 type Option = { value: number; label: string };
 
@@ -75,6 +76,9 @@ const TicketListFilter = () => {
   
     const [fromDate, setFromDate] = useState<string>('')
     const [toDate, setToDate] = useState<string>('')
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const initialStatus = searchParams.get('status') || undefined
 
     useEffect(() => {
         // const handleClickOutside = (event:any) => {
@@ -96,6 +100,10 @@ const TicketListFilter = () => {
               }
             }) || []
             setStatusOptions(formattedStatusOptions)
+
+            if(initialStatus != ""){
+              setSelectedStatus(initialStatus)
+            }
 
             // const dcs = await getListAllDC([])
             // const formattedOptions = dcs.data?.map((r): Option => {
@@ -126,13 +134,21 @@ const TicketListFilter = () => {
         setSelectedStatus("")
         setFromDate("")
         setToDate("")
+
+        if(initialStatus != ""){
+          navigate('/apps/tickets/list')
+        }
+        
         updateState({filter: undefined, ...initialQueryState})
       }
     
       const filterData = () => {
         console.log(selectedStatus)
         //const is_active = isActive
-        
+        if(initialStatus != ""){
+          navigate('/apps/tickets/list')
+        }
+
         updateState({
           filter: {status: selectedStatus, part: selectedPart, from_date:fromDate, to_date:toDate},
           ...initialQueryState,

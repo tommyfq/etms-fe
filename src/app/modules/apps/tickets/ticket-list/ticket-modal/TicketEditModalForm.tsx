@@ -194,6 +194,14 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
       setPrioritySelected(true)
     }
 
+    if(ticket.part_id){
+      setIsPartSelected(true)
+    }
+
+    if(ticket.diagnostic_id){
+      setIsDiagnosticSelected(true)
+    }
+
     const fetchInitialData = async() => {
       const parts = await getListPart()
       const formattedPartOptions = parts.data?.map((part): Option => ({ 
@@ -295,6 +303,8 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const handleIsSwapAsset = async (event: React.ChangeEvent<HTMLInputElement>) => {
     // Get the checkbox value (whether checked or not)
     const { checked } = event.target;
+    console.log("IS SWAP ASSET : "+checked)
+  
     if(checked){
       const assets = await getListAsset()
       const formattedOptions = assets.data?.map((asset): Option => ({ 
@@ -328,16 +338,42 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
-      try {
-        if(isSwapAsset){
-          values.swap_asset_id = selectedSwapAsset?.asset_id
-        }
-        const response = await updateTicket(values);
-        setResultResponse(response);
-        handleAlert(response)
-      } catch (ex) {
-        setSubmitting(false);
-      }
+      console.log("IS USER LOADING : " + isUserLoading)
+      console.log("FORMIK IS SUBMITTING : "+formik.isSubmitting)
+      console.log("FORMIK IS VALID : "+ !formik.isValid)
+      console.log("FORMIK TOUCHED : "+ !formik.touched)
+
+      console.log("STATUS SELECTED : "+ statusSelected)
+      console.log("PRIORITY SELECTED : "+ !prioritySelected)
+      console.log((statusSelected != "rejected" && !prioritySelected))
+      
+      console.log("SELECTED SWAP ASSET : " + !selectedSwapAsset)
+      console.log("IS SWAP ASSET : "+ !isSwapAsset)
+      console.log((statusSelected === "closed" && !selectedSwapAsset && !isSwapAsset))
+      
+      console.log("IS DIAGNOSTIC SELECTED : "+ !isDiagnosticSelected)
+      console.log("IS PART SELECTED : "+ !isPartSelected)
+      console.log(statusSelected === "closed" && (!isPartSelected || !isDiagnosticSelected))
+      console.log(
+        isUserLoading || 
+        formik.isSubmitting || 
+        !formik.isValid || 
+        !formik.touched || 
+        statusSelected == "" || 
+        (statusSelected != "rejected" && !prioritySelected) || 
+        (statusSelected === "closed" && !selectedSwapAsset && isSwapAsset) || 
+        (statusSelected === "closed" && (!isPartSelected || !isDiagnosticSelected))
+      )
+      // try {
+      //   if(isSwapAsset){
+      //     values.swap_asset_id = selectedSwapAsset?.asset_id
+      //   }
+      //   const response = await updateTicket(values);
+      //   setResultResponse(response);
+      //   handleAlert(response)
+      // } catch (ex) {
+      //   setSubmitting(false);
+      // }
     },
   })
 
@@ -375,8 +411,6 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
  }, [formik.values.comment_client, formik.values.comment_internal]);
 
   const handleStatusSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("STATUS SELECTED")
-    console.log(event.target.value)
     setStatusSelected(event.target.value)
     formik.setFieldValue('status', event.target.value || null);
     if(event.target.value != "Closed"){
@@ -920,7 +954,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
           </button>
 
           {
-            (!["rejected", "closed", "cancel"].includes(ticket.status ?? "") && user?.role_name != "client") && 
+            (!["rejected", "closed", "cancel"].includes(ticket.status ?? "") && !["client","super_client"].includes(currentUser?.role_name ?? "")) && 
             <button
               type='submit'
               className='btn btn-primary me-3'
@@ -932,7 +966,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                 !formik.touched || 
                 statusSelected == "" || 
                 (statusSelected != "rejected" && !prioritySelected) || 
-                (statusSelected == "closed" && !selectedSwapAsset && isSwapAsset) || 
+                (statusSelected === "closed" && !selectedSwapAsset && isSwapAsset) || 
                 (statusSelected === "closed" && (!isPartSelected || !isDiagnosticSelected))
               ) 
               }

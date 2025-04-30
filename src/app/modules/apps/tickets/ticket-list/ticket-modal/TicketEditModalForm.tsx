@@ -338,42 +338,17 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     validationSchema: editUserSchema,
     onSubmit: async (values, {setSubmitting}) => {
       setSubmitting(true)
-      console.log("IS USER LOADING : " + isUserLoading)
-      console.log("FORMIK IS SUBMITTING : "+formik.isSubmitting)
-      console.log("FORMIK IS VALID : "+ !formik.isValid)
-      console.log("FORMIK TOUCHED : "+ !formik.touched)
 
-      console.log("STATUS SELECTED : "+ statusSelected)
-      console.log("PRIORITY SELECTED : "+ !prioritySelected)
-      console.log((statusSelected != "rejected" && !prioritySelected))
-      
-      console.log("SELECTED SWAP ASSET : " + !selectedSwapAsset)
-      console.log("IS SWAP ASSET : "+ !isSwapAsset)
-      console.log((statusSelected === "closed" && !selectedSwapAsset && !isSwapAsset))
-      
-      console.log("IS DIAGNOSTIC SELECTED : "+ !isDiagnosticSelected)
-      console.log("IS PART SELECTED : "+ !isPartSelected)
-      console.log(statusSelected === "closed" && (!isPartSelected || !isDiagnosticSelected))
-      console.log(
-        isUserLoading || 
-        formik.isSubmitting || 
-        !formik.isValid || 
-        !formik.touched || 
-        statusSelected == "" || 
-        (statusSelected != "rejected" && !prioritySelected) || 
-        (statusSelected === "closed" && !selectedSwapAsset && isSwapAsset) || 
-        (statusSelected === "closed" && (!isPartSelected || !isDiagnosticSelected))
-      )
-      // try {
-      //   if(isSwapAsset){
-      //     values.swap_asset_id = selectedSwapAsset?.asset_id
-      //   }
-      //   const response = await updateTicket(values);
-      //   setResultResponse(response);
-      //   handleAlert(response)
-      // } catch (ex) {
-      //   setSubmitting(false);
-      // }
+      try {
+        if(isSwapAsset){
+          values.swap_asset_id = selectedSwapAsset?.asset_id
+        }
+        const response = await updateTicket(values);
+        setResultResponse(response);
+        handleAlert(response)
+      } catch (ex) {
+        setSubmitting(false);
+      }
     },
   })
 

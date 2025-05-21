@@ -205,8 +205,8 @@ const StoreListFilter = () => {
     console.log(actionMeta)
     setSelectedComp([(selectedOption as Option).value])
 
-    const dcs = await getListAllDC(arrComp)
-    const formattedOptions = dcs.data?.map((r): Option => {
+    const resp = await getListAllDC(arrComp)
+    const formattedOptions = resp.data?.dcs?.map((r): Option => {
       return {
         value: r.dc_id || 0,
         label: r.dc_name || "",

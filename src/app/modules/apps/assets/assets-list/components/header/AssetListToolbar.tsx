@@ -3,7 +3,7 @@ import {KTIcon} from '../../../../../../../_metronic/helpers'
 import {useListView} from '../../core/ListViewProvider'
 import { downloadExcelFile } from '../../core/_requests'
 import { AssetUploadModal } from './AssetUploadModal'
-// import {CompaniesListFilter} from './CompaniesListFilter'
+import {AssetListFilter} from './AssetListFilter'
 import { useAuth } from '../../../../../auth'
 
 const AssetListToolbar = () => {
@@ -25,14 +25,14 @@ const AssetListToolbar = () => {
   };
 
   useEffect(() => {
-    if(currentUser?.role_name == "admin"){
+    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client"){
       setReadOnly(false)
     }
   }, [])
 
   return (
     <div className='d-flex justify-content-end' style={{ width: '100%' }} data-kt-user-table-toolbar='base'>
-      {/* <CompaniesListFilter /> */}
+      <AssetListFilter />
 
       {/* begin::Export */}
       {/* <button type='button' className='btn btn-light-primary me-3'>

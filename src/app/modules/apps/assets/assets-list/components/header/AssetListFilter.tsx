@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect} from 'react';
 import {initialQueryState, KTIcon} from '../../../../../../../_metronic/helpers'
 import {useQueryRequest} from '../../core/QueryRequestProvider'
 import {useQueryResponse} from '../../core/QueryResponseProvider'
-import {getListAllDC, getListCompany} from '../../core/_requests'
+import {getListAllDC, getListCompany, getListAllStore} from '../../core/_requests'
 import Select, { StylesConfig, ActionMeta, SingleValue, MultiValue } from 'react-select'
 import { useAuth } from '../../../../../auth'
 
@@ -53,10 +53,12 @@ const customStyles: StylesConfig<Option, true> = {
   })
 };
 
-const StoreListFilter = () => {
+const AssetListFilter = () => {
     const [openMenu, setOpenMenu] = useState(false);
+    const [storeOptions, setStoreOptions] = useState<Option[]>([])
     const [dcOptions, setDCOptions] = useState<Option[]>([])
     const [compOptions, setCompOptions] = useState<Option[]>([])
+    const [selectedStore, setSelectedStore] = useState<number[] | null>(null);
     const [selectedDC, setSelectedDC] = useState<number[] | null>(null);
     const [selectedComp, setSelectedComp] = useState<number[] | null>(null);
     const [isDisableDC, setIsDisableDC] = useState<boolean>(false)
@@ -75,6 +77,38 @@ const StoreListFilter = () => {
     const [isActive, setIsActive] = useState(true);
 
     useEffect(() => {
+
+        setRole(currentUser?.role_name ?? "")
+        
+        if(currentUser?.role_name != "admin"){
+            setSelectedComp(currentUser?.company_id ? [currentUser.company_id] : [0]);
+            const fetchDC = async () => {
+                try{
+                    const resp = await getListAllDC(currentUser?.company_id ? [currentUser.company_id] : [0])
+                    
+                    const formattedOptions = resp.data?.dcs?.map((r): Option => {
+                    return {
+                        value: r.dc_id || 0,
+                        label: r.dc_name || "",
+                    }
+                    }) || []
+                    setDCOptions(formattedOptions)
+
+                    const formattedStoreOptions = resp.data?.stores?.map((r): Option => {
+                    return {
+                        value: r.store_id || 0,
+                        label: r.store_name || "",
+                    }
+                    }) || []
+                    setStoreOptions(formattedStoreOptions)
+
+                }catch(error){
+                    console.error('Error fetching agents:', error)
+                }
+            }
+            fetchDC()
+        }
+
         // const handleClickOutside = (event:any) => {
         //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         //         setOpenMenu(false); // Close menu
@@ -82,9 +116,34 @@ const StoreListFilter = () => {
         //     }
         // };
 
-        setRole(currentUser?.role_name ?? "")
+        initialFetchData()
 
-        const fetchRole = async () => {
+        // document.addEventListener('mousedown', handleClickOutside);
+        // return () => {
+        //     document.removeEventListener('mousedown', handleClickOutside);
+        // };
+        
+    }, []);
+
+    const resetData = () => {
+        setSelectedComp(null)
+        setSelectedDC(null)
+        setSelectedStore(null)
+        setIsActive(true)
+        initialFetchData()
+        updateState({filter: undefined, ...initialQueryState})
+      }
+    
+      const filterData = () => {
+        //const is_active = isActive
+        updateState({
+          filter: {is_active : isActive, dcs: selectedDC, comp: selectedComp, store:selectedStore},
+          ...initialQueryState,
+        })
+      }
+    
+      const initialFetchData = async () => {
+        
           try {
             const companies = await getListCompany();
 
@@ -97,43 +156,28 @@ const StoreListFilter = () => {
             setCompOptions(formattedCompOptions)
 
             const resp = await getListAllDC([])
-            const formattedOptions = resp.data?.dcs?.map((r): Option => {
+            const formattedOptions = resp.data?.dcs.map((r): Option => {
               return {
                 value: r.dc_id || 0,
                 label: r.dc_name || "",
               }
             }) || []
             setDCOptions(formattedOptions)
+
+            const formattedStoreOptions = resp.data?.stores?.map((r): Option => {
+              return {
+                value: r.store_id || 0,
+                label: r.store_name || "",
+              }
+            }) || []
+            setStoreOptions(formattedStoreOptions)
     
           } catch (error) {
             console.error('Error fetching agents:', error)
           }
-        }
-    
-        fetchRole()
-
-        // document.addEventListener('mousedown', handleClickOutside);
-        // return () => {
-        //     document.removeEventListener('mousedown', handleClickOutside);
-        // };
         
-    }, []);
+      }
 
-    const resetData = () => {
-        setSelectedComp(null)
-        setSelectedDC(null)
-        setIsActive(true)
-        updateState({filter: undefined, ...initialQueryState})
-      }
-    
-      const filterData = () => {
-        //const is_active = isActive
-        updateState({
-          filter: {is_active : isActive, dcs: selectedDC, comp: selectedComp},
-          ...initialQueryState,
-        })
-      }
-    
       const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setIsActive(event.target.checked); // Update state based on checkbox status
         // You can perform additional actions here if needed
@@ -143,7 +187,55 @@ const StoreListFilter = () => {
     //     setCompany(event.target.value); // Update the selected role
     // };
 
-    const handleSelectChange = (
+    const handleSelectChange = async (
+        selectedOption: SingleValue<Option> | MultiValue<Option>,
+        actionMeta: ActionMeta<Option>
+      ) => {
+      console.log(actionMeta)
+      let dcIds: number[] = [];
+
+      if (Array.isArray(selectedOption)) {
+        console.log("IS ARRAY");
+        console.log(selectedOption)
+        // Multiple values for agents
+        dcIds = selectedOption.map((option) => option.value);
+        setSelectedDC(dcIds)
+
+      } else if (selectedOption){
+
+        dcIds = [(selectedOption as Option).value];
+        setSelectedDC(dcIds);
+        
+      } else {
+        setSelectedDC([])
+        // No selection
+      }
+
+      if(dcIds.length > 0){
+        const stores = await getListAllStore(dcIds)
+        const formattedOptions = stores.data?.map((r): Option => {
+        return {
+            value: r.store_id || 0,
+            label: r.store_name || "",
+        }
+        }) || []
+        setStoreOptions(formattedOptions)
+      }else{
+        const resp = await getListAllDC(selectedComp?? [])
+
+        const formattedStoreOptions = resp.data?.stores?.map((r): Option => {
+          return {
+            value: r.store_id || 0,
+            label: r.store_name || "",
+          }
+        }) || []
+        setStoreOptions(formattedStoreOptions)
+
+      }
+      
+    };
+
+    const handleSelectStoreChange = (
         selectedOption: SingleValue<Option> | MultiValue<Option>,
         actionMeta: ActionMeta<Option>
       ) => {
@@ -151,12 +243,12 @@ const StoreListFilter = () => {
 
       if (Array.isArray(selectedOption)) {
         // Multiple values for agents
-        setSelectedDC(selectedOption.map((option)=>option.value))
+        setSelectedStore(selectedOption.map((option)=>option.value))
       } else if (selectedOption){
 
-        setSelectedDC( [(selectedOption as Option).value])
+        setSelectedStore( [(selectedOption as Option).value])
       } else {
-        setSelectedDC([])
+        setSelectedStore([])
         // No selection
       }
     };
@@ -205,14 +297,23 @@ const StoreListFilter = () => {
     console.log(actionMeta)
     setSelectedComp([(selectedOption as Option).value])
 
-    const dcs = await getListAllDC(arrComp)
-    const formattedOptions = dcs.data?.map((r): Option => {
+    const resp = await getListAllDC(arrComp)
+    const formattedOptions = resp.data?.dcs?.map((r): Option => {
       return {
         value: r.dc_id || 0,
         label: r.dc_name || "",
       }
     }) || []
     setDCOptions(formattedOptions)
+
+    const formattedStoreOptions = resp.data?.stores?.map((r): Option => {
+      return {
+        value: r.store_id || 0,
+        label: r.store_name || "",
+      }
+    }) || []
+    setStoreOptions(formattedStoreOptions)
+
     setIsDisableDC(false)
   };
     
@@ -254,7 +355,7 @@ const StoreListFilter = () => {
 
           {
             role == "admin" && 
-              <div className='mb-10'>
+            <div className='mb-10'>
                 <label className='form-label fw-bold'>Company :</label>
                 <Select 
                     styles={customStyles} 
@@ -263,7 +364,7 @@ const StoreListFilter = () => {
                     value={compOptions.filter((option) => selectedComp?.includes(option.value))} // Ensure selected options are displayed
                     onChange={handleSelectCompChange}
                     />
-              </div>
+            </div>
           }
 
           <div className='mb-10'>
@@ -276,6 +377,18 @@ const StoreListFilter = () => {
                 onChange={handleSelectChange}
                 isMulti={true}
                 isDisabled={isDisableDC}
+                />
+          </div>
+
+          <div className='mb-10'>
+            <label className='form-label fw-bold'>Store :</label>
+            <Select 
+                styles={customStyles} 
+                name="store"
+                options={storeOptions}
+                value={storeOptions.filter((option) => selectedStore?.includes(option.value))} // Ensure selected options are displayed
+                onChange={handleSelectStoreChange}
+                isMulti={true}
                 />
           </div>
 
@@ -310,4 +423,4 @@ const StoreListFilter = () => {
     );
 };
 
-export {StoreListFilter};
+export {AssetListFilter};

@@ -34,7 +34,7 @@ const StoreListToolbar = () => {
   // };
 
   useEffect(() => {
-    if(currentUser?.role_name == "admin"){
+    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client"){
       setReadOnly(false)
     }
   }, [])

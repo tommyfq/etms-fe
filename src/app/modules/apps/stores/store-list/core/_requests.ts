@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
-import { Store, StoreQueryResponse, ListDCQueryResponse, ListCompanyQueryResponse } from "./_models";
+import { Store, StoreQueryResponse, ListDCQueryResponse, ListCompanyQueryResponse, ListDCStoreQueryResponse } from "./_models";
 import api from "../../../../../services/api"
 
 const getStore = (query: string): Promise<StoreQueryResponse> => {
@@ -15,10 +15,10 @@ const getListDC = (companyId:number): Promise<ListDCQueryResponse> => {
     .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
 }
 
-const getListAllDC = (comp:number[]): Promise<ListDCQueryResponse> => {
+const getListAllDC = (comp:number[]): Promise<ListDCStoreQueryResponse> => {
   return api
     .post(`/dc/list-option`,{filter_comp:comp})
-    .then((d: AxiosResponse<ListDCQueryResponse>) => {return d.data});
+    .then((d: AxiosResponse<ListDCStoreQueryResponse>) => {return d.data});
 }
 
 const getListCompany = (): Promise<ListCompanyQueryResponse> => {

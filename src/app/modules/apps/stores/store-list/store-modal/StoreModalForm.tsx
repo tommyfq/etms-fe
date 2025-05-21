@@ -115,7 +115,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
     }
 
     fetchRole()
-    if(currentUser?.role_name == "admin"){
+    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client"){
       setReadOnly(false)
     }
   }, [])

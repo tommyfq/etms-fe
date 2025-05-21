@@ -65,3 +65,17 @@ export type ListModel = {
 }
 
 export type ListModelQueryResponse = Response<Array<ListModel>>
+
+export type ListCompany = {
+  company_id?: ID,
+  company_name?: string
+}
+
+export type ListCompanyQueryResponse = Response<Array<ListCompany>>
+
+export type ListDCStoreByComp = {
+  dcs: Array<ListDC>;
+  stores: Array<ListStore>;
+};
+
+export type ListDCStoreQueryResponse = Response<ListDCStoreByComp>

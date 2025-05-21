@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
-import { Asset, AssetQueryResponse, ListDCQueryResponse, ListStoreQueryResponse, ListBrandQueryResponse, ListModelQueryResponse, AssetLogQueryResponse } from "./_models";
+import { Asset, AssetQueryResponse, ListDCQueryResponse, ListStoreQueryResponse, ListBrandQueryResponse, ListModelQueryResponse, AssetLogQueryResponse, ListCompanyQueryResponse, ListDCStoreQueryResponse } from "./_models";
 import api from "../../../../../services/api"
 
 const ASSET_URL = `/asset`;
@@ -96,6 +96,24 @@ const downloadExcelFile = async (): Promise<void> => {
   }
 };
 
+const getListAllStore = (dc:number[]): Promise<ListStoreQueryResponse> => {
+  return api
+    .post(`/store/list-option`,{filter_dc:dc})
+    .then((d: AxiosResponse<ListStoreQueryResponse>) => {return d.data});
+}
+
+const getListAllDC = (comp:number[]): Promise<ListDCStoreQueryResponse> => {
+  return api
+    .post(`/dc/list-option`,{filter_comp:comp})
+    .then((d: AxiosResponse<ListDCStoreQueryResponse>) => {return d.data});
+}
+
+const getListCompany = (): Promise<ListCompanyQueryResponse> => {
+  return api
+    .get(`/company/list-option`)
+    .then((d: AxiosResponse<ListCompanyQueryResponse>) => {return d.data});
+}
+
 
 export {
   getAsset,
@@ -108,5 +126,8 @@ export {
   getListBrand,
   getListModel,
   downloadExcelFile,
-  uploadFile
+  uploadFile,
+  getListAllDC,
+  getListCompany,
+  getListAllStore
 };

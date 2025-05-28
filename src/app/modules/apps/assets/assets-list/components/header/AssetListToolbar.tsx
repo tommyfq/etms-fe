@@ -25,7 +25,7 @@ const AssetListToolbar = () => {
   };
 
   useEffect(() => {
-    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client"){
+    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client" || currentUser?.role_name == "client"){
       setReadOnly(false)
     }
   }, [])

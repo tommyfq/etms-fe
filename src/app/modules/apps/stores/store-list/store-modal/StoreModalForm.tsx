@@ -14,6 +14,7 @@ import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useAuth } from '../../../../../modules/auth'
+import { getListStore } from '../../../assets/assets-list/core/_requests'
 
 type Props = {
   isUserLoading: boolean
@@ -87,6 +88,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   const {currentUser} = useAuth()
   const [readOnly, setReadOnly] = useState<boolean>(true) 
+  const [dcReadOnly, setDCReadOnly] = useState<boolean>(false)
   
   const [userForEdit] = useState<Store>({
     ...store,
@@ -109,13 +111,29 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
         })) || []
         setDCOptions(formattedOptions)
 
+        if (currentUser?.role_name === "client") {
+          const dcId = currentUser?.dcs[0];
+          // Find the corresponding option in the newly fetched options
+          const selectedOption = formattedOptions.find(option => option.value === dcId);
+          
+          // Only set the value if the option exists
+          if (selectedOption) {
+            formik.setFieldValue('dc_id', dcId);
+          } else if (dcId) {
+            // If the DC ID exists but not in options, you might want to handle this case
+            console.warn(`DC with ID ${dcId} not found in available options`);
+          }
+
+          setDCReadOnly(true);
+        }
+
       } catch (error) {
         console.error('Error fetching agents:', error)
       }
     }
 
     fetchRole()
-    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client"){
+    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client" || currentUser?.role_name == "client"){
       setReadOnly(false)
     }
   }, [])
@@ -202,7 +220,7 @@ const StoreModalForm: FC<Props> = ({store, isUserLoading}) => {
                 options={dcOptions}
                 value={dcOptions.find(option => option.value === formik.values.dc_id) || null}
                 onChange={handleSelectChange}
-                isDisabled={readOnly}
+                isDisabled={dcReadOnly}
                 />
                 {formik.touched.dc_id && formik.errors.dc_id && (
                 <div className='fv-plugins-message-container'>

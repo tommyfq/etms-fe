@@ -99,6 +99,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
   const [isLoadingData, setIsLoadingData] = useState<boolean>(true)
   const {currentUser} = useAuth()
   const [readOnly, setReadOnly] = useState<boolean>(true) 
+  const [dcReadOnly, setDCReadOnly] = useState<boolean>(false) 
   
   const [userForEdit] = useState<Asset>({
     ...asset,
@@ -129,8 +130,35 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
         }));
         setDCOptions(formattedDCOptions)
 
-        if(asset?.dc_id != 0){
-            
+        if(currentUser?.role_name == "client"){
+
+          const dcId = currentUser?.dcs[0]
+          const selectedOption = formattedDCOptions?.find(option => option.value === dcId);
+
+          console.log(dcId);
+          console.log(selectedOption);
+
+          // Only set the value if the option exists
+          if (selectedOption) {
+            formik.setFieldValue('dc_id', dcId);
+          } else if (dcId) {
+            // If the DC ID exists but not in options, you might want to handle this case
+            console.warn(`DC with ID ${dcId} not found in available options`);
+          }
+
+          const stores = await getListStore(dcId ?? 0)
+          const formattedStoreOptions = stores.data?.map((store): Option => ({ 
+            value: store.store_id || 0,
+            label: store.store_name || "",
+          })) || []
+          console.log(formattedStoreOptions)
+          setStoreOptions(formattedStoreOptions)
+
+          setDCReadOnly(true)
+        }
+
+        if(asset.id != 0 && asset?.dc_id != 0){
+            console.log("MASUK SINI");
             const logs = await getAssetLogById(asset.id)
             const formattedLogs = logs.data?.map((log:AssetLog) => ({
               ticket_id: log.ticket_id,
@@ -192,7 +220,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
 
     fetchDC()
     //setUser(currentUser)
-    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client"){
+    if(currentUser?.role_name == "admin" || currentUser?.role_name == "super_client" || currentUser?.role_name == "client"){
       setReadOnly(false)
     }
   
@@ -383,7 +411,7 @@ const AssetModalForm: FC<Props> = ({asset, isUserLoading}) => {
                         options={dcOptions}
                         value={dcOptions?.find(option => option.value === formik.values.dc_id) || null}
                         onChange={handleSelectDCChange}
-                        isDisabled={readOnly}
+                        isDisabled={dcReadOnly}
                         />
                         {formik.touched.dc_id && formik.errors.dc_id && (
                         <div className='fv-plugins-message-container'>

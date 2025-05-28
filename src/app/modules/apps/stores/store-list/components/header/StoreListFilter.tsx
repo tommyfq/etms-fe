@@ -266,18 +266,22 @@ const StoreListFilter = () => {
               </div>
           }
 
-          <div className='mb-10'>
-            <label className='form-label fw-bold'>DC :</label>
-            <Select 
-                styles={customStyles} 
-                name="dc" 
-                options={dcOptions}
-                value={dcOptions.filter((option) => selectedDC?.includes(option.value))} // Ensure selected options are displayed
-                onChange={handleSelectChange}
-                isMulti={true}
-                isDisabled={isDisableDC}
-                />
-          </div>
+          {
+            role != "client" && 
+            <div className='mb-10'>
+              <label className='form-label fw-bold'>DC :</label>
+              <Select 
+                  styles={customStyles} 
+                  name="dc" 
+                  options={dcOptions}
+                  value={dcOptions.filter((option) => selectedDC?.includes(option.value))} // Ensure selected options are displayed
+                  onChange={handleSelectChange}
+                  isMulti={true}
+                  isDisabled={isDisableDC}
+                  />
+            </div>
+          }
+          
 
           {/* begin::Actions */}
           <div className='d-flex justify-content-end'>

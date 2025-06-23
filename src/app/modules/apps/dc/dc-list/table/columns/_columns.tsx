@@ -16,9 +16,14 @@ const companiesColumns: ReadonlyArray<Column<DC>> = [
 //     Cell: ({...props}) => <UserSelectionCell id={props.data[props.row.index].id} />,
 //   },
   {
+    Header: (props) => <DCCustomHeader tableProps={props} title='DC Code' className='min-w-125px' />,
+    id: 'dc_code',
+    Cell: ({...props}) => <DCInfoCell data={props.data[props.row.index].dc_code} />,
+  },
+  {
     Header: (props) => <DCCustomHeader tableProps={props} title='DC Name' className='min-w-125px' />,
     id: 'dc_name',
-    Cell: ({...props}) => <DCInfoCell dc={props.data[props.row.index]} />,
+    Cell: ({...props}) => <DCInfoCell data={props.data[props.row.index].dc_name} />,
   },
   {
     Header: (props) => (

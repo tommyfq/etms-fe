@@ -519,7 +519,7 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             </span>
                             {ticket.status === 'closed' && ticket.closed_at && (
                                 <span className='text-muted fw-bold ms-3'>
-                                    Closed: {moment(ticket.closed_at).format('YYYY-MM-DD HH:mm:ss')}
+                                    {moment(ticket.closed_at).format('YYYY-MM-DD HH:mm:ss')}
                                 </span>
                             )}
                             {user?.role_name == "client" && ticket.on_hold && 

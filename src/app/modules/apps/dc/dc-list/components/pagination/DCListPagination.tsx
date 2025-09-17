@@ -93,9 +93,21 @@ const DCListPagination = () => {
 
   const paginationLinks = useMemo(() => sliceLinks(pagination), [pagination])
 
+  const startEntry = (pagination.page - 1) * pagination.items_per_page + 1
+  const endEntry = Math.min(pagination.page * pagination.items_per_page, pagination.total || 0)
+  const totalEntries = pagination.total || 0
+
   return (
     <div className='row'>
-      <div className='col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start'></div>
+      <div className='col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start'>
+        <div className='dataTables_info'>
+          {totalEntries > 0 ? (
+            `Showing ${startEntry} to ${endEntry} of ${totalEntries} entries`
+          ) : (
+            'No entries to show'
+          )}
+        </div>
+      </div>
       <div className='col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'>
         <div id='kt_table_companies_paginate'>
           <ul className='pagination'>

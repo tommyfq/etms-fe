@@ -71,6 +71,8 @@ export type TicketDetail = {
     comment_internal_date?: string
     comment_internal_by?: string
     serial_number?:string
+    warranty_expired?: string
+    warranty_status?: string
     attachments?: TicketAttachment[]
     ticket_logs?: TicketLog[]
     swap_asset_id?:number,
@@ -107,6 +109,8 @@ export const initialTicket: TicketDetail = {
     comment_internal_date: "",
     comment_internal_by: "",
     serial_number:"",
+    warranty_status:"",
+    warranty_expired:"",
     attachments: [],
     ticket_logs:[],
     swap_asset_id:0,
@@ -120,6 +124,8 @@ export type Asset = {
     model?: string
     store_name?: string
     dc_name?: string
+    warranty_expired?: string
+    warranty_status?: string
 }
 
 export type AssetQueryResponse = Response<Array<Asset>>

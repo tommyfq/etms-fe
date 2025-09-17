@@ -13,6 +13,7 @@ import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import moment from 'moment'
 
 type Props = {
   isUserLoading: boolean
@@ -338,10 +339,21 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             </div>
                         </div>
 
-                        <div className='row'>
+                        <div className='row mb-3'>
                             <label className='col-lg-4 fw-bold text-muted'>Store</label>
                             <div className='col-lg-8'>
                                 <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.store_name}</span>
+                            </div>
+                        </div>
+
+                        <div className='row'>
+                            <label className='col-lg-4 fw-bold text-muted'>Warrant Expired</label>
+                            <div className='col-lg-8'>
+                                {/* <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.warranty_expired}</span> */}
+                                <span className='fw-bolder fs-6 text-gray-900'>{moment(selectedAsset.warranty_expired).format('YYYY-MM-DD HH:mm:ss')} 
+                                  {selectedAsset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}
+                                  {!selectedAsset.warranty_status && <div className='badge badge-light-danger fw-bolder'>Non Active</div>}
+                                </span>
                             </div>
                         </div>
                       </div>

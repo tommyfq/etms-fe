@@ -597,10 +597,21 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             </div>
                         </div>
 
-                        <div className='row'>
+                        <div className='row mb-3'>
                             <label className='col-lg-4 fw-bold text-muted'>Store</label>
                             <div className='col-lg-8'>
                                 <span className='fw-bolder fs-6 text-gray-900'>{selectedSwapAsset.store_name}</span>
+                            </div>
+                        </div>
+
+                        <div className='row'>
+                            <label className='col-lg-4 fw-bold text-muted'>Warrant Expired</label>
+                            <div className='col-lg-8'>
+                                {/* <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.warranty_expired}</span> */}
+                                <span className='fw-bolder fs-6 text-gray-900'>{moment(selectedSwapAsset.warranty_expired).format('YYYY-MM-DD HH:mm:ss')} 
+                                  {selectedSwapAsset.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}
+                                  {!selectedSwapAsset.warranty_status && <div className='badge badge-light-danger fw-bolder'>Non Active</div>}
+                                </span>
                             </div>
                         </div>
                       </div>
@@ -770,6 +781,18 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                                 <span className='fw-bolder fs-6 text-gray-900'>{ticket.store_name}</span>
                             </div>
                         </div>
+
+                        <div className='row mb-3'>
+                            <label className='col-lg-4 fw-bold text-muted'>Warrant Expired</label>
+                            <div className='col-lg-8'>
+                                {/* <span className='fw-bolder fs-6 text-gray-900'>{selectedAsset.warranty_expired}</span> */}
+                                <span className='fw-bolder fs-6 text-gray-900'>{moment(ticket.warranty_expired).format('YYYY-MM-DD HH:mm:ss')} 
+                                  {ticket.warranty_status && <div className='badge badge-light-success fw-bolder'>Active</div>}
+                                  {!ticket.warranty_status && <div className='badge badge-light-danger fw-bolder'>Non Active</div>}
+                                </span>
+                            </div>
+                        </div>
+
                         <div className='row'>
                             <label className='col-lg-4 fw-bold text-muted'>History Asset Log</label>
                             <div className='col-lg-8'>

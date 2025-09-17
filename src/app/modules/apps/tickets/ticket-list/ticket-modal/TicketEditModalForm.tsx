@@ -16,6 +16,7 @@ import { useAuth, AuthModelUser } from '../../../../auth'
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useNavigate } from "react-router-dom";
+import moment from 'moment';
 
 type Props = {
   isUserLoading: boolean
@@ -516,6 +517,11 @@ const TicketEditModalForm: FC<Props> = ({ticket, isUserLoading}) => {
                             <span className={`badge badge-light-${ticket.status === 'open' ? 'info' : ticket.status === 'in progress' ? 'warning' : ticket.status === 'closed' ? 'success' : 'danger'} fw-bolder me-auto px-4 py-3`}>
                                 {ticket.status}
                             </span>
+                            {ticket.status === 'closed' && ticket.closed_at && (
+                                <span className='text-muted fw-bold ms-3'>
+                                    Closed: {moment(ticket.closed_at).format('YYYY-MM-DD HH:mm:ss')}
+                                </span>
+                            )}
                             {user?.role_name == "client" && ticket.on_hold && 
                             <span className={`badge badge-light-danger fw-bolder me-auto px-4 py-3`}>
                                 On Hold

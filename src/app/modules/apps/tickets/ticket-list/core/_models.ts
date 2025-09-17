@@ -63,15 +63,16 @@ export type TicketDetail = {
     cc?: string
     created_by?: string
     due_date?: string
+    closed_at?: string
     comment_client?: string
     comment_client_date?: string
     comment_client_by?: string
     comment_internal?: string
     comment_internal_date?: string
-    comment_internal_by?: string,
-    serial_number?:string,
+    comment_internal_by?: string
+    serial_number?:string
     attachments?: TicketAttachment[]
-    ticket_logs?: TicketLog[],
+    ticket_logs?: TicketLog[]
     swap_asset_id?:number,
     customer_reference_no?: string
 }
@@ -98,6 +99,7 @@ export const initialTicket: TicketDetail = {
     cc:"",
     created_by: "",
     due_date: "",
+    closed_at: "",
     comment_client: "",
     comment_client_date: "",
     comment_client_by: "",

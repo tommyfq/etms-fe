@@ -1,13 +1,13 @@
 import clsx from 'clsx'
 import {KTIcon, toAbsoluteUrl} from '../../../helpers'
-import {HeaderNotificationsMenu, HeaderUserMenu} from '../../../partials'
+import {HeaderUserMenu} from '../../../partials'
 import {useLayout} from '../../core'
 import { useAuth, AuthModelUser } from '../../../../app/modules/auth'
 import {useState , useEffect} from 'react'
 
 const itemClass = 'ms-1 ms-md-4'
-const btnClass =
-  'btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px'
+// const btnClass =
+//   'btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px'
 const userAvatarClass = 'symbol-35px'
 const btnIconClass = 'fs-2'
 
@@ -33,7 +33,7 @@ const Navbar = () => {
         </div>
       </div> */}
 
-      <div className={clsx('app-navbar-item', itemClass)}>
+      {/* <div className={clsx('app-navbar-item', itemClass)}>
         <div
           data-kt-menu-trigger="{default: 'click'}"
           data-kt-menu-attach='parent'
@@ -43,7 +43,7 @@ const Navbar = () => {
           <KTIcon iconName='information' className={btnIconClass} />
         </div>
         <HeaderNotificationsMenu />
-      </div>
+      </div> */}
 
       {/* <div className={clsx('app-navbar-item', itemClass)}>
         <div className={clsx('position-relative', btnClass)} id='kt_drawer_chat_toggle'>

@@ -54,9 +54,9 @@ const ChangePassword: FC = () => {
           confirmPassword: values.confirmPassword,
         })
         
-        if (response) {
-          handleAlert({is_ok: response.is_ok, message: response.message})
-          if(response.is_ok){
+        if (response && response.data) {
+          handleAlert(response.data)
+          if(response.data.is_ok){
             resetForm()
           }
         }

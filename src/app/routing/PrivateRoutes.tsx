@@ -9,6 +9,7 @@ import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 import { useAuth } from '../modules/auth'
 
+
 const PrivateRoutes = () => {
   const { currentUser } = useAuth()
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -27,6 +28,7 @@ const PrivateRoutes = () => {
   const ReportPage = lazy(() => import('../modules/apps/reporting/ReportingPage'))
   const CaseCategoryPage = lazy(() => import('../modules/apps/case-category/CaseCategoryPage'))
   const PartsPage = lazy(() => import('../modules/apps/parts/PartsPage'))
+  const MyProfilePage = lazy(() => import('../modules/my-profile/MyProfilePage'))
 
   return (
     <Routes>
@@ -167,6 +169,16 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
+
+        <Route
+          path='/apps/account/*'
+          element={
+            <SuspensedView>
+              <MyProfilePage />
+            </SuspensedView>
+          }
+        />
+        
         
         {/* Page Not Found */}
         {/* <Route path='*' element={<Navigate to='/error/404' />} /> */}

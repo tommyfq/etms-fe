@@ -31,7 +31,7 @@ const TicketsPage = () => {
           }
         />
       </Route>
-      <Route index element={<Navigate to='/apps/user-management/users' />} />
+      <Route index element={<Navigate to='/apps/tickets/list' />} />
     </Routes>
   )
 }

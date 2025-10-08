@@ -15,6 +15,7 @@ export interface AuthModelUser {
   role_name: string;
   company_id: number;
   dcs: number[];
+  avatar: string;
 }
 
 export interface UserAddressModel {

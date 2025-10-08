@@ -14,7 +14,8 @@ export type User = {
   role_name?: string,
   is_active?: boolean,
   dcs?:number[],
-  company_id?:number
+  company_id?:number,
+  avatar?:string
 }
 
 export type UsersQueryResponse = Response<Array<User>>
@@ -29,7 +30,8 @@ export const initialUser: User = {
     role_id: 0,
     is_active: true,
     dcs:[],
-    company_id:0
+    company_id:0,
+    avatar:""
 }
 
 export type ListRole = {

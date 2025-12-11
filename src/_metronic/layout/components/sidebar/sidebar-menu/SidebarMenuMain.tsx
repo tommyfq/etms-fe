@@ -193,6 +193,12 @@ const SidebarMenuMain = () => {
             title='Parts'
             fontIcon='bi-card-list'
           />
+          <SidebarMenuItem
+            to='apps/holidays/list'
+            icon='calendar'
+            title='Holidays'
+            fontIcon='bi-card-list'
+          />
       </>
       }
       

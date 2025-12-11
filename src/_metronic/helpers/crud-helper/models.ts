@@ -23,6 +23,8 @@ export type SearchState = {
 }
 
 export type Response<T> = {
+  message: string
+  is_ok: boolean
   data?: T
   payload?: {
     message?: string

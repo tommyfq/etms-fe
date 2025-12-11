@@ -77,8 +77,8 @@ const CardsWidget17: FC<Props> = ({
               }  
               className={`fs-5 text-${(slaTicket?.sla_performed ?? 0) > (slaTicket?.sla_not_performed ?? 0) ? 'success' : 'danger'} ms-n1`} /> {
                   (slaTicket?.sla_performed ?? 0) > (slaTicket?.sla_not_performed ?? 0) ? 
-                ((slaTicket?.sla_performed ?? 0) / (slaTicket?.total_tickets ?? 0)) * 100 : 
-                ((slaTicket?.sla_not_performed ?? 0) / (slaTicket?.total_tickets ?? 0)) * 100
+                (((slaTicket?.sla_performed ?? 0) / (slaTicket?.total_tickets ?? 0)) * 100).toFixed(2) : 
+                (((slaTicket?.sla_not_performed ?? 0) / (slaTicket?.total_tickets ?? 0)) * 100).toFixed(2)
               }%
             </span>
             )}

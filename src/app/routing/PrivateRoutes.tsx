@@ -25,6 +25,7 @@ const PrivateRoutes = () => {
   const TicketPage = lazy(() => import('../modules/apps/tickets/TicketPage'))
   const RolePage = lazy(() => import('../modules/apps/roles/RolePage'))
   const ItemsPage = lazy(() => import('../modules/apps/items/ItemsPage'))
+  const HolidaysPage = lazy(() => import('../modules/apps/holidays/HolidaysPage'))
   const ReportPage = lazy(() => import('../modules/apps/reporting/ReportingPage'))
   const CaseCategoryPage = lazy(() => import('../modules/apps/case-category/CaseCategoryPage'))
   const PartsPage = lazy(() => import('../modules/apps/parts/PartsPage'))
@@ -98,6 +99,12 @@ const PrivateRoutes = () => {
           <Route path='apps/items/*' element={<SuspensedView><ItemsPage /></SuspensedView>}/>
         ) : (
           <Route path='apps/items/*' element={<Navigate to='/dashboard' />} />
+        )}
+
+        {currentUser?.role_name == 'admin' ? (
+          <Route path='apps/holidays/*' element={<SuspensedView><HolidaysPage /></SuspensedView>}/>
+        ) : (
+          <Route path='apps/holidays/*' element={<Navigate to='/dashboard' />} />
         )}
 
         {currentUser?.role_name == 'admin' ? (

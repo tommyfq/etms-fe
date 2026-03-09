@@ -81,12 +81,11 @@ const TicketListFilter = () => {
     const initialStatus = searchParams.get('status') || undefined
 
     useEffect(() => {
-        // const handleClickOutside = (event:any) => {
-        //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        //         setOpenMenu(false); // Close menu
-        //         //setOpenSubMenu(false); // Also close sub-menu
-        //     }
-        // };
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenMenu(false); // Close menu
+            }
+        };
 
         const fetchRole = async () => {
           try {
@@ -104,16 +103,6 @@ const TicketListFilter = () => {
             if(initialStatus != ""){
               setSelectedStatus(initialStatus)
             }
-
-            // const dcs = await getListAllDC([])
-            // const formattedOptions = dcs.data?.map((r): Option => {
-            //   return {
-            //     value: r.dc_id || 0,
-            //     label: r.dc_name || "",
-            //   }
-            // }) || []
-            // console.log(formattedOptions)
-            // setDCOptions(formattedOptions)
     
           } catch (error) {
             console.error('Error fetching agents:', error)
@@ -122,12 +111,12 @@ const TicketListFilter = () => {
     
         fetchRole()
 
-        // document.addEventListener('mousedown', handleClickOutside);
-        // return () => {
-        //     document.removeEventListener('mousedown', handleClickOutside);
-        // };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+             document.removeEventListener('mousedown', handleClickOutside);
+        };
         
-    }, []);
+    }, [initialStatus]);
 
     const resetData = () => {
         setSelectedPart(null)

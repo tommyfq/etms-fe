@@ -25,7 +25,7 @@ const MyProfileHeader: FC = () => {
                     }
                     to='/apps/account/settings'
                   >
-                    Settings
+                    Account Settings
                   </Link>
                 </li>
                 <li className='nav-item'>

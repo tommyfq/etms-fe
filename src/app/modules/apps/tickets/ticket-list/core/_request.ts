@@ -19,8 +19,8 @@ const getTicketById = (id: ID): Promise<TicketDetail | undefined> => {
 const createTicket = (ticket: FormData): Promise<any> => {
   return api
     .post(`/ticket/create`, ticket)
-    .then((response: AxiosResponse<Response<Ticket>>) => {return response.data})
-    //.then((response: Response<Company>) => response.data);
+    .then((response: AxiosResponse<Response<Ticket>>) => { return response.data })
+  //.then((response: Response<Company>) => response.data);
 };
 
 const updateTicket = (Store: TicketDetail): Promise<any | undefined> => {
@@ -30,50 +30,58 @@ const updateTicket = (Store: TicketDetail): Promise<any | undefined> => {
 };
 
 const getListAsset = (): Promise<AssetQueryResponse> => {
-    return api
-      .get(`/asset/list-option`)
-      .then((d: AxiosResponse<AssetQueryResponse>) => {
-        return d.data
+  return api
+    .get(`/asset/list-option`)
+    .then((d: AxiosResponse<AssetQueryResponse>) => {
+      return d.data
     });
-  }
+}
 
-  const getListPart = (): Promise<PartQueryResponse> => {
-    return api
-      .get(`/ticket/list-parts`)
-      .then((d: AxiosResponse<PartQueryResponse>) => {
-        return d.data
+const checkAssetBySerialNumber = (serialNumber: string): Promise<AssetQueryResponse> => {
+  return api
+    .post(`/asset/check-serial-number`, { serial_number: serialNumber }) // Adjust endpoint route if needed based on backend
+    .then((d: AxiosResponse<AssetQueryResponse>) => {
+      return d.data
     });
-  }
+}
 
-  const getListDiagnostics = (): Promise<DiagnosticQueryResponse> => {
-    return api
-      .get(`/ticket/list-diagnostics`)
-      .then((d: AxiosResponse<DiagnosticQueryResponse>) => {
-        return d.data
+const getListPart = (): Promise<PartQueryResponse> => {
+  return api
+    .get(`/ticket/list-parts`)
+    .then((d: AxiosResponse<PartQueryResponse>) => {
+      return d.data
     });
-  }
+}
 
-  const getListStatus = (): Promise<StatusQueryResponse> => {
-    return api
-      .get(`/ticket/list-status`)
-      .then((d: AxiosResponse<StatusQueryResponse>) => {
-        return d.data
+const getListDiagnostics = (): Promise<DiagnosticQueryResponse> => {
+  return api
+    .get(`/ticket/list-diagnostics`)
+    .then((d: AxiosResponse<DiagnosticQueryResponse>) => {
+      return d.data
     });
-  }
+}
 
-  const getOverview = (): Promise<OverviewTicketQueryResponse> => {
-    return api
-      .get(`/ticket/overview`)
-      .then((d: AxiosResponse<OverviewTicketQueryResponse>) => {
-        return d.data
+const getListStatus = (): Promise<StatusQueryResponse> => {
+  return api
+    .get(`/ticket/list-status`)
+    .then((d: AxiosResponse<StatusQueryResponse>) => {
+      return d.data
     });
-  }
+}
 
-  const getAssetLogById = (id: ID): Promise<AssetLogQueryResponse> => {
-    return api
-      .get(`/asset/detail-log/${id}`)
-      .then((response: AxiosResponse<AssetLogQueryResponse>) => response.data)
-  };
+const getOverview = (): Promise<OverviewTicketQueryResponse> => {
+  return api
+    .get(`/ticket/overview`)
+    .then((d: AxiosResponse<OverviewTicketQueryResponse>) => {
+      return d.data
+    });
+}
+
+const getAssetLogById = (id: ID): Promise<AssetLogQueryResponse> => {
+  return api
+    .get(`/asset/detail-log/${id}`)
+    .then((response: AxiosResponse<AssetLogQueryResponse>) => response.data)
+};
 
 // const uploadFile = (formData: any): Promise<any | undefined> => {
 //   return api
@@ -91,14 +99,15 @@ const getListAsset = (): Promise<AssetQueryResponse> => {
 // };
 
 export {
-    getAssetLogById,
-    getTicket,
-    getTicketById,
-    createTicket,
-    updateTicket,
-    getListAsset,
-    getListPart,
-    getListDiagnostics,
-    getListStatus,
-    getOverview
+  getAssetLogById,
+  getTicket,
+  getTicketById,
+  createTicket,
+  updateTicket,
+  getListAsset,
+  checkAssetBySerialNumber,
+  getListPart,
+  getListDiagnostics,
+  getListStatus,
+  getOverview
 };

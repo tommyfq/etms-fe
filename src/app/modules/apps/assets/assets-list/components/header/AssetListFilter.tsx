@@ -109,19 +109,18 @@ const AssetListFilter = () => {
             fetchDC()
         }
 
-        // const handleClickOutside = (event:any) => {
-        //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        //         setOpenMenu(false); // Close menu
-        //         //setOpenSubMenu(false); // Also close sub-menu
-        //     }
-        // };
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenMenu(false); // Close menu
+            }
+        };
 
         initialFetchData()
 
-        // document.addEventListener('mousedown', handleClickOutside);
-        // return () => {
-        //     document.removeEventListener('mousedown', handleClickOutside);
-        // };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
         
     }, []);
 

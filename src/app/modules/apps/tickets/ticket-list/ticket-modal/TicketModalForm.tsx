@@ -1,14 +1,14 @@
 
-import {FC, useState, useEffect, CSSProperties } from 'react'
+import React, {FC, useState, useEffect, CSSProperties } from 'react'
 import * as Yup from 'yup'
 import clsx from 'clsx'
 import {useFormik} from 'formik'
-import Select, { StylesConfig, ActionMeta, SingleValue }  from 'react-select'
+
 import { useDropzone } from 'react-dropzone'
 import {TicketDetail, initialTicket, Asset} from '../core/_models'
 import {useListView} from '../core/ListViewProvider'
 import {useQueryResponse} from '../core/QueryResponseProvider'
-import {createTicket, getListAsset } from '../core/_request'
+import {createTicket, checkAssetBySerialNumber } from '../core/_request'
 import {ModalResultForm} from '../../../../../components/ModalResultForm'
 import {TableListLoading} from '../../../../../components/TableListLoading'
 import Swal, { SweetAlertIcon } from "sweetalert2";
@@ -22,51 +22,7 @@ type Props = {
 
 const MySwal = withReactContent(Swal);
 
-type Option = { value: number; label: string };
 
-const customStyles: StylesConfig<Option, false> = {
-  control: (provided, state) => ({
-    ...provided,
-    backgroundColor: '#f8f9fa',
-    border: state.isFocused ? '0px solid #DBDFE9' : '0px solid #DBDFE9',
-    boxShadow: 'none',
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '14px',
-    fontWeight: '600',
-    color:'#99a1b7',
-  }),
-  menu: (provided) => ({
-    ...provided,
-    position: 'absolute',
-    zIndex: 9999,
-    borderRadius: '4px',
-    border: '1px solid #ced4da',
-    marginTop: '0',
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '13px',
-    fontWeight: '400',
-    //color:'#99a1b7',
-  }),
-  menuPortal: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-    position: 'fixed', // Make the dropdown menu fixed
-    top: `${provided.top}px`, // Use calculated position from react-select
-    left: `${provided.left}px`, // Use calculated position from react-select
-    width: provided.width,  // Ensure the width matches the control
-    //color:'#99a1b7',
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    fontFamily: 'Inter, Helvetica, sans-serif',
-    fontSize: '13px',
-    fontWeight: '400',
-    color:'#99a1b7',
-  }),
-  indicatorSeparator: () => ({
-    display: 'none'  // Remove the vertical line before the dropdown arrow
-  })
-};
 
 const styles: { 
   dropzone: CSSProperties; 
@@ -120,13 +76,15 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
   const {setItemIdForUpdate} = useListView()
 
   const {refetch} = useQueryResponse()
-  const [assetOptions, setAssetOptions] = useState<Option[]>([])
-  const [assetList, setAssetList] = useState<Asset[]>()
   const [selectedAsset, setSelectedAsset] = useState<Asset>()
   
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const [resultResponse, setResultResponse] = useState<{is_ok:boolean, message:string}>({is_ok:false,message:""})
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // State to store uploaded files
+  
+  const [inputSerialNumber, setInputSerialNumber] = useState<string>("")
+  const [isValidSerialNumber, setIsValidSerialNumber] = useState<boolean | null>(null)
+  const [isCheckingSerialNumber, setIsCheckingSerialNumber] = useState<boolean>(false)
   
   const [userForEdit] = useState<TicketDetail>({
     ...ticket,
@@ -141,17 +99,18 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
 
   useEffect(() => {
     const fetchAsset = async () => {
-      try {
-        const assets = await getListAsset()
-        const formattedOptions = assets.data?.map((asset): Option => ({ 
-          value: asset.asset_id || 0,
-          label: asset.brand + " " + asset.model + " | "+asset.serial_number,
-        })) || []
-        setAssetOptions(formattedOptions)
-        setAssetList(assets.data)
-
-      } catch (error) {
-        console.error('Error fetching agents:', error)
+      // Pre-fill if editing an existing ticket
+      if (ticket.asset_id) {
+         try {
+            // Ideally backend provides getTicket returned with full asset details, 
+            // but if we only have the asset ID, we might need a getAssetById if required. 
+            // Since we need serial_number to display, if `ticket` has asset details, set them here.
+            // If ticket.asset_id exists but no serial number is provided in ticket detail, 
+            // we won't be able to pre-fill the text input without an ID lookup.
+            // For now, assuming ticket details has what we need or we start blank.
+         } catch (error) {
+           console.error('Error fetching agents:', error)
+         }
       }
     }
 
@@ -211,18 +170,53 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
     },
   })
 
-  const handleSelectChange = (
-    selectedOption: SingleValue<Option>, // Use SingleValue to allow for null
-    actionMeta: ActionMeta<Option>
-  ) => {
-    console.log(actionMeta)
-    formik.setFieldValue('asset_id', selectedOption ? selectedOption.value : null);
-    const selected = assetList?.find((a) => {
-      return a.asset_id == selectedOption?.value
-    })
 
-    setSelectedAsset(selected)
-  };
+
+  const handleCheckSerialNumber = async () => {
+    if (!inputSerialNumber.trim()) {
+      setIsValidSerialNumber(null)
+      setSelectedAsset(undefined)
+      formik.setFieldValue('asset_id', null)
+      return
+    }
+
+    setIsCheckingSerialNumber(true)
+    
+    try {
+      const response = await checkAssetBySerialNumber(inputSerialNumber.trim())
+      
+      // Assuming response.data is an array and we take the exact match
+      // Or if the backend returns a single object when checking by serial
+      // Modify this logic depending on how checkAssetBySerialNumber returns data
+      const matchedAsset = Array.isArray(response.data) 
+        ? response.data.find(a => a.serial_number?.toLowerCase() === inputSerialNumber.trim().toLowerCase())
+        : response.data; // if it returns a single asset directly
+
+      if (matchedAsset && (matchedAsset as Asset).asset_id) {
+        setIsValidSerialNumber(true)
+        setSelectedAsset(matchedAsset as Asset)
+        formik.setFieldValue('asset_id', (matchedAsset as Asset).asset_id)
+      } else {
+        setIsValidSerialNumber(false)
+        setSelectedAsset(undefined)
+        formik.setFieldValue('asset_id', null)
+      }
+    } catch (error) {
+      console.error("Error checking serial number", error)
+      setIsValidSerialNumber(false)
+      setSelectedAsset(undefined)
+      formik.setFieldValue('asset_id', null)
+    } finally {
+      setIsCheckingSerialNumber(false)
+    }
+  }
+
+  const handleSerialNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputSerialNumber(e.target.value)
+    setIsValidSerialNumber(null)
+    setSelectedAsset(undefined)
+    formik.setFieldValue('asset_id', null)
+  }
 
   const onDrop = (acceptedFiles: File[]) => {
     if (uploadedFiles.length + acceptedFiles.length > 10) {
@@ -294,15 +288,44 @@ const TicketModalForm: FC<Props> = ({ticket, isUserLoading}) => {
             <div className='row mb-7'>
                 <div className="col-12 col-md-6">
                   <div className="fv-row">
-                    <label className='required form-label fw-bold'>Asset</label>
-                    <Select 
-                    styles={customStyles} 
-                    name="dc_id" 
-                    options={assetOptions}
-                    value={assetOptions.find(option => option.value === formik.values.asset_id) || null}
-                    onChange={handleSelectChange}
-                    />
-                    {formik.touched.asset_id && formik.errors.asset_id && (
+                    <label className='required form-label fw-bold'>Asset Serial Number</label>
+                    <div className='d-flex'>
+                      <input
+                        type="text"
+                        className={clsx(
+                          'form-control form-control-solid me-2',
+                          {'is-invalid': (formik.touched.asset_id && formik.errors.asset_id) || isValidSerialNumber === false},
+                          {'is-valid': isValidSerialNumber === true}
+                        )}
+                        placeholder="Enter Asset Serial Number"
+                        value={inputSerialNumber}
+                        onChange={handleSerialNumberChange}
+                        disabled={formik.isSubmitting || isUserLoading}
+                      />
+                        <button 
+                        type="button" 
+                        className="btn btn-primary"
+                        onClick={handleCheckSerialNumber}
+                        disabled={formik.isSubmitting || isUserLoading || isCheckingSerialNumber || !inputSerialNumber.trim()}
+                      >
+                        {isCheckingSerialNumber ? (
+                          <span className='indicator-progress' style={{display: 'block'}}>
+                            Please wait...{' '}
+                            <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                          </span>
+                        ) : (
+                          <span className='indicator-label'>Check</span>
+                        )}
+                      </button>
+                    </div>
+                    {isValidSerialNumber === false && (
+                      <div className='fv-plugins-message-container'>
+                        <div className='fv-help-block'>
+                          <span role='alert' className="text-danger mt-2 d-block">Invalid Serial Number</span>
+                        </div>
+                      </div>
+                    )}
+                    {formik.touched.asset_id && formik.errors.asset_id && isValidSerialNumber !== false && (
                     <div className='fv-plugins-message-container'>
                         <div className='fv-help-block'>
                         <span role='alert'>{formik.errors.asset_id}</span>

@@ -72,6 +72,24 @@ const ReportingListFilter = () => {
     const [selectedMonth, setSelectedMonth] = useState<string>("")
 
     useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenMenu(false);
+            }
+        };
+
+        if (openMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openMenu]);
+
+    useEffect(() => {
         // Fetch data from API
         const fetchData = async () => {
           try {

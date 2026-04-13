@@ -2,6 +2,7 @@ import { AxiosResponse } from "axios";
 import { ID, Response } from "../../../../../../_metronic/helpers";
 import { TicketQueryResponse, Ticket, TicketDetail, AssetQueryResponse, OverviewTicketQueryResponse, PartQueryResponse, StatusQueryResponse, DiagnosticQueryResponse, AssetLogQueryResponse } from "./_models";
 import api from "../../../../../services/api"
+import moment from 'moment';
 
 const getTicket = (query: string): Promise<TicketQueryResponse> => {
   return api
@@ -98,6 +99,37 @@ const getAssetLogById = (id: ID): Promise<AssetLogQueryResponse> => {
 //   return api.all(requests).then(() => {});
 // };
 
+const downloadExcelFile = async (year:string, month:string): Promise<void> => {
+  try {
+    const timestamp = moment().format("YYYYMMDDHHmmss");
+
+    const response = await api.post('/ticket/download', 
+      {filter_year:year, filter_month:month},
+      { responseType: 'blob', }// Important to specify the response type
+    );
+
+    // Create a blob from the response data
+    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    // Create a link element
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = 'ticket_data_' + timestamp + '.xlsx'; // Name the downloaded file
+
+    // Append to the document body
+    document.body.appendChild(link);
+
+    // Trigger the download by simulating click
+    link.click();
+
+    // Clean up and remove the link
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    // Handle error appropriately (e.g., show an alert to the user)
+  }
+};
+
 export {
   getAssetLogById,
   getTicket,
@@ -109,5 +141,6 @@ export {
   getListPart,
   getListDiagnostics,
   getListStatus,
-  getOverview
+  getOverview,
+  downloadExcelFile
 };
